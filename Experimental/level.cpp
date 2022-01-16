@@ -21,6 +21,7 @@ Level::Level(int number)
     boxes = Boxes("levels/level" + str + "/entities.json");
 }
 
+
 //Gameplay
 void Level::input(char action)
 {
@@ -86,7 +87,9 @@ void Level::swap()
     
 }
 
+
 //Logic
+
 
 //Display
 void Level::display(sf::RenderWindow * windowP)

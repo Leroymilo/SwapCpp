@@ -97,9 +97,9 @@ void Grid::getDisplay(sf::Vector2i* C0, int* deltaP)
     *deltaP = delta;
 }
 
-Grid::~Grid()
-{
-    for(int i = 0; i < h; i++)
-        delete[] this->tiles[i];
-    delete[] this->tiles;
-}
+// Grid::~Grid()
+// {
+//     for(int i = 0; i < h; i++)
+//         delete[] this->tiles[i];
+//     delete[] this->tiles;
+// }
