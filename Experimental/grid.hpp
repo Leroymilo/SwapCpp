@@ -21,6 +21,7 @@ class Grid
 
         void display(sf::RenderWindow* windowPoint);
         void getDisplay(sf::Vector2i* C0, int* deltaP);
+        ~Grid();
 };
 
 #endif //GRID_H
