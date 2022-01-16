@@ -42,8 +42,8 @@ class Boxes     //list of boxes (simple entities)
     
     public:
         Boxes();
-        Boxes(std::string directory);
-        Entity getBox(sf::Vector2i coords, bool* hasBox);
+        void readFile(std::string directory);
+        Entity* getBox(sf::Vector2i coords, bool* hasBox);
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
 };
 

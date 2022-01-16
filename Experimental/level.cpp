@@ -16,9 +16,9 @@ Level::Level(int number)
     ss << std::setfill('0') << std::setw(3) << number;
     std::string str = ss.str();
 
-    backGround = Grid("levels/level" + str + "/bg.json");
+    backGround.readFile("levels/level" + str + "/bg.json");
     Player = PlayerLike("levels/level" + str + "/entities.json", "player");
-    boxes = Boxes("levels/level" + str + "/entities.json");
+    boxes.readFile("levels/level" + str + "/entities.json");
 }
 
 
@@ -40,6 +40,13 @@ bool Level::isWallForPlayer(sf::Vector2i coords)
     return false;
 }
 
+bool Level::isWallForBox(sf::Vector2i coords)
+{
+    if (backGround.getTile(coords) == 'X' or backGround.getTile(coords) == 'x' or backGround.getTile(coords) == 'T')
+        return true;
+    return false;
+}
+
 void Level::push(char direction)
 {
     Player.direction = direction;
@@ -51,9 +58,9 @@ void Level::push(char direction)
     if (!isBlocked)
     {
         bool boxBlocked;
-        Entity box = boxes.getBox(newCoords, &boxBlocked);
+        Entity* boxP = boxes.getBox(newCoords, &boxBlocked);
         if (boxBlocked)
-            isBlocked = boxPush(box, direction);
+            isBlocked = boxPush(boxP, direction);
     }
 
     //Updating the coords if nothing is blocking:
@@ -61,24 +68,24 @@ void Level::push(char direction)
         Player.C = newCoords;
 }
 
-bool Level::boxPush(Entity pusher, char direction)
+bool Level::boxPush(Entity* pusher, char direction)
 {
-    sf::Vector2i newCoords = pusher.getNextPos(direction);
+    sf::Vector2i newCoords = pusher->getNextPos(direction);
     //Checking if there's a wall blocking :
-    bool isBlocked = isWallForPlayer(newCoords);
+    bool isBlocked = isWallForBox(newCoords);
 
     //Checking if there's a box blocking :
     if (!isBlocked)
     {
         bool boxBlocked;
-        Entity box = boxes.getBox(newCoords, &boxBlocked);
+        Entity* boxP = boxes.getBox(newCoords, &boxBlocked);
         if (boxBlocked)
-            isBlocked = boxPush(box, direction);
+            isBlocked = boxPush(boxP, direction);
     }
 
     //Updating the coords if nothing is blocking:
     if (!isBlocked)
-        pusher.C = newCoords;
+        pusher->C = newCoords;
     return isBlocked;
 }
 

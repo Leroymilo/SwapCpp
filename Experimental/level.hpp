@@ -15,8 +15,8 @@ class Level
         Boxes boxes;
         Grid backGround;
 
-        bool boxPush(Entity pusher, char direction);//Recursive calls of the pushing function
-        bool pLikePush(PlayerLike psuher, char direction);  
+        bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
+        bool pLikePush(PlayerLike* pusher, char direction);  
         //End call for the pushing function : if a box pushes a monster or the bullet
 
     public:

@@ -8,7 +8,7 @@ float wasLeftPressed = false;
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(500, 500), "SWAP!");
-    Level level(2);
+    Level level(1);
 
     while (window.isOpen())
     {

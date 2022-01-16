@@ -84,7 +84,7 @@ void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 //Methods for Boxes
 Boxes::Boxes(){}
 
-Boxes::Boxes(std::string directory)
+void Boxes::readFile(std::string directory)
 {
     std::ifstream file(directory);
     Json::Value actualJson;
@@ -98,7 +98,7 @@ Boxes::Boxes(std::string directory)
     sf::Texture sprite;
     sprite.loadFromFile("assets/Entities/Box.png");
 
-    for (int i; i<nbBoxes; i++)
+    for (int i=0; i<nbBoxes; i++)
     {
         sf::Vector2i C(actualJson["Boxes"][i]["BoxX"].asInt(), actualJson["Boxes"][i]["BoxY"].asInt());
         list[i] = Entity(C, sprite);
@@ -106,21 +106,23 @@ Boxes::Boxes(std::string directory)
     }
 }
 
-Entity Boxes::getBox(sf::Vector2i coords, bool* hasBox)
+Entity* Boxes::getBox(sf::Vector2i coords, bool* hasBox)
 {
-    for (int iBox; iBox<nbBoxes; iBox++)
+    for (int iBox=0; iBox<nbBoxes; iBox++)
     {
         if (listAlive[iBox] && list[iBox].C == coords)
+        {
             *hasBox = true;
-            return list[iBox];
+            return &list[iBox];
+        }
     }
     *hasBox = false;
-    return Entity();
+    return &list[0];
 }
 
 void Boxes::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
-    for (int iBox; iBox<nbBoxes; iBox++)
+    for (int iBox=0; iBox<nbBoxes; iBox++)
     {
         if (listAlive[iBox])
             list[iBox].draw(C0, delta, windowPoint);

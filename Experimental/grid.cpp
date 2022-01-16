@@ -8,23 +8,7 @@
 
 Grid::Grid(){}
 
-Grid::Grid(const int h, const int w, char defCol)
-{
-    this->h = h;
-    this->w = w;
-    tiles = new char * [h];
-    char * colorLine;
-
-    for (int y=0; y<h; y++){
-        colorLine = new char [w];
-        for (int x=0; x<w; x++){
-            colorLine[x] = defCol;
-        }
-        tiles[y] = colorLine;
-    }
-}
-
-Grid::Grid(std::string directory)
+void Grid::readFile(std::string directory)
 {
     std::ifstream file(directory);
     Json::Value actualJson;
@@ -49,7 +33,6 @@ Grid::Grid(std::string directory)
         }
         tiles[y] = tileLine;
     }
-
 }
 
 char Grid::getTile(sf::Vector2i coords)
@@ -97,9 +80,9 @@ void Grid::getDisplay(sf::Vector2i* C0, int* deltaP)
     *deltaP = delta;
 }
 
-// Grid::~Grid()
-// {
-//     for(int i = 0; i < h; i++)
-//         delete[] this->tiles[i];
-//     delete[] this->tiles;
-// }
+Grid::~Grid()
+{
+    for(int i = 0; i < h; i++)
+        delete[] this->tiles[i];
+    delete[] this->tiles;
+}
