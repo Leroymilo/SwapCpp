@@ -1,0 +1,19 @@
+{
+    "PlayerX" : 3,
+    "PlayerY" : 5,
+    "nbBoxes" : 3,
+    "Boxes" : [
+        {
+            "BoxX" : 2,
+            "BoxY" : 2
+        },
+        {
+            "BoxX" : 3,
+            "BoxY" : 2
+        },
+        {
+            "BoxX" : 4,
+            "BoxY" : 2
+        }
+    ]
+}
