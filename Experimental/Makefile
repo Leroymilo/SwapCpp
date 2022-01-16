@@ -1,5 +1,5 @@
 main.exe: main.o level.o grid.o entities.o
-	g++ main.o level.o grid.o entities.o json\json_reader.o json\json_value.o json\json_writer.o -o main -Lsrc\lib -lsfml-graphics -lsfml-window -lsfml-system
+	g++ main.o level.o grid.o entities.o src\json_reader.o src\json_value.o src\json_writer.o -o main -Lsrc\lib -lsfml-graphics -lsfml-window -lsfml-system
 
 main.o: main.cpp
 	g++ -Isrc\include -c main.cpp
