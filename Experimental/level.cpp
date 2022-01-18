@@ -24,22 +24,6 @@ Level::Level(int number)
 
 
 //Gameplay
-bool Level::input(char action)
-{
-    bool STEP = false;
-    char directions [] = {'U', 'R', 'D', 'L'};
-    char* end = directions+4;
-    if (std::find(directions, end, action) != end)
-        STEP = push(action);
-    else if (action == ' ')
-    {
-        std::cout << "Player alive : " << Palive << std::endl;
-        std::cout << "bullet alive : " << balive << std::endl;
-        STEP = swap();
-    }
-    return STEP;
-}
-
 bool Level::isWallForPlayer(sf::Vector2i coords)
 {
     if (backGround.getTile(coords) == 'X' or backGround.getTile(coords) == 'x' or backGround.getTile(coords) == 'T')
@@ -82,8 +66,10 @@ bool Level::push(char direction)
 
     //Updating the coords if nothing is blocking:
     if (!isBlocked)
+    {
         Player.C = newCoords;
         return true;
+    }
     return STEP;
 }
 
@@ -137,20 +123,23 @@ bool Level::swap()
     return true;
 }
 
-void Level::step()
+void Level::step(bool didSwap)
 {
-    if (balive)
+    if (!didSwap)
     {
-        sf::Vector2i newC = bullet.getNextPos();
-
-        if (isWallForBullet(newC))
+        if (balive)
         {
-            bullet.revert();
-            newC = bullet.getNextPos();
-        }
+            sf::Vector2i newC = bullet.getNextPos();
 
-        if (!isWallForBullet(newC))
-            bullet.C = newC;
+            if (isWallForBullet(newC))
+            {
+                bullet.revert();
+                newC = bullet.getNextPos();
+            }
+
+            if (!isWallForBullet(newC))
+                bullet.C = newC;
+        }
     }
 }
 

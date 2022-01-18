@@ -24,13 +24,12 @@ class Level
         Level(int number);
         Level copy();
 
-        bool input(char action);
         bool isWallForPlayer(sf::Vector2i coords);
         bool isWallForBullet(sf::Vector2i coords);
         bool isWallForBox(sf::Vector2i coords);
         bool push(char direction);  //First call of the pushing recursive function (the player pushes)
         bool swap();
-        void step();
+        void step(bool didSwap);
         void display(sf::RenderWindow * windowP);
 };
 

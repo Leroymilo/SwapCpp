@@ -2,23 +2,42 @@
 #include "level.hpp"
 #include <iostream>
 
-int W = 500, H = 500;
-float wasLeftPressed = false;
+bool keyChanged(int n, bool * newK, bool * oldK)
+{
+    for (int i = 0; i < n; i++)
+    {
+        if (newK[i] != oldK[i])
+            return true;
+    }
+    return false;
+}
 
 int main()
 {
+    //SFML stuff and level initialization :
     sf::RenderWindow window(sf::VideoMode(500, 500), "SWAP!");
+    sf::Clock clock;
     Level level(1);
+
+    //First draw :
     window.clear(sf::Color(0, 0, 120));
     level.display(&window);
-    sf::Clock clock;
-    float time = 0;
-    float deltaT = 0.2;
-    char input = 'N';   // 'N' will be treated as None input
+    
+    //Input handling :
+    float time = clock.getElapsedTime().asSeconds();
+    float deltaT = 0.15;
+    int nbKeys = 9;
+    sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
+    sf::Keyboard::Key::Space, sf::Keyboard::Key::Return, sf::Keyboard::Key::Enter, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
+    std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};
+    bool keysStates[] = {false, false, false, false, false, false, false, false, false};
+    bool oldKeysStates[] = {false, false, false, false, false, false, false, false, false};
 
+
+    //Gameplay variables :
     bool step = false;
     bool didSwap = false;
-    sf::Keyboard::Key prevKey;
+    char directions[] = {'U', 'R', 'D', 'L'};
 
     while (window.isOpen())
     {
@@ -33,60 +52,58 @@ int main()
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 window.setView(sf::View(view));
             }
-            else if (evnt.type == sf::Event::KeyReleased)
-            {
-                input = 'N';
-                time -= deltaT;
-            }
             else if (evnt.type == sf::Event::KeyPressed)
             {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+                for (int i = 0; i < nbKeys; i++)
                 {
-                    input = 'U';
-                    prevKey = sf::Keyboard::Key::Up;
+                    if (sf::Keyboard::isKeyPressed(keys[i]))
+                        keysStates[i] = true;
                 }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+            }
+            else if (evnt.type == sf::Event::KeyReleased)
+            {
+                for (int i = 0; i < nbKeys; i++)
                 {
-                    input = 'R';
-                    prevKey = sf::Keyboard::Key::Right;
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-                {
-                    input = 'D';
-                    prevKey = sf::Keyboard::Key::Down;
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-                {
-                    input = 'L';
-                    prevKey = sf::Keyboard::Key::Left;
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-                {
-                    input = ' ';
-                    prevKey = sf::Keyboard::Key::Space;
+                    if (!sf::Keyboard::isKeyPressed(keys[i]))
+                        keysStates[i] = false;
                 }
             }
         }
-        
 
-        //Avoiding multiple inputs in a row :
+        //Remove input delay if keys have changed :
+        if (keyChanged(nbKeys, oldKeysStates, keysStates))
+        {
+            time -= deltaT;
+            for (int i = 0; i < nbKeys; i++)
+            {
+                oldKeysStates[i] = keysStates[i];
+            }
+        }
+        
+        //Apply inputs :
         if (clock.getElapsedTime().asSeconds()-time > deltaT)
         {
-
             step = false;
             didSwap = false;
-            if (input != 'N')
+            for (int i = 0; i < nbKeys; i++)
             {
-                time = clock.getElapsedTime().asSeconds();
-                step = level.input(input);
-                if (input == ' ')
-                    didSwap = true;
+                if (keysStates[i])
+                {
+                    time = clock.getElapsedTime().asSeconds();
+                    if (i < 4)
+                        step = level.push(directions[i]);
+                    else if (i == 4)
+                    {
+                        // std::cout << "Player alive : " << Palive << std::endl;
+                        // std::cout << "bullet alive : " << balive << std::endl;
+                        step = level.swap();
+                        didSwap = true;
+                    }
+                    break;
+                }
             }
-
-            if (step && !didSwap)
-            {
-                level.step();
-            }
+            if (step)
+                level.step(didSwap);
         }
 
         window.clear(sf::Color(0, 0, 120));
