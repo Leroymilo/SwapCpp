@@ -30,6 +30,7 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
         PlayerLike();
         PlayerLike(std::string directory, std::string name);
         sf::Vector2i getNextPos();
+        void revert();
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
 };
 

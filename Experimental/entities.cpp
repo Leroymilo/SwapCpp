@@ -48,8 +48,8 @@ PlayerLike::PlayerLike(std::string directory, std::string name)
 
     reader.parse(file, actualJson);
 
-    C = sf::Vector2i(actualJson["PlayerX"].asInt(), actualJson["PlayerY"].asInt());
-    direction = 'U';
+    C = sf::Vector2i(actualJson[name]["X"].asInt(), actualJson[name]["Y"].asInt());
+    direction = actualJson[name]["dir"].asCString()[0];
 
     char directions [] = {'U', 'R', 'D', 'L'};
     for (int i=0; i<4; i++)
@@ -70,6 +70,18 @@ sf::Vector2i PlayerLike::getNextPos()
         return sf::Vector2i(C.x, C.y+1);
     else if (direction == 'L')
         return sf::Vector2i(C.x-1, C.y);
+}
+
+void PlayerLike::revert()
+{
+    if (direction == 'U')
+        direction = 'D';
+    else if (direction == 'R')
+        direction = 'L';
+    else if (direction == 'D')
+        direction = 'U';
+    else if (direction == 'L')
+        direction = 'R';
 }
 
 void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
@@ -100,7 +112,7 @@ void Boxes::readFile(std::string directory)
 
     for (int i=0; i<nbBoxes; i++)
     {
-        sf::Vector2i C(actualJson["Boxes"][i]["BoxX"].asInt(), actualJson["Boxes"][i]["BoxY"].asInt());
+        sf::Vector2i C(actualJson["Boxes"][i]["X"].asInt(), actualJson["Boxes"][i]["Y"].asInt());
         list[i] = Entity(C, sprite);
         listAlive[i] = true;
     }

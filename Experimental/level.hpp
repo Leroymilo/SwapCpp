@@ -14,6 +14,7 @@ class Level
         bool balive = false;
         Boxes boxes;
         Grid backGround;
+        int nbSteps;
 
         bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
         bool pLikePush(PlayerLike* pusher, char direction);  
@@ -23,12 +24,12 @@ class Level
         Level(int number);
         Level copy();
 
-        void input(char action);
+        bool input(char action);
         bool isWallForPlayer(sf::Vector2i coords);
         bool isWallForBullet(sf::Vector2i coords);
         bool isWallForBox(sf::Vector2i coords);
-        void push(char direction);  //First call of the pushing recursive function (the player pushes)
-        void swap();
+        bool push(char direction);  //First call of the pushing recursive function (the player pushes)
+        bool swap();
         void step();
         void display(sf::RenderWindow * windowP);
 };

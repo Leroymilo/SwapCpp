@@ -48,9 +48,9 @@ void Grid::display(sf::RenderWindow* windowPoint)
     float WinQ = float(WinSize.x)/float(WinSize.y);
 
     if (WinQ > shapeQ)
-        delta = WinSize.y/(2*h);
+        delta = WinSize.y/h;
     else
-        delta = WinSize.x/(2*w);
+        delta = WinSize.x/w;
     
     delta -= delta % 16;
     float pxlW = delta*w, pxlH = delta*h;
