@@ -1,19 +1,29 @@
 {
-    "PlayerX" : 3,
-    "PlayerY" : 5,
+    "player" : {
+        "X" : 3,
+        "Y" : 5,
+        "dir" : "U"
+    },
+
+    "bullet" : {
+        "X" : 0,
+        "Y" : 0,
+        "dir" : "U"
+    },
+
     "nbBoxes" : 3,
     "Boxes" : [
         {
-            "BoxX" : 2,
-            "BoxY" : 2
+            "X" : 3,
+            "Y" : 3
         },
         {
-            "BoxX" : 3,
-            "BoxY" : 2
+            "X" : 3,
+            "Y" : 12
         },
         {
-            "BoxX" : 4,
-            "BoxY" : 2
+            "X" : 4,
+            "Y" : 5
         }
     ]
 }
