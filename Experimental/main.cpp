@@ -2,14 +2,8 @@
 #include "level.hpp"
 #include <iostream>
 
-bool keyChanged(int n, bool * newK, bool * oldK)
+bool undo()
 {
-    for (int i = 0; i < n; i++)
-    {
-        if (newK[i] != oldK[i])
-            return true;
-    }
-    return false;
 }
 
 int main()
@@ -28,16 +22,17 @@ int main()
     float deltaT = 0.15;
     int nbKeys = 9;
     sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
-    sf::Keyboard::Key::Space, sf::Keyboard::Key::Return, sf::Keyboard::Key::Enter, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
+    sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
     std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};
+    //Unused, just a description of the actions.
     bool keysStates[] = {false, false, false, false, false, false, false, false, false};
-    bool oldKeysStates[] = {false, false, false, false, false, false, false, false, false};
-
+    int pkey = 0;
 
     //Gameplay variables :
     bool step = false;
     bool didSwap = false;
     char directions[] = {'U', 'R', 'D', 'L'};
+    std::vector<Level> steps;
 
     while (window.isOpen())
     {
@@ -70,40 +65,50 @@ int main()
             }
         }
 
-        //Remove input delay if keys have changed :
-        if (keyChanged(nbKeys, oldKeysStates, keysStates))
+        //Remove input delay if prioritized key have changed :
+        if (!keysStates[pkey] or pkey==9)
         {
             time -= deltaT;
-            for (int i = 0; i < nbKeys; i++)
-            {
-                oldKeysStates[i] = keysStates[i];
-            }
-        }
-        
-        //Apply inputs :
-        if (clock.getElapsedTime().asSeconds()-time > deltaT)
-        {
-            step = false;
-            didSwap = false;
+            bool keyChanged = false;
             for (int i = 0; i < nbKeys; i++)
             {
                 if (keysStates[i])
                 {
-                    time = clock.getElapsedTime().asSeconds();
-                    if (i < 4)
-                        step = level.push(directions[i]);
-                    else if (i == 4)
-                    {
-                        // std::cout << "Player alive : " << Palive << std::endl;
-                        // std::cout << "bullet alive : " << balive << std::endl;
-                        step = level.swap();
-                        didSwap = true;
-                    }
+                    pkey = i;
+                    keyChanged = true;
                     break;
                 }
             }
+            if (!keyChanged)
+                pkey = 9;
+        }
+        
+        //Apply inputs :
+        if (clock.getElapsedTime().asSeconds()-time > deltaT and pkey!=9)
+        {
+            step = false;
+            didSwap = false;
+            time = clock.getElapsedTime().asSeconds();
+            if (pkey < 4)
+                step = level.push(directions[pkey]);
+            else if (pkey == 4)
+            {
+                step = level.swap();
+                didSwap = true;
+            }
+            else if (pkey == 5 && steps.size() > 1)
+            {
+                steps.pop_back();
+                level = steps[steps.size()-1];
+            }
+            else if (pkey == 6)
+                step = true;
+
             if (step)
+            {
                 level.step(didSwap);
+                steps.push_back(Level(level));
+            }
         }
 
         window.clear(sf::Color(0, 0, 120));

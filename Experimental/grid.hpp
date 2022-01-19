@@ -14,12 +14,14 @@ class Grid
         int delta = 16;
 
         Grid();
+        Grid(const Grid& tocopy);
+        ~Grid();
         void readFile(std::string directory);
+        void setGrid(char ** grid, int w, int h);
 
         char getTile(sf::Vector2i coords);
         void display(sf::RenderWindow* windowPoint);
         void getDisplay(sf::Vector2i* C0, int* deltaP);
-        ~Grid();
 };
 
 #endif //GRID_H

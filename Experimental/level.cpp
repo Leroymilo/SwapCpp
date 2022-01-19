@@ -10,6 +10,8 @@
 #include <algorithm>
 
 //Constructor and meta
+Level::Level(){}
+
 Level::Level(int number)
 {
     std::stringstream ss;
@@ -21,7 +23,6 @@ Level::Level(int number)
     bullet = PlayerLike("levels/level" + str + "/entities.json", "bullet");
     boxes.readFile("levels/level" + str + "/entities.json");
 }
-
 
 //Gameplay
 bool Level::isWallForPlayer(sf::Vector2i coords)
@@ -42,7 +43,9 @@ bool Level::isWallForBullet(sf::Vector2i coords)
 {
     if (backGround.getTile(coords) == 'X')
         return true;
-    return false;
+    bool hasBox;
+    boxes.getBox(coords, &hasBox);
+    return hasBox;
 }
 
 bool Level::push(char direction)
@@ -96,6 +99,8 @@ bool Level::boxPush(Entity* pusher, char direction)
 
 bool Level::swap()
 {
+    std::cout << "Player alive : " << Palive << std::endl;
+    std::cout << "bullet alive : " << balive << std::endl;
     if (Palive && !balive)
     {
         balive = true;
@@ -125,21 +130,18 @@ bool Level::swap()
 
 void Level::step(bool didSwap)
 {
-    if (!didSwap)
+    if (balive && !didSwap)
     {
-        if (balive)
+        sf::Vector2i newC = bullet.getNextPos();
+
+        if (isWallForBullet(newC))
         {
-            sf::Vector2i newC = bullet.getNextPos();
-
-            if (isWallForBullet(newC))
-            {
-                bullet.revert();
-                newC = bullet.getNextPos();
-            }
-
-            if (!isWallForBullet(newC))
-                bullet.C = newC;
+            bullet.revert();
+            newC = bullet.getNextPos();
         }
+
+        if (!isWallForBullet(newC))
+            bullet.C = newC;
     }
 }
 

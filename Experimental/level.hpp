@@ -15,14 +15,14 @@ class Level
         Boxes boxes;
         Grid backGround;
         int nbSteps;
+        Level * prevLevel;
 
         bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
-        bool pLikePush(PlayerLike* pusher, char direction);  
-        //End call for the pushing function : if a box pushes a monster or the bullet
+        bool pLikePush(PlayerLike* pusher, char direction);//End call for the pushing function : if a box pushes an enemy
 
     public:
+        Level();
         Level(int number);
-        Level copy();
 
         bool isWallForPlayer(sf::Vector2i coords);
         bool isWallForBullet(sf::Vector2i coords);
@@ -30,6 +30,7 @@ class Level
         bool push(char direction);  //First call of the pushing recursive function (the player pushes)
         bool swap();
         void step(bool didSwap);
+        void undo();
         void display(sf::RenderWindow * windowP);
 };
 

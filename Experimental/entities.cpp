@@ -96,6 +96,11 @@ void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 //Methods for Boxes
 Boxes::Boxes(){}
 
+Boxes::Boxes(const Boxes& tocopy)
+{
+    this->setLists(tocopy.nbBoxes, tocopy.list, tocopy.listAlive);
+}
+
 void Boxes::readFile(std::string directory)
 {
     std::ifstream file(directory);
@@ -116,6 +121,23 @@ void Boxes::readFile(std::string directory)
         list[i] = Entity(C, sprite);
         listAlive[i] = true;
     }
+}
+
+void Boxes::setLists(int n, Entity * list, bool * listAlive)
+{
+    this->nbBoxes = n;
+    this->list = new Entity [nbBoxes];
+    this->listAlive = new bool [nbBoxes];
+    sf::Texture sprite;
+    sprite.loadFromFile("assets/Entities/Box.png");
+
+    for (int i=0; i<nbBoxes; i++)
+    {
+        sf::Vector2i C(list[i].C.x, list[i].C.y);
+        this->list[i] = Entity(C, sprite);
+        this->listAlive[i] = listAlive[i];
+    }
+
 }
 
 Entity* Boxes::getBox(sf::Vector2i coords, bool* hasBox)

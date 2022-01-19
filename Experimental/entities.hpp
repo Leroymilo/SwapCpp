@@ -43,7 +43,10 @@ class Boxes     //list of boxes (simple entities)
     
     public:
         Boxes();
+        Boxes(const Boxes& tocopy);
+        ~Boxes();
         void readFile(std::string directory);
+        void setLists(int n, Entity * list, bool * listAlive);
         Entity* getBox(sf::Vector2i coords, bool* hasBox);
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
 };

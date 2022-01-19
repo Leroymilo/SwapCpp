@@ -8,6 +8,11 @@
 
 Grid::Grid(){}
 
+Grid::Grid(const Grid& tocopy)
+{
+    this->setGrid(tocopy.tiles, tocopy.w, tocopy.h);
+}
+
 void Grid::readFile(std::string directory)
 {
     std::ifstream file(directory);
@@ -33,6 +38,22 @@ void Grid::readFile(std::string directory)
         }
         tiles[y] = tileLine;
     }
+}
+
+void Grid::setGrid(char ** newtiles, int w, int h)
+{
+    this->w = w;
+    this->h = h;
+    tiles = new char * [h];
+    char * tileLine;
+    for (int y=0; y<h; y++){
+        tileLine = new char [w];
+        for (int x=0; x<w; x++){
+            tileLine[x] = newtiles[y][x];
+        }
+        tiles[y] = tileLine;
+    }
+    std::cout << "newGrid filled !" << std::endl;
 }
 
 char Grid::getTile(sf::Vector2i coords)
