@@ -99,6 +99,13 @@ Boxes::Boxes(){}
 Boxes::Boxes(const Boxes& tocopy)
 {
     this->setLists(tocopy.nbBoxes, tocopy.list, tocopy.listAlive);
+    std::cout << "Boxes copied !" << std::endl;
+}
+
+Boxes& Boxes::operator=(const Boxes& other)
+{
+    this->setLists(other.nbBoxes, other.list, other.listAlive);
+    return *this;
 }
 
 void Boxes::readFile(std::string directory)

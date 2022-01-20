@@ -44,6 +44,7 @@ class Boxes     //list of boxes (simple entities)
     public:
         Boxes();
         Boxes(const Boxes& tocopy);
+        Boxes& operator=(const Boxes& other);
         ~Boxes();
         void readFile(std::string directory);
         void setLists(int n, Entity * list, bool * listAlive);

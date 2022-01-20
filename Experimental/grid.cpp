@@ -11,6 +11,16 @@ Grid::Grid(){}
 Grid::Grid(const Grid& tocopy)
 {
     this->setGrid(tocopy.tiles, tocopy.w, tocopy.h);
+    std::cout << "Grid copied !" << std::endl;
+}
+
+Grid& Grid::operator=(const Grid& other)
+{
+    if (this == &other)
+        return *this;
+
+    this->setGrid(other.tiles, other.w, other.h);
+    return *this;
 }
 
 void Grid::readFile(std::string directory)
@@ -53,7 +63,6 @@ void Grid::setGrid(char ** newtiles, int w, int h)
         }
         tiles[y] = tileLine;
     }
-    std::cout << "newGrid filled !" << std::endl;
 }
 
 char Grid::getTile(sf::Vector2i coords)

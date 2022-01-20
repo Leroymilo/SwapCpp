@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "level.hpp"
 #include <iostream>
+#include <list>
 
 bool undo()
 {
@@ -32,7 +33,8 @@ int main()
     bool step = false;
     bool didSwap = false;
     char directions[] = {'U', 'R', 'D', 'L'};
-    std::vector<Level> steps = {level};
+    std::list<Level> steps;
+    steps.push_back(level);
 
     while (window.isOpen())
     {
@@ -99,16 +101,22 @@ int main()
             else if (pkey == 5 && steps.size() > 1)
             {
                 steps.pop_back();
-                level = steps[steps.size()-1];
+                level = steps.back();
             }
             else if (pkey == 6)
                 step = true;
+            else if (pkey == 7 && steps.size() > 1)
+            {
+                level = steps.front();
+                steps.push_back(level);
+            }
 
             if (step)
             {
                 level.step(didSwap);
-                steps.push_back(Level(level));
+                steps.push_back(level);
             }
+            std::cout << "number of steps in memory :" << steps.size() << std::endl;
         }
 
         window.clear(sf::Color(0, 0, 120));
