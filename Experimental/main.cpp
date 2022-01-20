@@ -32,7 +32,7 @@ int main()
     bool step = false;
     bool didSwap = false;
     char directions[] = {'U', 'R', 'D', 'L'};
-    std::vector<Level> steps;
+    std::vector<Level> steps = {level};
 
     while (window.isOpen())
     {

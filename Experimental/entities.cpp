@@ -162,3 +162,9 @@ void Boxes::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
             list[iBox].draw(C0, delta, windowPoint);
     }
 }
+
+Boxes::~Boxes()
+{
+    delete[] this->list;
+    delete[] this->listAlive;
+}
