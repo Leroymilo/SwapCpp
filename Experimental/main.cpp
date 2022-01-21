@@ -3,20 +3,19 @@
 #include <iostream>
 #include <list>
 
-bool undo()
-{
-}
-
 int main()
 {
     //SFML stuff and level initialization :
     sf::RenderWindow window(sf::VideoMode(500, 500), "SWAP!");
     sf::Clock clock;
     Level level(1);
+    sf::Font font;
+    if (!font.loadFromFile("assets\\font.ttf"))
+        std::cout << "Could not load font" << std::endl;
 
     //First draw :
     window.clear(sf::Color(0, 0, 120));
-    level.display(&window);
+    level.display(&window, font);
     
     //Input handling :
     float time = clock.getElapsedTime().asSeconds();
@@ -88,6 +87,7 @@ int main()
         //Apply inputs :
         if (clock.getElapsedTime().asSeconds()-time > deltaT and pkey!=9)
         {
+            Level lastStep = steps.back();
             step = false;
             didSwap = false;
             time = clock.getElapsedTime().asSeconds();
@@ -105,7 +105,7 @@ int main()
             }
             else if (pkey == 6)
                 step = true;
-            else if (pkey == 7 && steps.size() > 1)
+            else if (pkey == 7)
             {
                 level = steps.front();
                 steps.push_back(level);
@@ -116,11 +116,14 @@ int main()
                 level.step(didSwap);
                 steps.push_back(level);
             }
-            std::cout << "number of steps in memory :" << steps.size() << std::endl;
+
+            level.animate(&window, font, lastStep);
         }
 
-        window.clear(sf::Color(0, 0, 120));
-        level.display(&window);
+        else
+        {
+            level.display(&window, font);
+        }
     }
 
     return 0;

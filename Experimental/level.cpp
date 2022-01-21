@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <algorithm>
 
+
 //Constructor and meta
 Level::Level(){}
 
@@ -99,8 +100,6 @@ bool Level::boxPush(Entity* pusher, char direction)
 
 bool Level::swap()
 {
-    std::cout << "Player alive : " << Palive << std::endl;
-    std::cout << "bullet alive : " << balive << std::endl;
     if (Palive && !balive)
     {
         balive = true;
@@ -143,6 +142,7 @@ void Level::step(bool didSwap)
         if (!isWallForBullet(newC))
             bullet.C = newC;
     }
+    nbSteps++;
 }
 
 
@@ -150,9 +150,26 @@ void Level::step(bool didSwap)
 
 
 //Display
-void Level::display(sf::RenderWindow * windowP)
+void Level::displayBG(sf::RenderWindow * windowP, sf::Font font)
 {
+    sf::Vector2u winSize = windowP->getSize();
+    
+    windowP->clear(sf::Color(0, 0, 120));
     backGround.display(windowP);
+
+    sf::Text stepDisp;
+    stepDisp.setFont(font);
+    std::stringstream ss;
+    ss << "step : " << nbSteps;
+    stepDisp.setString(ss.str());
+    stepDisp.setPosition((winSize.x-stepDisp.getLocalBounds().width)/2, winSize.y-stepDisp.getLocalBounds().height-10);
+    windowP->draw(stepDisp);
+    //Use this method to display tips and text on the screen
+}
+
+void Level::display(sf::RenderWindow * windowP, sf::Font font)
+{
+    displayBG(windowP, font);
 
     sf::Vector2i C0;
     int delta;
@@ -165,4 +182,45 @@ void Level::display(sf::RenderWindow * windowP)
     boxes.draw(C0, delta, windowP);
 
     windowP->display();
+}
+
+void Level::animate(sf::RenderWindow * windowP, sf::Font font, Level prevStep)
+{
+    sf::Vector2f windowSize = sf::Vector2f(windowP->getSize());
+
+    displayBG(windowP, font);
+
+    sf::Vector2i C0;
+    int delta;
+    backGround.getDisplay(&C0, &delta);
+    sf::RectangleShape BG(windowSize);
+    sf::Texture texture;
+    texture.create(windowSize.x, windowSize.y);
+    texture.update(*windowP);
+    BG.setTexture(&texture);
+
+    for (int i = 0; i <= 4; i++)//All animations are 4 frames long
+    {
+        windowP->draw(BG);
+        //Animation of the player
+        
+        if (prevStep.Palive && Palive)
+            Player.anim(prevStep.Player.C, C0, delta, windowP, i);
+        else if (prevStep.Palive){}
+        else if (Palive)
+            Player.draw(C0, delta, windowP);
+
+        //Animation of the bullet
+        if (prevStep.balive && balive)
+            bullet.anim(prevStep.bullet.C, C0, delta, windowP, i);
+        else if (prevStep.balive){}
+        else if (balive)
+            bullet.draw(C0, delta, windowP);
+
+        //Animation of the boxes
+        boxes.anim(prevStep.boxes, C0, delta, windowP, i);
+
+        windowP->display();
+        sf::sleep(sf::milliseconds(10));
+    }
 }

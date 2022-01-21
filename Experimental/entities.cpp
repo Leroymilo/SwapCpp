@@ -36,6 +36,15 @@ void Entity::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
     windowPoint->draw(tile);
 }
 
+void Entity::anim(sf::Vector2i start, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
+{
+    float deltaX = ((float)C.x-(float)start.x)/4, deltaY = ((float)C.y-(float)start.y)/4;
+    float pxlX = C0.x + delta*(start.x+deltaX*frame), pxlY = C0.y + delta*(start.y+deltaY*frame);
+    sf::RectangleShape tile(sf::Vector2f(delta, delta));
+    tile.setTexture(&sprite);
+    tile.setPosition(pxlX, pxlY);
+    windowPoint->draw(tile);
+}
 
 //Methods for PlayerLike
 PlayerLike::PlayerLike(){}
@@ -92,6 +101,16 @@ void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
     windowPoint->draw(tile);
 }
 
+void PlayerLike::anim(sf::Vector2i start, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
+{
+    float deltaX = ((float)C.x-(float)start.x)/4, deltaY = ((float)C.y-(float)start.y)/4;
+    float pxlX = C0.x + delta*(start.x+deltaX*frame), pxlY = C0.y + delta*(start.y+deltaY*frame);
+    sf::RectangleShape tile(sf::Vector2f(delta, delta));
+    tile.setTexture(&sprites[direction]);
+    tile.setPosition(pxlX, pxlY);
+    windowPoint->draw(tile);
+}
+
 
 //Methods for Boxes
 Boxes::Boxes(){}
@@ -99,7 +118,6 @@ Boxes::Boxes(){}
 Boxes::Boxes(const Boxes& tocopy)
 {
     this->setLists(tocopy.nbBoxes, tocopy.list, tocopy.listAlive);
-    std::cout << "Boxes copied !" << std::endl;
 }
 
 Boxes& Boxes::operator=(const Boxes& other)
@@ -167,6 +185,17 @@ void Boxes::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
     {
         if (listAlive[iBox])
             list[iBox].draw(C0, delta, windowPoint);
+    }
+}
+
+void Boxes::anim(Boxes prevState, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
+{
+    for (int i = 0; i <= nbBoxes; i++)
+    {
+        if (listAlive[i] && prevState.listAlive[i])
+            list[i].anim(prevState.list[i].C, C0, delta, windowPoint, frame);
+        else
+            list[i].draw(C0, delta, windowPoint);
     }
 }
 

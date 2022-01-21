@@ -11,7 +11,6 @@ Grid::Grid(){}
 Grid::Grid(const Grid& tocopy)
 {
     this->setGrid(tocopy.tiles, tocopy.w, tocopy.h);
-    std::cout << "Grid copied !" << std::endl;
 }
 
 Grid& Grid::operator=(const Grid& other)
