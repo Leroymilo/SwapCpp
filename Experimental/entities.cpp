@@ -26,6 +26,7 @@ sf::Vector2i Entity::getNextPos(char direction)
         return sf::Vector2i(C.x, C.y+1);
     else if (direction == 'L')
         return sf::Vector2i(C.x-1, C.y);
+    return C;
 }
 
 void Entity::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
@@ -79,6 +80,7 @@ sf::Vector2i PlayerLike::getNextPos()
         return sf::Vector2i(C.x, C.y+1);
     else if (direction == 'L')
         return sf::Vector2i(C.x-1, C.y);
+    return C;
 }
 
 void PlayerLike::revert()
@@ -190,7 +192,7 @@ void Boxes::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 
 void Boxes::anim(Boxes prevState, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    for (int i = 0; i <= nbBoxes; i++)
+    for (int i = 0; i < nbBoxes; i++)
     {
         if (listAlive[i] && prevState.listAlive[i])
             list[i].anim(prevState.list[i].C, C0, delta, windowPoint, frame);

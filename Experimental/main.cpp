@@ -19,7 +19,7 @@ int main()
     
     //Input handling :
     float time = clock.getElapsedTime().asSeconds();
-    float deltaT = 0.15;
+    float deltaT = 0.12;
     int nbKeys = 9;
     sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
     sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
@@ -29,6 +29,7 @@ int main()
     int pkey = 0;
 
     //Gameplay variables :
+    bool anim = false;
     bool step = false;
     bool didSwap = false;
     char directions[] = {'U', 'R', 'D', 'L'};
@@ -85,9 +86,9 @@ int main()
         }
         
         //Apply inputs :
+        anim = false;
         if (clock.getElapsedTime().asSeconds()-time > deltaT and pkey!=9)
         {
-            Level lastStep = steps.back();
             step = false;
             didSwap = false;
             time = clock.getElapsedTime().asSeconds();
@@ -104,7 +105,7 @@ int main()
                 level = steps.back();
             }
             else if (pkey == 6)
-                step = true;
+                step = level.wait();
             else if (pkey == 7)
             {
                 level = steps.front();
@@ -114,16 +115,13 @@ int main()
             if (step)
             {
                 level.step(didSwap);
+                level.animate(&window, font, steps.back());
                 steps.push_back(level);
             }
-
-            level.animate(&window, font, lastStep);
         }
 
-        else
-        {
+        else if (!anim)
             level.display(&window, font);
-        }
     }
 
     return 0;

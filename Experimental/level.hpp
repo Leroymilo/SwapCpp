@@ -30,6 +30,7 @@ class Level
         bool isWallForBox(sf::Vector2i coords);
         bool push(char direction);  //First call of the pushing recursive function (the player pushes)
         bool swap();
+        bool wait();
         void step(bool didSwap);
         void display(sf::RenderWindow * windowP, sf::Font font);
         void animate(sf::RenderWindow * windowP, sf::Font font, Level prevStep);

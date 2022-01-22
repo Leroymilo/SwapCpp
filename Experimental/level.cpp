@@ -127,6 +127,13 @@ bool Level::swap()
     return true;
 }
 
+bool Level::wait()
+{
+    if (balive)
+        return true;
+    return false;
+}
+
 void Level::step(bool didSwap)
 {
     if (balive && !didSwap)
@@ -199,11 +206,11 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font, Level prevStep)
     texture.update(*windowP);
     BG.setTexture(&texture);
 
-    for (int i = 0; i <= 4; i++)//All animations are 4 frames long
+    for (int i = 1; i <= 4; i++)//All animations are 4 frames long
     {
         windowP->draw(BG);
+
         //Animation of the player
-        
         if (prevStep.Palive && Palive)
             Player.anim(prevStep.Player.C, C0, delta, windowP, i);
         else if (prevStep.Palive){}
