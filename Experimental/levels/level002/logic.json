@@ -1,0 +1,14 @@
+{
+    "nb_activators" : 0,
+    "activators" : [],
+
+    "nb_gates" : 0,
+    "gates" : [],
+
+    "nb_doors" : 0,
+    "doors" : [],
+    
+    "nb_links" : 0,
+    "links" : []
+    
+}
