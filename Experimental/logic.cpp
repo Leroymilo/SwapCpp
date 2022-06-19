@@ -83,14 +83,19 @@ void Activator::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int,
 sf::RectangleShape Activator::draw(int delta)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    tile.setTexture(&sprites[0]);
+    tile.setTexture(&sprites[state*4]);
     return tile;
 }
 
 sf::RectangleShape Activator::anim(bool prevState, int delta, int frame)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    tile.setTexture(&sprites[frame]);
+    if (state && !prevState)
+        tile.setTexture(&sprites[frame]);
+    else if (!state && prevState)
+        tile.setTexture(&sprites[4-frame]);
+    else
+        tile.setTexture(&sprites[state*4]);
     return tile;
 }
 
@@ -109,7 +114,14 @@ Gate::Gate(char type)
     else if (type=='&')
         name = "AND";
     
-    sprite.loadFromFile("assets/Logic/" + name + ".png");
+    for (int i = 0; i < 5; i++)
+    {
+        sf::Texture sprite;
+        std::ostringstream oss;
+        oss << "assets/Logic/" << name << i << ".png";
+        sprite.loadFromFile(oss.str());
+        sprites[i] = sprite;
+    }
 }
 
 void Gate::add_output(int id_link)
@@ -178,14 +190,19 @@ void Gate::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link
 sf::RectangleShape Gate::draw(int delta)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    tile.setTexture(&sprite);
+    tile.setTexture(&sprites[state*4]);
     return tile;
 }
 
 sf::RectangleShape Gate::anim(bool prevState, int delta, int frame)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    tile.setTexture(&sprite);
+    if (state && !prevState)
+        tile.setTexture(&sprites[frame]);
+    else if (!state && prevState)
+        tile.setTexture(&sprites[4-frame]);
+    else
+        tile.setTexture(&sprites[state*4]);
     return tile;
 }
 

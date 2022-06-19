@@ -19,7 +19,12 @@ Level::Level(int number)
     ss << std::setfill('0') << std::setw(3) << number;
     std::string str = ss.str();
 
-    backGround.readFile("levels/level" + str + "/bg.json");
+    bg_tiles['X'].loadFromFile("assets/Tiles/Wall.png");
+    bg_tiles['x'].loadFromFile("assets/Tiles/Grate.png");
+    bg_tiles['.'].loadFromFile("assets/Tiles/Floor.png");
+    bg_tiles['W'].loadFromFile("assets/Tiles/Win.png");
+
+    win_tile = backGround.readFile("levels/level" + str + "/bg.json");
     Player = PlayerLike("levels/level" + str + "/entities.json", "player");
     bullet = PlayerLike("levels/level" + str + "/entities.json", "bullet");
     boxes.readFile("levels/level" + str + "/entities.json");
@@ -46,10 +51,13 @@ bool Level::isWallForBullet(sf::Vector2i coords)
 
 bool Level::push(char direction)
 {
-    bool STEP = !(Player.direction == direction);
+    if (!Palive)
+        return false;
 
     Player.direction = direction;
     sf::Vector2i newCoords = Player.getNextPos();
+
+    bool STEP = !(Player.direction == direction);
 
     //Checking if there's a wall blocking :
     bool isBlocked = isWallForMost(newCoords);
@@ -67,6 +75,8 @@ bool Level::push(char direction)
     if (!isBlocked)
     {
         Player.C = newCoords;
+        if (Player.C == win_tile)
+            won = true;
         return true;
     }
     return STEP;
@@ -103,21 +113,22 @@ void Level::pLikePush(PlayerLike* pushed, char direction)
     pushed->C = newCoords;
     pushed->direction = direction;
     //It's pushed anyway.
-    //It will be destroyed if it's inside another object :
-
-    balive = !isWallForBullet(newCoords);
 }
 
 bool Level::swap()
 {
     if (Palive && !balive)
     {
+        if (isWallForBullet(Player.getNextPos()))
+            return false;
         balive = true;
         bullet.C = Player.getNextPos();
         bullet.direction = Player.direction;
     }
     else if (Palive && balive)
     {
+        if (isWallForMost(bullet.C))
+            return false;
         sf::Vector2i tempC = Player.C;
         char tempdir = Player.direction;
         Player.C = bullet.C;
@@ -127,6 +138,8 @@ bool Level::swap()
     }
     else if (!Palive && balive)
     {
+        if (isWallForMost(bullet.C))
+            return false;
         Palive = true;
         balive = false;
         Player.C = bullet.C;
@@ -146,6 +159,7 @@ bool Level::wait()
 
 void Level::step(bool didSwap)
 {
+    //Moving bullet :
     if (balive && !didSwap)
     {
         sf::Vector2i newC = bullet.getNextPos();
@@ -172,6 +186,10 @@ void Level::step(bool didSwap)
     std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &balive);
     logic.update(updated_activators);
 
+    //Checking if player and/or bullet get "killed" :
+    Palive = !((balive && Player.C == bullet.C) || isWallForMost(Player.C)) && Palive;
+    balive = !isWallForBullet(bullet.C) && balive;
+
     nbSteps++;
 }
 
@@ -182,7 +200,7 @@ void Level::displayBG(sf::RenderWindow * windowP, sf::Font font)
     sf::Vector2u winSize = windowP->getSize();
     
     windowP->clear(sf::Color(0, 0, 120));
-    backGround.display(windowP);
+    backGround.display(windowP, bg_tiles);
 
     sf::Text stepDisp;
     stepDisp.setFont(font);
@@ -255,6 +273,6 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font, Level prevStep)
         boxes.anim(prevStep.boxes, C0, delta, windowP, i);
 
         windowP->display();
-        sf::sleep(sf::milliseconds(10));
+        sf::sleep(sf::milliseconds(2));
     }
 }

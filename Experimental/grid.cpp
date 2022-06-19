@@ -22,7 +22,7 @@ Grid& Grid::operator=(const Grid& other)
     return *this;
 }
 
-void Grid::readFile(std::string directory)
+sf::Vector2i Grid::readFile(std::string directory)
 {
     std::ifstream file(directory);
     Json::Value actualJson;
@@ -47,6 +47,8 @@ void Grid::readFile(std::string directory)
         }
         tiles[y] = tileLine;
     }
+
+    return sf::Vector2i(endX, endY);
 }
 
 void Grid::setGrid(char ** newtiles, int w, int h)
@@ -69,7 +71,7 @@ char Grid::getTile(sf::Vector2i coords)
     return tiles[coords.y][coords.x];
 }
 
-void Grid::display(sf::RenderWindow* windowPoint)
+void Grid::display(sf::RenderWindow* windowPoint, std::map<char, sf::Texture> textures)
 {
     float shapeQ = float(w)/float(h);
 
@@ -90,13 +92,7 @@ void Grid::display(sf::RenderWindow* windowPoint)
 
     for (int x=0; x<w; x++){
         for (int y=0; y<h; y++){
-            char color = tiles[y][x];
-            if (color == 'X')
-                tile.setFillColor(sf::Color::Black);
-            else if (color == '.')
-                tile.setFillColor(sf::Color::White);
-            else if (color == 'W')
-                tile.setFillColor(sf::Color::Green);
+            tile.setTexture(&textures[tiles[y][x]]);
             tile.setPosition(x0+delta*x, y0+delta*y);
             windowPoint->draw(tile);
         }

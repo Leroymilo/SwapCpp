@@ -17,11 +17,11 @@ class Grid
         Grid(const Grid& tocopy);
         Grid& operator=(const Grid& other);
         ~Grid();
-        void readFile(std::string directory);
+        sf::Vector2i readFile(std::string directory);
         void setGrid(char ** grid, int w, int h);
 
         char getTile(sf::Vector2i coords);
-        void display(sf::RenderWindow* windowPoint);
+        void display(sf::RenderWindow* windowPoint, std::map<char, sf::Texture> textures);
         void getDisplay(sf::Vector2i* C0, int* deltaP);
 };
 

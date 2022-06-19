@@ -56,7 +56,7 @@ class Activator
 class Gate
 {
     private :
-        sf::Texture sprite;
+        sf::Texture sprites[5];
         std::vector<int> inputs;
         std::vector<int> outputs;
     

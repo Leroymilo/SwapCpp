@@ -18,23 +18,27 @@ int main()
     level.display(&window, font);
     
     //Input handling :
-    float time = clock.getElapsedTime().asSeconds();
-    float deltaT = 0.14;
+    int time = clock.getElapsedTime().asMilliseconds();
+    int long_deltaT = 200;
+    int short_deltaT = 50;
+    bool long_press = false;
+    bool process_input = false;
     int nbKeys = 9;
     sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
     sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
-    std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};
-    //Unused, just a description of the actions.
+    std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};//Unused, just a description of the actions.
     bool keysStates[] = {false, false, false, false, false, false, false, false, false};
-    int pkey = 0;
+    int pkey = 9;
 
     //Gameplay variables :
-    bool anim = false;
     bool step = false;
     bool didSwap = false;
     char directions[] = {'U', 'R', 'D', 'L'};
     std::list<Level> steps;
     steps.push_back(level);
+
+    //Debug :
+    int prev_event_time;
 
     while (window.isOpen())
     {
@@ -68,33 +72,52 @@ int main()
             }
         }
 
-        //Remove input delay if prioritized key have changed :
-        if (!keysStates[pkey] or pkey==9)
+    //Manage input delay and changed keys :
+        process_input = false;
+
+        //Key was kept pressed :
+        if (pkey!=9 and keysStates[pkey])
         {
-            time -= deltaT;
-            bool keyChanged = false;
-            for (int i = 0; i < nbKeys; i++)
+            if (!long_press and clock.getElapsedTime().asMilliseconds() >= time + long_deltaT)
+            {
+                process_input = true;
+                long_press = true;
+                time = clock.getElapsedTime().asMilliseconds();
+            }
+
+            else if (long_press and clock.getElapsedTime().asMilliseconds() >= time + short_deltaT)
+            {
+                process_input = true;
+                time = clock.getElapsedTime().asMilliseconds();
+            }
+        }
+
+        //Key was unpressed :
+        else
+        {
+            pkey = 9;
+            long_press = false;
+            for(int i = 0; i < nbKeys; i++)
             {
                 if (keysStates[i])
                 {
                     pkey = i;
-                    keyChanged = true;
+                    process_input = true;
+                    time = clock.getElapsedTime().asMilliseconds();
                     break;
                 }
             }
-            if (!keyChanged)
-                pkey = 9;
         }
         
-        //Apply inputs :
-        anim = false;
-        if (clock.getElapsedTime().asSeconds()-time > deltaT and pkey!=9)
+    //Apply inputs :
+        if (pkey!=9 and process_input)
         {
             step = false;
             didSwap = false;
-            time = clock.getElapsedTime().asSeconds();
             if (pkey < 4)
+            {
                 step = level.push(directions[pkey]);
+            }
             else if (pkey == 4)
             {
                 step = level.swap();
@@ -106,7 +129,9 @@ int main()
                 level = steps.back();
             }
             else if (pkey == 6)
+            {
                 step = level.wait();
+            }
             else if (pkey == 7)
             {
                 level = steps.front();
@@ -121,8 +146,10 @@ int main()
             }
         }
 
-        else if (!anim)
+        else
             level.display(&window, font);
+    if (level.won)
+        window.close();
     }
 
     return 0;

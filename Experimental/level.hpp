@@ -14,9 +14,12 @@ class Level
         PlayerLike bullet;
         bool balive = false;
         Boxes boxes;
+        sf::Vector2i win_tile;
         Grid backGround;
         int nbSteps = 0;
         Logic logic;
+
+        std::map<char, sf::Texture> bg_tiles;
 
         bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
         void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy
@@ -25,6 +28,8 @@ class Level
         void displayBG(sf::RenderWindow * windowP, sf::Font font);
 
     public:
+        bool won = false;
+
         Level();
         Level(int number);
 
