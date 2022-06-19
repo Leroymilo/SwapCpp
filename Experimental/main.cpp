@@ -19,7 +19,7 @@ int main()
     
     //Input handling :
     float time = clock.getElapsedTime().asSeconds();
-    float deltaT = 0.12;
+    float deltaT = 0.14;
     int nbKeys = 9;
     sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
     sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
@@ -38,6 +38,7 @@ int main()
 
     while (window.isOpen())
     {
+        // std::cout << "got into the main loop" << std::endl;
         sf::Event evnt;
         if (window.pollEvent(evnt))
         {

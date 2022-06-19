@@ -70,8 +70,11 @@ PlayerLike::PlayerLike(std::string directory, std::string name)
     sprite = sprites[direction];
 }
 
-sf::Vector2i PlayerLike::getNextPos()
+sf::Vector2i PlayerLike::getNextPos(char direction)
 {
+    if (direction == '_')
+        direction = this->direction;
+    
     if (direction == 'U')
         return sf::Vector2i(C.x, C.y-1);
     else if (direction == 'R')
@@ -181,6 +184,19 @@ Entity* Boxes::getBox(sf::Vector2i coords, bool* hasBox)
     return &list[0];
 }
 
+std::vector<sf::Vector2i> Boxes::get_boxes_pos()
+{
+    std::vector<sf::Vector2i> boxes_pos;
+
+    for (int iBox=0; iBox<nbBoxes; iBox++)
+    {
+        if (listAlive[iBox])
+            boxes_pos.push_back(list[iBox].C);
+    }
+
+    return boxes_pos;
+}
+
 void Boxes::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     for (int iBox=0; iBox<nbBoxes; iBox++)
@@ -196,7 +212,7 @@ void Boxes::anim(Boxes prevState, sf::Vector2i C0, int delta, sf::RenderWindow* 
     {
         if (listAlive[i] && prevState.listAlive[i])
             list[i].anim(prevState.list[i].C, C0, delta, windowPoint, frame);
-        else
+        else if (listAlive[i])
             list[i].draw(C0, delta, windowPoint);
     }
 }

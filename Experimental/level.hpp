@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "grid.hpp"
 #include "entities.hpp"
+#include "logic.hpp"
 
 class Level
 {
@@ -15,9 +16,11 @@ class Level
         Boxes boxes;
         Grid backGround;
         int nbSteps = 0;
+        Logic logic;
 
         bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
-        bool pLikePush(PlayerLike* pusher, char direction);//End call for the pushing function : if a box pushes an enemy
+        void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy
+        //(or the player but it's not currently possoble)
 
         void displayBG(sf::RenderWindow * windowP, sf::Font font);
 
@@ -25,13 +28,13 @@ class Level
         Level();
         Level(int number);
 
-        bool isWallForPlayer(sf::Vector2i coords);
+        bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
         bool isWallForBullet(sf::Vector2i coords);
-        bool isWallForBox(sf::Vector2i coords);
         bool push(char direction);  //First call of the pushing recursive function (the player pushes)
         bool swap();
         bool wait();
         void step(bool didSwap);
+
         void display(sf::RenderWindow * windowP, sf::Font font);
         void animate(sf::RenderWindow * windowP, sf::Font font, Level prevStep);
 };

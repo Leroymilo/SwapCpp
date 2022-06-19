@@ -29,7 +29,7 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
 
         PlayerLike();
         PlayerLike(std::string directory, std::string name);
-        sf::Vector2i getNextPos();
+        sf::Vector2i getNextPos(char direction = '_');
         void revert();
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
         void anim(sf::Vector2i start, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
@@ -49,7 +49,10 @@ class Boxes     //list of boxes (simple entities)
         ~Boxes();
         void readFile(std::string directory);
         void setLists(int n, Entity * list, bool * listAlive);
+
         Entity* getBox(sf::Vector2i coords, bool* hasBox);
+        std::vector<sf::Vector2i> get_boxes_pos();
+
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
         void anim(Boxes prevState, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 };

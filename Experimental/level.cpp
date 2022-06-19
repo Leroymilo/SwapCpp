@@ -23,21 +23,16 @@ Level::Level(int number)
     Player = PlayerLike("levels/level" + str + "/entities.json", "player");
     bullet = PlayerLike("levels/level" + str + "/entities.json", "bullet");
     boxes.readFile("levels/level" + str + "/entities.json");
+    logic = Logic("levels/level" + str + "/logic.json");
 }
+
 
 //Gameplay
-bool Level::isWallForPlayer(sf::Vector2i coords)
+bool Level::isWallForMost(sf::Vector2i coords)
 {
-    if (backGround.getTile(coords) == 'X' or backGround.getTile(coords) == 'x' or backGround.getTile(coords) == 'T')
+    if (backGround.getTile(coords) == 'X' or backGround.getTile(coords) == 'x')
         return true;
-    return false;
-}
-
-bool Level::isWallForBox(sf::Vector2i coords)
-{
-    if (backGround.getTile(coords) == 'X' or backGround.getTile(coords) == 'x' or backGround.getTile(coords) == 'T')
-        return true;
-    return false;
+    return logic.isWallForMost(coords);
 }
 
 bool Level::isWallForBullet(sf::Vector2i coords)
@@ -46,7 +41,7 @@ bool Level::isWallForBullet(sf::Vector2i coords)
         return true;
     bool hasBox;
     boxes.getBox(coords, &hasBox);
-    return hasBox;
+    return hasBox || logic.isWallForBullet(coords);
 }
 
 bool Level::push(char direction)
@@ -57,7 +52,7 @@ bool Level::push(char direction)
     sf::Vector2i newCoords = Player.getNextPos();
 
     //Checking if there's a wall blocking :
-    bool isBlocked = isWallForPlayer(newCoords);
+    bool isBlocked = isWallForMost(newCoords);
 
     //Checking if there's a box blocking :
     if (!isBlocked)
@@ -81,7 +76,7 @@ bool Level::boxPush(Entity* pusher, char direction)
 {
     sf::Vector2i newCoords = pusher->getNextPos(direction);
     //Checking if there's a wall blocking :
-    bool isBlocked = isWallForBox(newCoords);
+    bool isBlocked = isWallForMost(newCoords);
 
     //Checking if there's a box blocking :
     if (!isBlocked)
@@ -92,10 +87,25 @@ bool Level::boxPush(Entity* pusher, char direction)
             isBlocked = boxPush(boxP, direction);
     }
 
+    //Pushing a PlayerLike if it's in front :
+    if (balive && bullet.C == newCoords)
+        pLikePush(&bullet, direction);
+
     //Updating the coords if nothing is blocking:
     if (!isBlocked)
         pusher->C = newCoords;
     return isBlocked;
+}
+
+void Level::pLikePush(PlayerLike* pushed, char direction)
+{
+    sf::Vector2i newCoords = pushed->getNextPos(direction);
+    pushed->C = newCoords;
+    pushed->direction = direction;
+    //It's pushed anyway.
+    //It will be destroyed if it's inside another object :
+
+    balive = !isWallForBullet(newCoords);
 }
 
 bool Level::swap()
@@ -149,11 +159,21 @@ void Level::step(bool didSwap)
         if (!isWallForBullet(newC))
             bullet.C = newC;
     }
+
+    //Updating logic :
+    std::vector<sf::Vector2i> heavy_pos = boxes.get_boxes_pos();
+    if (Palive)
+        heavy_pos.push_back(Player.C);
+
+    std::vector<sf::Vector2i> arrow_pos;
+    if (balive)
+        arrow_pos.push_back(bullet.C);
+
+    std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &balive);
+    logic.update(updated_activators);
+
     nbSteps++;
 }
-
-
-//Logic
 
 
 //Display
@@ -180,7 +200,11 @@ void Level::display(sf::RenderWindow * windowP, sf::Font font)
 
     sf::Vector2i C0;
     int delta;
+    
     backGround.getDisplay(&C0, &delta);
+
+    logic.draw(C0, delta, windowP);
+
     if (Palive)
         Player.draw(C0, delta, windowP);
     if (balive)
@@ -209,6 +233,9 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font, Level prevStep)
     for (int i = 1; i <= 4; i++)//All animations are 4 frames long
     {
         windowP->draw(BG);
+
+        //Animation of logic elements
+        logic.anim(prevStep.logic, C0, delta, windowP, i);
 
         //Animation of the player
         if (prevStep.Palive && Palive)
