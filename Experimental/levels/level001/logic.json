@@ -1,5 +1,5 @@
 {
-    "nb_activators" : 3,
+    "nb_activators" : 5,
     "activators" : [
         {
             "type" : "I",
@@ -15,19 +15,39 @@
             "type" : "T",
             "X" : 5,
             "Y" : 7
+        },
+        {
+            "type" : "I",
+            "X" : 5,
+            "Y" : 9
+        },
+        {
+            "type" : "I",
+            "X" : 5,
+            "Y" : 11
         }
     ],
 
-    "nb_gates" : 1,
+    "nb_gates" : 3,
     "gates" : [
+        {
+            "type" : "&",
+            "X" : 7,
+            "Y" : 4
+        },
         {
             "type" : "!",
             "X" : 7,
-            "Y" : 4
+            "Y" : 7
+        },
+        {
+            "type" : "|",
+            "X" : 7,
+            "Y" : 10
         }
     ],
 
-    "nb_doors" : 2,
+    "nb_doors" : 3,
     "doors" : [
         {
             "X" : 10,
@@ -62,11 +82,34 @@
                     "Y" : 8
                 }
             ]
+        },
+        {
+            "X" : 10,
+            "Y" : 10,
+            "nb_tiles" : 2,
+            "tiles" : [
+                {
+                    "X" : 10,
+                    "Y" : 10
+                },
+                {
+                    "X" : 10,
+                    "Y" : 10
+                }
+            ]
         }
     ],
     
-    "nb_links" : 3,
+    "nb_links" : 8,
     "links" : [
+        {
+            "X_start" : 5,
+            "Y_start" : 3,
+            "type_start" : "Activator",
+            "X_end" : 7,
+            "Y_end" : 4,
+            "type_end" : "Gate"
+        },
         {
             "X_start" : 5,
             "Y_start" : 5,
@@ -87,8 +130,40 @@
             "X_start" : 5,
             "Y_start" : 7,
             "type_start" : "Activator",
+            "X_end" : 7,
+            "Y_end" : 7,
+            "type_end" : "Gate"
+        },
+        {
+            "X_start" : 7,
+            "Y_start" : 7,
+            "type_start" : "Gate",
             "X_end" : 10,
             "Y_end" : 7,
+            "type_end" : "Door"
+        },
+        {
+            "X_start" : 5,
+            "Y_start" : 9,
+            "type_start" : "Activator",
+            "X_end" : 7,
+            "Y_end" : 10,
+            "type_end" : "Gate"
+        },
+        {
+            "X_start" : 5,
+            "Y_start" : 11,
+            "type_start" : "Activator",
+            "X_end" : 7,
+            "Y_end" : 10,
+            "type_end" : "Gate"
+        },
+        {
+            "X_start" : 7,
+            "Y_start" : 10,
+            "type_start" : "Gate",
+            "X_end" : 10,
+            "Y_end" : 10,
             "type_end" : "Door"
         }
     ]
