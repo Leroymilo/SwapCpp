@@ -122,7 +122,7 @@ void Level::pLikePush(PlayerLike* pushed, char direction)
     //It's pushed anyway.
 }
 
-bool Level::swap()
+bool Level::swap(std::string* act)
 {
     if (Player.is_alive && !bullet.is_alive)
     {
@@ -132,6 +132,7 @@ bool Level::swap()
         bullet.is_alive = true;
         bullet.C = Player.get_next_pos();
         bullet.dir = Player.dir;
+        *act = "Shot";
     }
     else if (Player.is_alive && bullet.is_alive)
     {
@@ -143,6 +144,7 @@ bool Level::swap()
         bullet.C = tempC;
         Player.dir = bullet.dir;
         bullet.dir = tempdir;
+        *act = "Swap";
     }
     else if (!Player.is_alive && bullet.is_alive)
     {
@@ -154,6 +156,7 @@ bool Level::swap()
         bullet.is_alive = false;
         Player.C = bullet.C;
         Player.dir = bullet.dir;
+        *act = "Swap";
     }
     else 
         return false;
@@ -210,12 +213,7 @@ void Level::step(bool didSwap)
     nbSteps++;
 }
 
-void Level::undo(std::list<int> steps)
-{
-
-}
-
-void Level::reset(std::list<int> steps)
+void Level::undo(std::list<std::string>* steps)
 {
 
 }

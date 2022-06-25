@@ -35,15 +35,14 @@ class Level
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
         bool isWallForBullet(sf::Vector2i coords);
         bool push(char direction);  //First call of the pushing recursive function (the player pushes)
-        bool swap();
+        bool swap(std::string* act);
         bool wait();
-        void undo(std::list<int> steps);
-        void reset(std::list<int> steps);
+        void undo(std::list<std::string>* steps);
         void step(bool didSwap);
 
-        void resize_bg(sf::RenderWindow * windowP);
-        void display(sf::RenderWindow * windowP, sf::Font font);
-        void animate(sf::RenderWindow * windowP, sf::Font font);
+        void resize_bg(sf::RenderWindow* windowP);
+        void display(sf::RenderWindow* windowP, sf::Font font);
+        void animate(sf::RenderWindow* windowP, sf::Font font);
 };
 
 #endif //LEVEL_H

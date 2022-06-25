@@ -35,7 +35,10 @@ int main()
     bool step = false;
     bool didSwap = false;
     char directions[] = {'U', 'R', 'D', 'L'};
-    std::list<int> steps;
+    std::list<std::string> steps;
+    //A step can be : U, R, D, L, Shot, Swap, W or +
+    std::list<Level> pre_resets;
+    pre_resets.push_back(level);
 
     //Debug :
     int t0;
@@ -117,30 +120,56 @@ int main()
             int t = clock.getElapsedTime().asMilliseconds();
             step = false;
             didSwap = false;
+            std::string act = "";
             if (pkey < 4)
             {
                 step = level.push(directions[pkey]);
+                act = directions[pkey];
             }
             else if (pkey == 4)
             {
-                step = level.swap();
+                step = level.swap(&act);
                 didSwap = true;
             }
-            else if (pkey == 5 && steps.size() > 1)
+            else if (pkey == 5)
             {
-                if (steps.size() > 1)
+                if (steps.size() > 0)
                 {
-                    level.undo(steps);
+                    if (steps.back() == "+")
+                    {
+                        level = pre_resets.back();
+                        pre_resets.pop_back();
+                        steps.pop_back();
+                    }
+                    else
+                        level.undo(&steps);
                 }
             }
             else if (pkey == 6)
             {
                 step = level.wait();
+                act = "W";
             }
             else if (pkey == 7)
             {
-                // level = steps.front();
-                // steps.push_back(level);
+                if (steps.size() > 0 && steps.back() != "+")
+                {
+                    pre_resets.push_back(level);
+                    level = pre_resets.front();
+                    level.resize_bg(&window);
+                    act = "+";
+                }
+            }
+            else if (pkey == 8)
+            {
+                window.close();
+                return 0;
+            }
+
+            if (act != "")
+            {
+                std::cout << "action : " << act << std::endl;
+                steps.push_back(act);
             }
             
 
@@ -150,7 +179,7 @@ int main()
                 t0 = clock.getElapsedTime().asMilliseconds();
                 level.animate(&window, font);
                 std::cout << "animation time : " << clock.getElapsedTime().asMilliseconds()-t0 << "ms" << std::endl;
-                steps.push_back(pkey);
+                steps.push_back(act);
             }
             else
                 level.display(&window, font);
