@@ -1,6 +1,7 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#include <list>
 #include <SFML/Graphics.hpp>
 #include "grid.hpp"
 #include "entities.hpp"
@@ -10,9 +11,7 @@ class Level
 {
     private:
         PlayerLike Player;
-        bool Palive = true;
         PlayerLike bullet;
-        bool balive = false;
         Boxes boxes;
         sf::Vector2i win_tile;
         Grid backGround;
@@ -38,10 +37,13 @@ class Level
         bool push(char direction);  //First call of the pushing recursive function (the player pushes)
         bool swap();
         bool wait();
+        void undo(std::list<int> steps);
+        void reset(std::list<int> steps);
         void step(bool didSwap);
 
+        void resize_bg(sf::RenderWindow * windowP);
         void display(sf::RenderWindow * windowP, sf::Font font);
-        void animate(sf::RenderWindow * windowP, sf::Font font, Level prevStep);
+        void animate(sf::RenderWindow * windowP, sf::Font font);
 };
 
 #endif //LEVEL_H

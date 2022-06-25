@@ -21,14 +21,16 @@ class Link
         sf::Vector2i output;
         std::string output_type;
         // Types are "Activator", "Gate" or "Door". "Activator" cannot be output and "Door" cannot be input.
+        bool state=false;
+        bool prev_state=false;
     
     public :
-        bool state=false;
-
         Link();
         Link(sf::Vector2i input, sf::Vector2i output, std::string input_type, std::string output_type);
+
         sf::Vector2i get_output();
-        
+        void set_state(bool new_state);
+        bool get_state();
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
 };
@@ -38,19 +40,22 @@ class Activator
     private :
         sf::Texture sprites[5];
         std::vector<int> outputs;
+        bool state=false;
+        bool prev_state=false;
     
     public :
         char type;
-        bool state=false;
 
         Activator();
         Activator(char type);
-        void add_output(int id_link);
 
+        void add_output(int id_link);
         void get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links);
+        void set_state(bool new_state);
+        bool get_state();
 
         sf::RectangleShape draw(int delta);
-        sf::RectangleShape anim(bool prevState, int delta, int frame);
+        sf::RectangleShape anim(int delta, int frame);
 };
 
 class Gate
@@ -59,23 +64,24 @@ class Gate
         sf::Texture sprites[5];
         std::vector<int> inputs;
         std::vector<int> outputs;
+        bool state=false;
+        bool prev_state=false;
     
     public :
         char type;
-        bool state=false;
 
         Gate();
         Gate(char type);
+
         void add_output(int id_link);
         void add_input(int id_link);
-
         bool update_state(std::map<int, Link> * links);
         //Returns true if output changed, does not update states of the output links.
         void get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links);
         //Updates states of the output links and add positions of outputs's end points to to_update.
 
         sf::RectangleShape draw(int delta);
-        sf::RectangleShape anim(bool prevState, int delta, int frame);
+        sf::RectangleShape anim(int delta, int frame);
 };
 
 class DoorTile
@@ -97,10 +103,11 @@ class Door
         sf::Texture sprites[5];
         int input;
         std::vector<DoorTile> tiles;
+        bool state=false;   //false is closed, true is open
+        bool prev_state=false;
     
     public :
         char type='D';
-        bool state=false;   //false is closed, true is open
 
         Door();
         Door(bool);
@@ -109,9 +116,10 @@ class Door
         std::vector<sf::Vector2i> get_tiles_pos();
 
         void update_state(std::map<int, Link> * links);
+        bool get_state();
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(bool prevState, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 };
 
 class Logic
@@ -135,7 +143,7 @@ class Logic
         void update(std::vector<sf::Vector2i> changed_elts);
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(Logic prevState, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 };
 
 #endif //LOGIC_H

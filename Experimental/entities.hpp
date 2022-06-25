@@ -9,13 +9,16 @@ class Entity    //Generic class describing entities
         sf::Texture sprite;
         
     public:
+        bool is_alive;
+        bool prev_is_alive;
         sf::Vector2i C;
+        sf::Vector2i prev_C;
 
         Entity();
         Entity(sf::Vector2i C, sf::Texture sprite);
-        sf::Vector2i getNextPos(char direction);
+        sf::Vector2i get_next_pos(char direction);
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(sf::Vector2i start, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 
 };
 
@@ -25,36 +28,31 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
         std::map<char, sf::Texture> sprites;
 
     public:
-        char direction;
+        char dir;
 
         PlayerLike();
         PlayerLike(std::string directory, std::string name);
-        sf::Vector2i getNextPos(char direction = '_');
+        sf::Vector2i get_next_pos(char direction = '_');
         void revert();
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(sf::Vector2i start, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 };
 
 class Boxes     //list of boxes (simple entities)
 {
     private:
-        int nbBoxes;
-        Entity * list;
-        bool * listAlive;
+        int nb_boxes;
+        std::vector<Entity> list;
     
     public:
         Boxes();
-        Boxes(const Boxes& tocopy);
-        Boxes& operator=(const Boxes& other);
-        ~Boxes();
-        void readFile(std::string directory);
-        void setLists(int n, Entity * list, bool * listAlive);
+        Boxes(std::string directory);
 
-        Entity* getBox(sf::Vector2i coords, bool* hasBox);
+        Entity* get_box(sf::Vector2i coords, bool* hasBox);
         std::vector<sf::Vector2i> get_boxes_pos();
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(Boxes prevState, sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 };
 
 #endif //ENTITY_H

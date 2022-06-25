@@ -9,6 +9,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(500, 500), "SWAP!");
     sf::Clock clock;
     Level level(1);
+    level.resize_bg(&window);
     sf::Font font;
     if (!font.loadFromFile("assets\\font.ttf"))
         std::cout << "Could not load font" << std::endl;
@@ -20,7 +21,7 @@ int main()
     //Input handling :
     int time = clock.getElapsedTime().asMilliseconds();
     int long_deltaT = 200;
-    int short_deltaT = 50;
+    int short_deltaT = 100;
     bool long_press = false;
     bool process_input = false;
     int nbKeys = 9;
@@ -28,17 +29,16 @@ int main()
     sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
     std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};//Unused, just a description of the actions.
     bool keysStates[] = {false, false, false, false, false, false, false, false, false};
-    int pkey = 9;
+    int pkey = nbKeys;
 
     //Gameplay variables :
     bool step = false;
     bool didSwap = false;
     char directions[] = {'U', 'R', 'D', 'L'};
-    std::list<Level> steps;
-    steps.push_back(level);
+    std::list<int> steps;
 
     //Debug :
-    int prev_event_time;
+    int t0;
 
     while (window.isOpen())
     {
@@ -53,6 +53,8 @@ int main()
             {
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 window.setView(sf::View(view));
+                level.resize_bg(&window);
+                level.display(&window, font);
             }
             else if (evnt.type == sf::Event::KeyPressed)
             {
@@ -76,7 +78,7 @@ int main()
         process_input = false;
 
         //Key was kept pressed :
-        if (pkey!=9 and keysStates[pkey])
+        if (pkey!=nbKeys and keysStates[pkey])
         {
             if (!long_press and clock.getElapsedTime().asMilliseconds() >= time + long_deltaT)
             {
@@ -95,7 +97,7 @@ int main()
         //Key was unpressed :
         else
         {
-            pkey = 9;
+            pkey = nbKeys;
             long_press = false;
             for(int i = 0; i < nbKeys; i++)
             {
@@ -110,8 +112,9 @@ int main()
         }
         
     //Apply inputs :
-        if (pkey!=9 and process_input)
+        if (pkey!=nbKeys and process_input)
         {
+            int t = clock.getElapsedTime().asMilliseconds();
             step = false;
             didSwap = false;
             if (pkey < 4)
@@ -125,8 +128,10 @@ int main()
             }
             else if (pkey == 5 && steps.size() > 1)
             {
-                steps.pop_back();
-                level = steps.back();
+                if (steps.size() > 1)
+                {
+                    level.undo(steps);
+                }
             }
             else if (pkey == 6)
             {
@@ -134,20 +139,25 @@ int main()
             }
             else if (pkey == 7)
             {
-                level = steps.front();
-                steps.push_back(level);
+                // level = steps.front();
+                // steps.push_back(level);
             }
+            
 
             if (step)
             {
                 level.step(didSwap);
-                level.animate(&window, font, steps.back());
-                steps.push_back(level);
+                t0 = clock.getElapsedTime().asMilliseconds();
+                level.animate(&window, font);
+                std::cout << "animation time : " << clock.getElapsedTime().asMilliseconds()-t0 << "ms" << std::endl;
+                steps.push_back(pkey);
             }
+            else
+                level.display(&window, font);
+
+            std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl << std::endl;
         }
 
-        else
-            level.display(&window, font);
     if (level.won)
         window.close();
     }

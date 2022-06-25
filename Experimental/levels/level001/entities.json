@@ -2,13 +2,15 @@
     "player" : {
         "X" : 2,
         "Y" : 4,
-        "dir" : "U"
+        "dir" : "U",
+        "alive" : true
     },
 
     "bullet" : {
         "X" : 0,
         "Y" : 0,
-        "dir" : "U"
+        "dir" : "U",
+        "alive" : false
     },
 
     "nbBoxes" : 2,
