@@ -20,7 +20,7 @@ class Level
 
         std::map<char, sf::Texture> bg_tiles;
 
-        bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
+        bool boxPush(Entity* pusher, char direction, int* nb_pushed);//Recursive calls of the pushing function
         void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy
         //(or the player but it's not currently possoble)
 
@@ -31,14 +31,16 @@ class Level
 
         Level();
         Level(int number);
+        std::string get_pLike_state();  //To record the states of the Player and bullet into the list of steps
 
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
         bool isWallForBullet(sf::Vector2i coords);
-        bool push(char direction);  //First call of the pushing recursive function (the player pushes)
+        bool push(char direction, std::string* act);  //First call of the pushing recursive function (the player pushes)
         bool swap(std::string* act);
         bool wait();
         void undo(std::list<std::string>* steps);
         void step(bool didSwap);
+        void step_end_logic();
 
         void resize_bg(sf::RenderWindow* windowP);
         void display(sf::RenderWindow* windowP, sf::Font font);

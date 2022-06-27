@@ -11,12 +11,14 @@ class Entity    //Generic class describing entities
     public:
         bool is_alive;
         bool prev_is_alive;
+        int step_since_destroy;
         sf::Vector2i C;
         sf::Vector2i prev_C;
 
         Entity();
         Entity(sf::Vector2i C, sf::Texture sprite);
         sf::Vector2i get_next_pos(char direction);
+        sf::Vector2i get_prev_pos(char direction);
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
         void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 
@@ -26,6 +28,7 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
 {
     private:
         std::map<char, sf::Texture> sprites;
+        char initial_d;
 
     public:
         char dir;
@@ -33,9 +36,12 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
         PlayerLike();
         PlayerLike(std::string directory, std::string name);
         sf::Vector2i get_next_pos(char direction = '_');
+        sf::Vector2i get_prev_pos(char direction = '_');
         void revert();
+        void reset_dir();
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
         void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
 };
 
 class Boxes     //list of boxes (simple entities)
@@ -50,6 +56,8 @@ class Boxes     //list of boxes (simple entities)
 
         Entity* get_box(sf::Vector2i coords, bool* hasBox);
         std::vector<sf::Vector2i> get_boxes_pos();
+        void step_end_logic();
+        void undo();
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
         void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);

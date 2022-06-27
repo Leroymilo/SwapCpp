@@ -24,13 +24,24 @@ sf::Vector2i Link::get_output()
 
 void Link::set_state(bool new_state)
 {
-    prev_state = state;
     state = new_state;
 }
 
 bool Link::get_state()
 {
     return state;
+}
+
+void Link::step_end_logic()
+{
+    prev_states.push_back(state);
+}
+
+void Link::undo()
+{
+    prev_states.pop_back();
+    state = prev_states.back();
+    prev_states.pop_back();
 }
 
 void Link::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
@@ -48,7 +59,6 @@ void Link::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
     lines[1].color = color;
 
     windowPoint->draw(lines);
-    prev_state = state;
 }
 
 // Methods for Activator
@@ -94,7 +104,6 @@ void Activator::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int,
 
 void Activator::set_state(bool new_state)
 {
-    prev_state = state;
     state = new_state;
 }
 
@@ -103,20 +112,31 @@ bool Activator::get_state()
     return state;
 }
 
+void Activator::step_end_logic()
+{
+    prev_states.push_back(state);
+}
+
+void Activator::undo()
+{
+    prev_states.pop_back();
+    state = prev_states.back();
+    prev_states.pop_back();
+}
+
 sf::RectangleShape Activator::draw(int delta)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprites[state*4]);
-    prev_state = state;
     return tile;
 }
 
 sf::RectangleShape Activator::anim(int delta, int frame)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    if (state && !prev_state)
+    if (state && !(prev_states.back()))
         tile.setTexture(&sprites[frame]);
-    else if (!state && prev_state)
+    else if (!state && (prev_states.back()))
         tile.setTexture(&sprites[4-frame]);
     else
         tile.setTexture(&sprites[state*4]);
@@ -193,9 +213,9 @@ bool Gate::update_state(std::map<int, Link> * links)
     else if (type=='!') //NOT gate
         new_state = !links[0][inputs[0]].get_state();
 
-    prev_state = state;
+    bool changed = state != new_state;
     state = new_state;
-    return prev_state != state;
+    return changed;
 }
 
 void Gate::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links)
@@ -211,20 +231,31 @@ void Gate::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link
     }
 }
 
+void Gate::step_end_logic()
+{
+    prev_states.push_back(state);
+}
+
+void Gate::undo()
+{
+    prev_states.pop_back();
+    state = prev_states.back();
+    prev_states.pop_back();
+}
+
 sf::RectangleShape Gate::draw(int delta)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprites[state*4]);
-    prev_state = state;
     return tile;
 }
 
 sf::RectangleShape Gate::anim(int delta, int frame)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    if (state && !prev_state)
+    if (state && !prev_states.back())
         tile.setTexture(&sprites[frame]);
-    else if (!state && prev_state)
+    else if (!state && prev_states.back())
         tile.setTexture(&sprites[4-frame]);
     else
         tile.setTexture(&sprites[state*4]);
@@ -280,13 +311,24 @@ std::vector<sf::Vector2i> Door::get_tiles_pos()
 
 void Door::update_state(std::map<int, Link> * links)
 {
-    prev_state = state;
     state = links[0][input].get_state();
 }
 
 bool Door::get_state()
 {
     return state;
+}
+
+void Door::step_end_logic()
+{
+    prev_states.push_back(state);
+}
+
+void Door::undo()
+{
+    prev_states.pop_back();
+    state = prev_states.back();
+    prev_states.pop_back();
 }
 
 void Door::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
@@ -298,7 +340,6 @@ void Door::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
         rectangle.setPosition(tile.getPos().x*delta+C0.x, tile.getPos().y*delta+C0.y);
         windowPoint->draw(rectangle);
     }
-    prev_state = state;
 }
 
 void Door::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
@@ -306,9 +347,9 @@ void Door::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int f
     for (auto &tile : tiles)
     {
         sf::RectangleShape rectangle(sf::Vector2f(delta, delta));
-        if (state && !prev_state)
+        if (state && !prev_states.back())
             rectangle.setTexture(&sprites[frame]);
-        else if (prev_state && !state)
+        else if (prev_states.back() && !state)
             rectangle.setTexture(&sprites[4-frame]);
         else 
             rectangle.setTexture(&sprites[state*4]);
@@ -388,21 +429,7 @@ Logic::Logic(std::string directory)
     //Updating logic because of no gates :
 
     update(to_update);
-
-    //Debug :
-
-    // std::cout << "activators :" << std::endl;
-    // for (auto act_elt : activators)
-    //     std::cout << act_elt.first.x << " " << act_elt.first.y << std::endl;
-
-    // std::cout << std::endl << "gates :" << std::endl;
-    // for (auto gate_elt : gates)
-    //     std::cout << gate_elt.first.x << " " << gate_elt.first.y << std::endl;
-
-    // std::cout << std::endl << "doors :" << std::endl;
-    // for (auto door_elt : doors)
-    //     std::cout << door_elt.first.x << " " << door_elt.first.y << std::endl;
-
+    step_end_logic();
 }
 
 bool Logic::isClosedDoor(sf::Vector2i coords)
@@ -515,10 +542,34 @@ void Logic::update(std::vector<sf::Vector2i> changed_elts)
     update(new_elts);
 }
 
+void Logic::step_end_logic()
+{
+    for (auto &link_elt : links)
+        link_elt.second.step_end_logic();
+    for (auto &act_elt : activators)
+        act_elt.second.step_end_logic();
+    for (auto &gate_elt : gates)
+        gate_elt.second.step_end_logic();
+    for (auto &door_elt : doors)
+        door_elt.second.step_end_logic();
+}
+
+void Logic::undo()
+{
+    for (auto &link_elt : links)
+        link_elt.second.undo();
+    for (auto &act_elt : activators)
+        act_elt.second.undo();
+    for (auto &gate_elt : gates)
+        gate_elt.second.undo();
+    for (auto &door_elt : doors)
+        door_elt.second.undo();
+}
+
 void Logic::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
 
-    for (auto link_elt : links)
+    for (auto &link_elt : links)
         link_elt.second.draw(C0, delta, windowPoint);
 
     for (auto &elt : activators)
@@ -544,7 +595,7 @@ void Logic::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 void Logic::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
     
-    for (auto link_elt : links)
+    for (auto &link_elt : links)
         link_elt.second.draw(C0, delta, windowPoint);
 
     for (auto &elt : activators)

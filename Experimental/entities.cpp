@@ -32,13 +32,25 @@ sf::Vector2i Entity::get_next_pos(char direction)
     return C;
 }
 
+sf::Vector2i Entity::get_prev_pos(char direction)
+{    
+    if (direction == 'U')
+        return sf::Vector2i(C.x, C.y+1);
+    else if (direction == 'R')
+        return sf::Vector2i(C.x-1, C.y);
+    else if (direction == 'D')
+        return sf::Vector2i(C.x, C.y-1);
+    else if (direction == 'L')
+        return sf::Vector2i(C.x+1, C.y);
+    return C;
+}
+
 void Entity::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprite);
     tile.setPosition(C0.x+delta*C.x, C0.y+delta*C.y);
     windowPoint->draw(tile);
-    prev_C = C;
 }
 
 void Entity::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
@@ -64,6 +76,7 @@ PlayerLike::PlayerLike(std::string directory, std::string name)
 
     C = sf::Vector2i(actualJson[name]["X"].asInt(), actualJson[name]["Y"].asInt());
     dir = actualJson[name]["dir"].asCString()[0];
+    initial_d = dir;
 
     char directions [] = {'U', 'R', 'D', 'L'};
     for (int i=0; i<4; i++)
@@ -92,6 +105,22 @@ sf::Vector2i PlayerLike::get_next_pos(char direction)
     return C;
 }
 
+sf::Vector2i PlayerLike::get_prev_pos(char direction)
+{
+    if (direction == '_')
+        direction = dir;
+    
+    if (direction == 'U')
+        return sf::Vector2i(C.x, C.y+1);
+    else if (direction == 'R')
+        return sf::Vector2i(C.x-1, C.y);
+    else if (direction == 'D')
+        return sf::Vector2i(C.x, C.y-1);
+    else if (direction == 'L')
+        return sf::Vector2i(C.x+1, C.y);
+    return C;
+}
+
 void PlayerLike::revert()
 {
     if (dir == 'U')
@@ -104,13 +133,17 @@ void PlayerLike::revert()
         dir = 'R';
 }
 
+void PlayerLike::reset_dir()
+{
+    dir = initial_d;
+}
+
 void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprites[dir]);
     tile.setPosition(C0.x+delta*C.x, C0.y+delta*C.y);
     windowPoint->draw(tile);
-    prev_C = C;
 }
 
 void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
@@ -121,6 +154,11 @@ void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint,
     tile.setTexture(&sprites[dir]);
     tile.setPosition(pxlX, pxlY);
     windowPoint->draw(tile);
+}
+
+void PlayerLike::destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
+{
+    //Add the destroy animation here
 }
 
 
@@ -174,6 +212,30 @@ std::vector<sf::Vector2i> Boxes::get_boxes_pos()
     return boxes_pos;
 }
 
+void Boxes::step_end_logic()
+{
+    for (auto &box : list)
+    {
+        box.prev_is_alive = box.is_alive;
+        box.prev_C = box.C;
+        if (!box.is_alive)
+            box.step_since_destroy++;
+    } 
+}
+
+void Boxes::undo()
+{
+    for (auto &box : list)
+    {
+        if (!box.is_alive)
+        {
+            box.step_since_destroy--;
+            if (box.step_since_destroy == 0)
+                box.is_alive = true;
+        }
+    }
+}
+
 void Boxes::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     for (auto &box : list)
@@ -188,10 +250,9 @@ void Boxes::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int 
     for (auto &box : list)
     {
         if (box.is_alive && box.prev_is_alive)
-        {
             box.anim(C0, delta, windowPoint, frame);
-        }
         else if (box.is_alive)
             box.draw(C0, delta, windowPoint);
+        
     }
 }
