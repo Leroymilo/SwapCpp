@@ -75,8 +75,8 @@ PlayerLike::PlayerLike(std::string directory, std::string name)
     reader.parse(file, actualJson);
 
     C = sf::Vector2i(actualJson[name]["X"].asInt(), actualJson[name]["Y"].asInt());
+    prev_Cs.push_back(C);
     dir = actualJson[name]["dir"].asCString()[0];
-    initial_d = dir;
 
     char directions [] = {'U', 'R', 'D', 'L'};
     for (int i=0; i<4; i++)
@@ -133,11 +133,6 @@ void PlayerLike::revert()
         dir = 'R';
 }
 
-void PlayerLike::reset_dir()
-{
-    dir = initial_d;
-}
-
 void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
@@ -148,8 +143,8 @@ void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 
 void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    float deltaX = ((float)C.x-(float)prev_C.x)/4, deltaY = ((float)C.y-(float)prev_C.y)/4;
-    float pxlX = C0.x + delta*(prev_C.x+deltaX*frame), pxlY = C0.y + delta*(prev_C.y+deltaY*frame);
+    float deltaX = ((float)C.x-(float)prev_Cs.back().x)/4, deltaY = ((float)C.y-(float)prev_Cs.back().y)/4;
+    float pxlX = C0.x + delta*(prev_Cs.back().x+deltaX*frame), pxlY = C0.y + delta*(prev_Cs.back().y+deltaY*frame);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprites[dir]);
     tile.setPosition(pxlX, pxlY);
@@ -212,10 +207,21 @@ std::vector<sf::Vector2i> Boxes::get_boxes_pos()
     return boxes_pos;
 }
 
+void Boxes::destroy(std::vector<bool> to_destroy)
+{
+    for (int i = 0; i < nb_boxes; i++)
+    {
+        if (to_destroy[i])
+            list[i].is_alive = false;
+    }
+}
+
 void Boxes::step_end_logic()
 {
     for (auto &box : list)
     {
+        std::cout << "box alive : " << box.is_alive << std::endl;
+        std::cout << "steps since destroyed : " << box.step_since_destroy << std::endl;
         box.prev_is_alive = box.is_alive;
         box.prev_C = box.C;
         if (!box.is_alive)
@@ -232,6 +238,8 @@ void Boxes::undo()
             box.step_since_destroy--;
             if (box.step_since_destroy == 0)
                 box.is_alive = true;
+            else
+                box.step_since_destroy--;
         }
     }
 }

@@ -146,6 +146,7 @@ class Logic
         bool isClosedDoor(sf::Vector2i coords);
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
         bool isWallForBullet(sf::Vector2i coords);
+        char get_type(sf::Vector2i coords);
 
         std::vector<sf::Vector2i> update_activators(std::vector<sf::Vector2i> heavy_coords, std::vector<sf::Vector2i> arrow_coords, bool didSwap, bool * balive);
         //Returns the position of the outputs of every activator that chenged state

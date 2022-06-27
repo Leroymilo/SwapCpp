@@ -454,6 +454,25 @@ bool Logic::isWallForBullet(sf::Vector2i coords)
     return isClosedDoor(coords);
 }
 
+char Logic::get_type(sf::Vector2i coords)
+{
+    for (auto &elt : activators)
+    {
+        if (elt.first == coords)
+            return elt.second.type;
+    }
+    for (auto &elt : gates)
+    {
+        if (elt.first == coords)
+            return elt.second.type;
+    }
+    for (auto &elt : doors)
+    {
+        if (elt.first == coords)
+            return elt.second.type;
+    }
+}
+
 std::vector<sf::Vector2i> Logic::update_activators(std::vector<sf::Vector2i> heavy_coords, std::vector<sf::Vector2i> arrow_coords, bool didSwap, bool * balive)
 {
     //heavy_coords has the coordinates of "heavy objects" (alive boxes and the player if it's alive)

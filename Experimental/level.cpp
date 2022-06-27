@@ -37,7 +37,9 @@ std::string Level::get_pLike_state()
 {
     std::string res = "";
     res.append(std::to_string(int(Player.is_alive)));
+    res.push_back(Player.dir);
     res.append(std::to_string(int(bullet.is_alive)));
+    res.push_back(bullet.dir);
     return res;
 }
 
@@ -191,6 +193,12 @@ void Level::step(bool didSwap)
     Player.is_alive = !((bullet.is_alive && Player.C == bullet.C) || isWallForMost(Player.C)) && Player.is_alive;
     bullet.is_alive = !isWallForBullet(bullet.C) && bullet.is_alive;
 
+    //Same for boxes :
+    std::vector<bool> to_destroy;
+    for (sf::Vector2i coords : boxes.get_boxes_pos())
+        to_destroy.push_back(isWallForMost(coords));
+    boxes.destroy(to_destroy);
+
     //Moving bullet :
     if (bullet.is_alive && !didSwap)
     {
@@ -227,7 +235,10 @@ void Level::step(bool didSwap)
     bullet.is_alive = !isWallForBullet(bullet.C) && bullet.is_alive;
 
     //Same for boxes :
-
+    to_destroy.clear();
+    for (sf::Vector2i coords : boxes.get_boxes_pos())
+        to_destroy.push_back(isWallForMost(coords));
+    boxes.destroy(to_destroy);
 
     nbSteps++;
 }
@@ -240,67 +251,20 @@ void Level::undo(std::list<std::string>* steps)
     steps->pop_back();
 
     Player.is_alive = last_move[0]=='1';
-    bullet.is_alive = last_move[1]=='1';
+    bullet.is_alive = last_move[2]=='1';
     boxes.undo();
-    logic.undo();
 
-    if (last_move[2] == 'H')
-    {
-        // std::cout << "reversing shot" << std::endl;
-        bullet.is_alive = false;
-        bullet.prev_is_alive = false;
-    }
+    if (last_move[4] == 'H'){}
 
-    else if (last_move[2] == 'P')
-    {
-        // std::cout << "reversing swap" << std::endl;
-        if (Player.is_alive)
-        {
-            sf::Vector2i tempC = Player.C;
-            char tempdir = Player.dir;
-            Player.C = bullet.C;
-            bullet.C = tempC;
-            Player.dir = bullet.dir;
-            bullet.dir = tempdir;
-        }
-        else
-        {
-            bullet.C = Player.C;
-            bullet.dir = Player.dir;
-        }
-    }
+    else if (last_move[4] == 'P'){}
 
-    else if (last_move[2] == 'W')
-    {
-        // std::cout << "reversing wait" << std::endl;
-
-        if (bullet.is_alive)
-        {
-            sf::Vector2i prev_C = bullet.get_prev_pos();
-            if (!isWallForBullet(prev_C))
-                bullet.C = prev_C;
-            if (isWallForBullet(bullet.get_prev_pos()))
-                bullet.revert();
-        }
-    }
+    else if (last_move[4] == 'W'){}
 
     else
     {
         // std::cout << "reversing move" << std::endl;
-        int nb_pushed = std::stoi(last_move.substr(std::size_t(3), last_move.size()));
+        int nb_pushed = std::stoi(last_move.substr(std::size_t(5), last_move.size()));
         // std::cout << nb_pushed << std::endl;
-        
-        //Send the bullet backwards :
-        if (bullet.is_alive)
-        {
-            sf::Vector2i prev_C = bullet.get_prev_pos();
-            if (!isWallForBullet(prev_C))
-                bullet.C = prev_C;
-            if (isWallForBullet(bullet.get_prev_pos()))
-                bullet.revert();
-        }
-
-        sf::Vector2i prev_pos = Player.get_prev_pos();
         
         //Pulling boxes and PlayerLikes :
         for (int i = 0; i < nb_pushed; i++)
@@ -308,42 +272,34 @@ void Level::undo(std::list<std::string>* steps)
             sf::Vector2i box_pos = Player.get_next_pos();
             bool has_box;
             Entity* box = boxes.get_box(box_pos, &has_box);
-            if (bullet.C == box_pos)
-            {
-                bullet.C = Player.C;
-                if (isWallForBullet(bullet.get_prev_pos()) && !isWallForBullet(bullet.get_next_pos()))
-                    bullet.revert();    //In case it was pushed against a wall
-            }
-            else
+            if (has_box && !(i == nb_pushed-1 && bullet.C == box_pos))
                 box->C = Player.C;
             Player.C = box_pos;
         }
-        Player.C = prev_pos;
-
-        //Give the player the right direction :
-        // std::cout << "last move : " << steps->back() << std::endl;
-        if (steps->size() == 0 or steps->back() == "+")
-            Player.reset_dir();
-        else if (steps->back()[2] == 'H')
-            Player.dir = bullet.dir;
-        else if (steps->back()[2] == 'P')
-            Player.dir = steps->back()[3];
-        else if (steps->back()[2] == 'W'){}
-        else
-            Player.dir = steps->back()[2];
-
-        //Send the player backwards :
-        Player.C = prev_pos;
     }
+
+    logic.undo();
+    
+    Player.prev_Cs.pop_back();
+    Player.C = Player.prev_Cs.back();
+    Player.prev_Cs.pop_back();
+
+    bullet.prev_Cs.pop_back();
+    bullet.C = bullet.prev_Cs.back();
+    bullet.prev_Cs.pop_back();
+
+    Player.dir = last_move[1];
+    bullet.dir = last_move[3];
+
     step_end_logic();
     nbSteps--;
 }
 
 void Level::step_end_logic()
 {
-    Player.prev_C = Player.C;
+    Player.prev_Cs.push_back(Player.C);
     Player.prev_is_alive = Player.is_alive;
-    bullet.prev_C = bullet.C;
+    bullet.prev_Cs.push_back(bullet.C);
     bullet.prev_is_alive = bullet.is_alive;
 
     boxes.step_end_logic();
