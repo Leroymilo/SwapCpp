@@ -1,5 +1,5 @@
 swap.exe: grid.o entities.o logic.o level.o swap.o
-	g++ grid.o entities.o logic.o level.o swap.o -o swap -Wall -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lopengl32 -lwinmm -lgdi32 -ljsoncpp -static
+	g++ grid.o entities.o logic.o level.o swap.o -o swap -Lsrc\lib -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lfreetype -lopengl32 -lwinmm -lgdi32 -ljsoncpp -static
 
 swap.o: swap.cpp
 	g++ -Isrc\include -c swap.cpp -DSFML_STATIC -static
