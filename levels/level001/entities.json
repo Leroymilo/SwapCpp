@@ -1,0 +1,27 @@
+{
+    "player" : {
+        "X" : 2,
+        "Y" : 4,
+        "dir" : "U",
+        "alive" : true
+    },
+
+    "bullet" : {
+        "X" : 0,
+        "Y" : 0,
+        "dir" : "U",
+        "alive" : false
+    },
+
+    "nbBoxes" : 2,
+    "Boxes" : [
+        {
+            "X" : 3,
+            "Y" : 3
+        },
+        {
+            "X" : 3,
+            "Y" : 5
+        }
+    ]
+}
