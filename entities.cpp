@@ -224,7 +224,7 @@ void Boxes::step_end_logic()
         box.prev_C = box.C;
         if (!box.is_alive)
             box.step_since_destroy++;
-    } 
+    }
 }
 
 void Boxes::undo()

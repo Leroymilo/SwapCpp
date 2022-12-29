@@ -20,6 +20,9 @@ class Level
 
         std::map<char, sf::Texture> bg_tiles;
 
+        std::list<std::string> steps;
+        std::list<Level> pre_resets;
+
         bool boxPush(Entity* pusher, char direction, int* nb_pushed);//Recursive calls of the pushing function
         void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy
         //(or the player but it's not currently possoble)
@@ -30,7 +33,7 @@ class Level
         bool won = false;
 
         Level();
-        Level(int number);
+        void readfile(int number);
         std::string get_pLike_state();  //To record the states of the Player and bullet into the list of steps
 
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
@@ -45,6 +48,8 @@ class Level
         void resize_bg(sf::RenderWindow* windowP);
         void display(sf::RenderWindow* windowP, sf::Font font);
         void animate(sf::RenderWindow* windowP, sf::Font font);
+
+        int run(sf::RenderWindow* windowP, sf::Font& font, sf::Clock& clock);
 };
 
 #endif //LEVEL_H

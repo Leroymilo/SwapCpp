@@ -15,7 +15,7 @@ Grid::Grid(const Grid& tocopy)
 
 Grid& Grid::operator=(const Grid& other)
 {
-    if (this == &other)
+    if (&other == this)
         return *this;
 
     this->tiles = other.tiles;
@@ -64,6 +64,8 @@ void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
         delta = win_size.x/w;
     
     delta -= delta % 16;
+    if (delta == 0)
+        delta = 16;
     float pxlW = delta*w, pxlH = delta*h;
 
     x0 = (win_size.x-pxlW)/2, y0 = (win_size.y-pxlH)/2;
@@ -78,6 +80,8 @@ void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
             pre_render.draw(tile);
         }
     }
+    std::cout << pxlW << ", " << pxlH << std::endl;
+    std::cout << w << ", " << h << std::endl;
 }
 
 void Grid::display(sf::RenderWindow* windowPoint)

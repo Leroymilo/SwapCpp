@@ -6,9 +6,9 @@
 class Grid
 {
     private:
-        int h, w;
         std::vector<std::vector<char>> tiles = {{'X'}};
         int x0, y0;
+        int h, w;
         sf::RenderTexture pre_render;
 
     public:
