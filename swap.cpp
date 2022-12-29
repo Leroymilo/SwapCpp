@@ -3,156 +3,187 @@
 #include <iostream>
 #include <list>
 
-
-Level level;
-sf::RenderWindow window(sf::VideoMode(900, 460), "SWAP!" /*, sf::Style::Fullscreen*/);
-sf::Clock sfclock;
-sf::Font font;
-std::string scene = "title";
-const float SCREENW = window.getSize().x, SCREENH = window.getSize().y;
-
-bool drawn = false;
-
-
-void draw()
-{
-    window.clear(sf::Color(138, 208, 238));
-    if (scene == "title")
-    {
-        sf::Texture title;
-        title.loadFromFile("assets/title.png");
-        float x = SCREENW/3, y = SCREENH/7;
-        float w = x, h = w*title.getSize().y/title.getSize().x;
-        sf::RectangleShape rect(sf::Vector2f(w, h));
-        rect.setTexture(&title);
-        rect.setPosition(x, y);
-        window.draw(rect);
-
-        float b_w = SCREENW/4, b_h = SCREENH/6;
-        float b_x = SCREENW/2, b_y = 3*SCREENH/4;
-        sf::RectangleShape button(sf::Vector2f(b_w, b_h));
-        button.setOrigin(b_w/2, b_h/2);
-        button.setPosition(b_x, b_y);
-        button.setFillColor(sf::Color(0, 150, 0));
-        window.draw(button);
-
-        sf::Text button_text("Play", font, 2*b_h/3);
-        sf::FloatRect textRect = button_text.getLocalBounds();
-        button_text.setOrigin(textRect.left + textRect.width/2.0f,
-                    textRect.top  + textRect.height/2.0f);
-        button_text.setPosition(sf::Vector2f(b_x, b_y));
-        window.draw(button_text);
-    }
-}
-
-void draw_pause()
-{
-    level.display(&window, font);
-
-    float b_w = SCREENW/4, b_h = SCREENH/5;
-    float b_x = SCREENW/2, b_y = 3*SCREENH/10;
-    sf::RectangleShape button(sf::Vector2f(b_w, b_h));
-    button.setOrigin(b_w/2, b_h/2);
-    button.setPosition(b_x, b_y);
-    button.setFillColor(sf::Color(0, 150, 0));
-    window.draw(button);
-
-    sf::Text button_text("Continue", font, b_h/3);
-    sf::FloatRect textRect = button_text.getLocalBounds();
-    button_text.setOrigin(textRect.left + textRect.width/2.0f,
-                textRect.top  + textRect.height/2.0f);
-    button_text.setPosition(sf::Vector2f(b_x, b_y));
-    window.draw(button_text);
-
-    b_y = 7*SCREENH/10;
-    button.setPosition(b_x, b_y);
-    window.draw(button);
-
-    button_text = sf::Text("Back to title", font, 2*b_h/3);
-    textRect = button_text.getLocalBounds();
-    button_text.setOrigin(textRect.left + textRect.width/2.0f,
-                textRect.top  + textRect.height/2.0f);
-    button_text.setPosition(sf::Vector2f(b_x, b_y));
-    window.draw(button_text);
-}
-
-void click(sf::Vector2i mouse_pos)
-{
-    if (scene == "title")
-    {
-        float b_w = SCREENW/4, b_h = SCREENH/6;
-        float b_x = SCREENW/2, b_y = 3*SCREENH/4;
-
-        if (b_x-b_w/2 <= mouse_pos.x < b_x+b_w/2 && b_y-b_h/2 <= mouse_pos.y < b_y+b_h/2)
-            scene = "level";
-        level = Level();
-        level.readfile(1);
-    }
-
-    else if (scene == "pause")
-    {
-        float b_w = SCREENW/4, b_h = SCREENH/5;
-        float b_x = SCREENW/2, b_y = 3*SCREENH/10;
-
-        if (b_x-b_w/2 <= mouse_pos.x < b_x+b_w/2 && b_y-b_h/2 <= mouse_pos.y < b_y+b_h/2)
-            scene = "level";
-    }
-}
-
 int main()
 {
+    //SFML stuff and level initialization :
+    sf::RenderWindow window(sf::VideoMode(500, 500), "SWAP!");
+    sf::Clock clock;
+    Level level(1);
+    level.resize_bg(&window);
+    sf::Font font;
     if (!font.loadFromFile("assets\\font.ttf"))
         std::cout << "Could not load font" << std::endl;
+
+    //First draw :
+    window.clear(sf::Color(0, 0, 120));
+    level.display(&window, font);
+    
+    //Input handling :
+    int time = clock.getElapsedTime().asMilliseconds();
+    int long_deltaT = 200;
+    int short_deltaT = 100;
+    bool long_press = false;
+    bool process_input = false;
+    int nbKeys = 9;
+    sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
+    sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
+    std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};//Unused, just a description of the actions.
+    bool keysStates[] = {false, false, false, false, false, false, false, false, false};
+    int pkey = nbKeys;
+
+    //Gameplay variables :
+    bool step = false;
+    bool didSwap = false;
+    std::string directions = "URDL";
+    std::list<std::string> steps;
+    //A step can be : U, R, D, L, H (shot), P (swap), W or + (reset)
+    std::list<Level> pre_resets;
+    pre_resets.push_back(level);
+
+    //Debug :
+    int t0;
 
     while (window.isOpen())
     {
         sf::Event evnt;
         if (window.pollEvent(evnt))
         {
-            switch (evnt.type)
+            if (evnt.type == sf::Event::Closed)
+                window.close();
+            
+            else if (evnt.type == sf::Event::Resized)
             {
-                case sf::Event::Closed :
-                    window.close();
-                    break;
-                
-                case sf::Event::MouseButtonPressed :
-                    if (evnt.mouseButton.button == sf::Mouse::Left)
-                        click(sf::Vector2i(evnt.mouseButton.x, evnt.mouseButton.y));
-                
-                case sf::Event::Resized :
-                    sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
-                    window.setView(sf::View(view));
-                    level.resize_bg(&window);
-                    drawn = false;
+                sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
+                window.setView(sf::View(view));
+                level.resize_bg(&window);
+                level.display(&window, font);
+            }
+            else if (evnt.type == sf::Event::KeyPressed)
+            {
+                for (int i = 0; i < nbKeys; i++)
+                {
+                    if (sf::Keyboard::isKeyPressed(keys[i]))
+                        keysStates[i] = true;
+                }
+            }
+            else if (evnt.type == sf::Event::KeyReleased)
+            {
+                for (int i = 0; i < nbKeys; i++)
+                {
+                    if (!sf::Keyboard::isKeyPressed(keys[i]))
+                        keysStates[i] = false;
+                }
             }
         }
 
-        if (scene == "pause" && !drawn)
+    //Manage input delay and changed keys :
+        process_input = false;
+
+        //Key was kept pressed :
+        if (pkey!=nbKeys and keysStates[pkey])
         {
-            std::cout << "in pause" << std::endl;
-            draw_pause();
-            window.display();
-            drawn = true;
+            if (!long_press and clock.getElapsedTime().asMilliseconds() >= time + long_deltaT)
+            {
+                process_input = true;
+                long_press = true;
+                time = clock.getElapsedTime().asMilliseconds();
+            }
+
+            else if (long_press and clock.getElapsedTime().asMilliseconds() >= time + short_deltaT)
+            {
+                process_input = true;
+                time = clock.getElapsedTime().asMilliseconds();
+            }
         }
 
-        else if (scene == "level")
+        //Key was unpressed :
+        else
         {
-            std::cout << "starting level" << std::endl;
-            int result = level.run(&window, font, sfclock);
-            if (result == 0)
-                scene = "title";
-            else if (result == 1)
-                scene = "pause";
-            drawn = false;
+            pkey = nbKeys;
+            long_press = false;
+            for(int i = 0; i < nbKeys; i++)
+            {
+                if (keysStates[i])
+                {
+                    pkey = i;
+                    process_input = true;
+                    time = clock.getElapsedTime().asMilliseconds();
+                    break;
+                }
+            }
+        }
+        
+    //Apply inputs :
+        if (pkey!=nbKeys and process_input)
+        {
+            int t = clock.getElapsedTime().asMilliseconds();
+            step = false;
+            didSwap = false;
+            std::string act = level.get_pLike_state();
+            if (pkey < 4)
+            {
+                act.push_back(directions[pkey]);
+                step = level.push(directions[pkey], &act);
+            }
+            else if (pkey == 4)
+            {
+                step = level.swap(&act);
+                didSwap = true;
+            }
+            else if (pkey == 5)
+            {
+                if (steps.size() > 0)
+                {
+                    if (steps.back() == "+")
+                    {
+                        level = pre_resets.back();
+                        pre_resets.pop_back();
+                        steps.pop_back();
+                    }
+                    else
+                        level.undo(&steps);
+                }
+            }
+            else if (pkey == 6)
+            {
+                step = level.wait();
+                act.push_back('W');
+            }
+            else if (pkey == 7)
+            {
+                if (steps.size() > 0 && steps.back() != "+")
+                {
+                    pre_resets.push_back(level);
+                    level = pre_resets.front();
+                    level.resize_bg(&window);
+                    steps.push_back("+");
+                }
+            }
+            else if (pkey == 8)
+            {
+                window.close();
+                return 0;
+            }
+
+            if (step)
+            {
+                if (act != "")
+                {
+                    steps.push_back(act);
+                }
+                level.step(didSwap);
+                t0 = clock.getElapsedTime().asMilliseconds();
+                level.animate(&window, font);
+                level.step_end_logic();
+            }
+            else
+                level.display(&window, font);
+
+            std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }
 
-        else if (!drawn)
-        {
-            std::cout << "in title" << std::endl;
-            draw();
-            window.display();
-            drawn = true;
-        }
+    if (level.won)
+        window.close();
     }
 
     return 0;

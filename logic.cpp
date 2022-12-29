@@ -475,7 +475,10 @@ char Logic::get_type(sf::Vector2i coords)
     return '_';
 }
 
-std::vector<sf::Vector2i> Logic::update_activators(std::vector<sf::Vector2i> heavy_coords, std::vector<sf::Vector2i> arrow_coords, bool didSwap, bool * balive)
+std::vector<sf::Vector2i> Logic::update_activators(
+    std::vector<sf::Vector2i> heavy_coords,
+    std::vector<sf::Vector2i> arrow_coords,
+    bool didSwap, bool * balive)
 {
     //heavy_coords has the coordinates of "heavy objects" (alive boxes and the player if it's alive)
     //arrow_coords has the coordinates of "arrow objects" (just the bullet if it's alive)
@@ -504,26 +507,25 @@ std::vector<sf::Vector2i> Logic::update_activators(std::vector<sf::Vector2i> hea
 
         else if (act_elt_p.second.type == 'T')
         {
-            if (act_elt_p.second.get_state() && didSwap)
+            auto elt_act = std::find(arrow_coords.begin(), arrow_coords.end(), act_elt_p.first);
+
+            if (elt_act != arrow_coords.end())
+            {
+                if (!act_elt_p.second.get_state())
+                {
+                    activators[act_elt_p.first].set_state(true);
+                    activators[act_elt_p.first].get_outputs(&changed, &links);
+                }
+                *balive = false;
+            }
+
+            else if (act_elt_p.second.get_state() && didSwap)
             {
                 activators[act_elt_p.first].set_state(false);
                 activators[act_elt_p.first].get_outputs(&changed, &links);
             }
-            
-            else if (!act_elt_p.second.get_state() && std::find(arrow_coords.begin(), arrow_coords.end(), act_elt_p.first) != arrow_coords.end())
-            {
-                activators[act_elt_p.first].set_state(true);
-                activators[act_elt_p.first].get_outputs(&changed, &links);
-                *balive = false;
-            }
         }
     }
-
-    // std::cout << "changed positions :" << std::endl;
-    // for (auto pos : changed)
-    // {
-    //     std::cout << pos.x << " " << pos.y << std::endl;
-    // }
 
     return changed;
 }
@@ -539,12 +541,9 @@ void Logic::update(std::vector<sf::Vector2i> changed_elts)
 
     for (auto &coords : changed_elts)
     {
-        // std::cout << "updating at " << coords.x << " " << coords.y << std::endl;
-
         auto gate_elt = gates.find(coords);
         if (gate_elt != gates.end())
         {
-            // std::cout << "gate at " << gate_elt->first.x << " " << gate_elt->first.y << std::endl;
             bool has_changed = gates[gate_elt->first].update_state(&links);
             if (has_changed)
                 gates[gate_elt->first].get_outputs(&new_elts, &links);
@@ -553,7 +552,6 @@ void Logic::update(std::vector<sf::Vector2i> changed_elts)
         auto door_elt = doors.find(coords);
         if (door_elt != doors.end())
         {
-            // std::cout << "door at " << door_elt->first.x << " " << door_elt->first.y << std::endl;
             doors[door_elt->first].update_state(&links);
         }
 

@@ -85,7 +85,7 @@ PlayerLike::PlayerLike(std::string directory, std::string name)
         sprites[directions[i]] = sprite;
     }
     
-    is_alive = actualJson[name]["alive"].asBool();
+    is_alive = actualJson[name]["isalive"].asBool();
     prev_is_alive = is_alive;
 }
 
@@ -224,7 +224,7 @@ void Boxes::step_end_logic()
         box.prev_C = box.C;
         if (!box.is_alive)
             box.step_since_destroy++;
-    }
+    } 
 }
 
 void Boxes::undo()

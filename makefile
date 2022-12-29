@@ -16,5 +16,5 @@ entities.o: entities.cpp
 logic.o: logic.cpp
 	g++ -Isrc\include -c logic.cpp -DSFML_STATIC -static
 
-clean:
+clear:
 	-rm *.o $(objects) swap.exe

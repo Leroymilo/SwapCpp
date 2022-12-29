@@ -13,7 +13,7 @@
 //Constructor and meta
 Level::Level(){}
 
-void Level::readfile(int number)
+Level::Level(int number)
 {
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(3) << number;
@@ -26,11 +26,11 @@ void Level::readfile(int number)
 
     win_tile = backGround.readFile("levels/level" + str + "/bg.json");
     Player = PlayerLike("levels/level" + str + "/entities.json", "player");
+    Player.is_alive = true;
     bullet = PlayerLike("levels/level" + str + "/entities.json", "bullet");
+    bullet.is_alive = false;
     boxes = Boxes("levels/level" + str + "/entities.json");
     logic = Logic("levels/level" + str + "/logic.json");
-
-    pre_resets.push_back(*this);
 }
 
 std::string Level::get_pLike_state()
@@ -224,11 +224,8 @@ void Level::step(bool didSwap)
         arrow_pos.push_back(bullet.C);
 
     
-    sf::Clock clock;
-    int t0 = clock.getElapsedTime().asMilliseconds();
     std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &bullet.is_alive);
     logic.update(updated_activators);
-    // std::cout << "Logic processing time : " << clock.getElapsedTime().asMilliseconds()-t0 << "ms" << std::endl;
 
     //Checking if player and/or bullet get "killed" :
     Player.is_alive = !((bullet.is_alive && Player.C == bullet.C) || isWallForMost(Player.C)) && Player.is_alive;
@@ -262,9 +259,7 @@ void Level::undo(std::list<std::string>* steps)
 
     else
     {
-        // std::cout << "reversing move" << std::endl;
         int nb_pushed = std::stoi(last_move.substr(std::size_t(5), last_move.size()));
-        // std::cout << nb_pushed << std::endl;
         
         //Pulling boxes and PlayerLikes :
         for (int i = 0; i < nb_pushed; i++)
@@ -307,183 +302,6 @@ void Level::step_end_logic()
 }
 
 
-//Main game loop
-int Level::run(sf::RenderWindow * windowP, sf::Font& font, sf::Clock& clock)
-{
-    resize_bg(windowP);
-    windowP->clear(sf::Color(0, 0, 120));
-    display(windowP, font);
-
-    //Input handling :
-    int time = clock.getElapsedTime().asMilliseconds();
-    int long_deltaT = 200;
-    int short_deltaT = 100;
-    bool long_press = false;
-    bool process_input = false;
-    int nbKeys = 9;
-    sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
-    sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
-    bool keysStates[] = {false, false, false, false, false, false, false, false, false};
-    int pkey = nbKeys;
-
-    //Gameplay variables :
-    bool step = false;
-    bool didSwap = false;
-    std::string directions = "URDL";
-
-    //Debug :
-    int t0;
-
-    while (windowP->isOpen())
-    {
-        // std::cout << "got into the main loop" << std::endl;
-        sf::Event evnt;
-        if (windowP->pollEvent(evnt))
-        {
-            if (evnt.type == sf::Event::Closed)
-                windowP->close();
-            
-            else if (evnt.type == sf::Event::Resized)
-            {
-                sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
-                windowP->setView(sf::View(view));
-                resize_bg(windowP);
-                display(windowP, font);
-            }
-            else if (evnt.type == sf::Event::KeyPressed)
-            {
-                for (int i = 0; i < nbKeys; i++)
-                {
-                    if (sf::Keyboard::isKeyPressed(keys[i]))
-                        keysStates[i] = true;
-                }
-            }
-            else if (evnt.type == sf::Event::KeyReleased)
-            {
-                for (int i = 0; i < nbKeys; i++)
-                {
-                    if (!sf::Keyboard::isKeyPressed(keys[i]))
-                        keysStates[i] = false;
-                }
-            }
-        }
-
-    //Manage input delay and changed keys :
-        process_input = false;
-
-        //Key was kept pressed :
-        if (pkey!=nbKeys and keysStates[pkey])
-        {
-            if (!long_press and clock.getElapsedTime().asMilliseconds() >= time + long_deltaT)
-            {
-                process_input = true;
-                long_press = true;
-                time = clock.getElapsedTime().asMilliseconds();
-            }
-
-            else if (long_press and clock.getElapsedTime().asMilliseconds() >= time + short_deltaT)
-            {
-                process_input = true;
-                time = clock.getElapsedTime().asMilliseconds();
-            }
-        }
-
-        //Key was unpressed :
-        else
-        {
-            pkey = nbKeys;
-            long_press = false;
-            for(int i = 0; i < nbKeys; i++)
-            {
-                if (keysStates[i])
-                {
-                    pkey = i;
-                    process_input = true;
-                    time = clock.getElapsedTime().asMilliseconds();
-                    break;
-                }
-            }
-        }
-        
-    //Apply inputs :
-        if (pkey!=nbKeys and process_input)
-        {
-            int t = clock.getElapsedTime().asMilliseconds();
-            step = false;
-            didSwap = false;
-            std::string act = get_pLike_state();
-            if (pkey < 4)
-            {
-                act.push_back(directions[pkey]);
-                step = push(directions[pkey], &act);
-            }
-            else if (pkey == 4)
-            {
-                // std::cout << "swapping" << std::endl;
-                step = swap(&act);
-                didSwap = true;
-            }
-            else if (pkey == 5)
-            {
-                if (steps.size() > 0)
-                {
-                    if (steps.back() == "+")
-                    {
-                        *this = pre_resets.back();
-                        pre_resets.pop_back();
-                        steps.pop_back();
-                    }
-                    else
-                        undo(&steps);
-                }
-            }
-            else if (pkey == 6)
-            {
-                step = wait();
-                act.push_back('W');
-            }
-            else if (pkey == 7)
-            {
-                if (steps.size() > 0 && steps.back() != "+")
-                {
-                    pre_resets.push_back(*this);
-                    *this = pre_resets.front();
-                    resize_bg(windowP);
-                    steps.push_back("+");
-                }
-            }
-            else if (pkey == 8)
-            {
-                return 1;
-            }
-
-            if (step)
-            {
-                if (act != "")
-                {
-                    // std::cout << "action : " << act << std::endl;
-                    steps.push_back(act);
-                }
-                this->step(didSwap);
-                t0 = clock.getElapsedTime().asMilliseconds();
-                animate(windowP, font);
-                // std::cout << "animation time : " << clock.getElapsedTime().asMilliseconds()-t0 << "ms" << std::endl;
-                step_end_logic();
-            }
-            else
-                display(windowP, font);
-
-            std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl << std::endl;
-        }
-
-        if (won)
-            return 0;
-    }
-    return 2;
-}
-
-
-
 //Display
 void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every time the game's window is resized
 {
@@ -496,9 +314,11 @@ void Level::displayBG(sf::RenderWindow * windowP, sf::Font font)
 
     sf::Vector2u winSize = windowP->getSize();
 
+    sf::Text stepDisp;
+    stepDisp.setFont(font);
     std::stringstream ss;
     ss << "step : " << nbSteps;
-    sf::Text stepDisp(ss.str(), font, 30);
+    stepDisp.setString(ss.str());
     stepDisp.setPosition((winSize.x-stepDisp.getLocalBounds().width)/2, winSize.y-40);
     windowP->draw(stepDisp);
     //Use this method to display tips and text on the screen
