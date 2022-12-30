@@ -14,10 +14,13 @@ int main()
     if (!font.loadFromFile("assets\\font.ttf"))
         std::cout << "Could not load font" << std::endl;
 
-    int res = run(1, &window, font);
+    int won = run(1, &window, font);
+    window.close();
 
-    if (res)
-        window.close();
-
+    if (won == 1)
+    {
+        std::cout << "level " << 1 << " won!" << std::endl;
+    }
+        
     return 0;
 }

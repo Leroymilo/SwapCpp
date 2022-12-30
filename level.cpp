@@ -321,7 +321,7 @@ void Level::displayBG(sf::RenderWindow * windowP, sf::Font font)
     //Use this method to display tips and text on the screen
 }
 
-void Level::display(sf::RenderWindow * windowP, sf::Font font)
+void Level::display(sf::RenderWindow * windowP, sf::Font font, bool disp)
 {
     windowP->clear(sf::Color(0, 0, 230));
     displayBG(windowP, font);
@@ -344,7 +344,8 @@ void Level::display(sf::RenderWindow * windowP, sf::Font font)
     
     boxes.draw(C0, delta, windowP);
 
-    windowP->display();
+    if (disp)
+        windowP->display();
 }
 
 void Level::animate(sf::RenderWindow * windowP, sf::Font font)
@@ -393,6 +394,71 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font)
     display(windowP, font);
 }
 
+// Handling pause menu
+int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
+{
+    Button continue_("continue", "Continue", Alignment(1, 0, 0, 3, 2, 0), windowP);
+    Button exit_("continue", "Exit", Alignment(1, 0, 0, 3, 0, 0), windowP);
+    
+    // First draw :
+
+    levelP->display(windowP, font, false);
+    continue_.draw(font);
+    exit_.draw(font);
+    windowP->display();
+
+    while (windowP->isOpen())
+    {
+        sf::Event evnt;
+        if (windowP->pollEvent(evnt))
+        {
+            if (evnt.type == sf::Event::Closed)
+                windowP->close();
+            
+            else if (evnt.type == sf::Event::Resized)
+            {
+                sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
+                windowP->setView(sf::View(view));
+                levelP->resize_bg(windowP);
+                levelP->display(windowP, font, false);
+                continue_.reshape();
+                exit_.reshape();
+                continue_.draw(font);
+                exit_.draw(font);
+                windowP->display();
+            }
+
+            else if (evnt.type == sf::Event::KeyPressed)
+            {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                {
+                    return 0;
+                }
+            }
+        }
+
+        if (continue_.clicked())
+        {
+            return 0;
+        }
+        else if (exit_.clicked())
+        {
+            return 1;
+        }
+
+        if (continue_.update() || exit_.update())
+        {
+            levelP->display(windowP, font, false);
+            continue_.draw(font);
+            exit_.draw(font);
+            windowP->display();
+        }
+
+    }
+
+    return 0;
+}
+
 // Main gameplay loop with keyboard input handling
 int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
 {
@@ -411,11 +477,11 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
     int short_deltaT = 100;
     bool long_press = false;
     bool process_input = false;
-    int nbKeys = 9;
+    int nbKeys = 8;
     sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
-    sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
-    std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};//Unused, just a description of the actions.
-    bool keysStates[] = {false, false, false, false, false, false, false, false, false};
+    sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add};
+    std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart"};//Unused, just a description of the actions.
+    bool keysStates[] = {false, false, false, false, false, false, false, false};
     int pkey = nbKeys;
 
     //Gameplay variables :
@@ -452,6 +518,17 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
                     if (sf::Keyboard::isKeyPressed(keys[i]))
                         keysStates[i] = true;
                 }
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                {
+                    int res = pause(&level, windowP, font);
+
+                    if (res == 1)
+                    {
+                        return 0;
+                    }
+                    level.display(windowP, font);
+                }
             }
             else if (evnt.type == sf::Event::KeyReleased)
             {
@@ -467,16 +544,16 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
         process_input = false;
 
         //Key was kept pressed :
-        if (pkey!=nbKeys and keysStates[pkey])
+        if (pkey!=nbKeys && keysStates[pkey])
         {
-            if (!long_press and clock.getElapsedTime().asMilliseconds() >= time + long_deltaT)
+            if (!long_press && clock.getElapsedTime().asMilliseconds() >= time + long_deltaT)
             {
                 process_input = true;
                 long_press = true;
                 time = clock.getElapsedTime().asMilliseconds();
             }
 
-            else if (long_press and clock.getElapsedTime().asMilliseconds() >= time + short_deltaT)
+            else if (long_press && clock.getElapsedTime().asMilliseconds() >= time + short_deltaT)
             {
                 process_input = true;
                 time = clock.getElapsedTime().asMilliseconds();
@@ -501,7 +578,7 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
         }
         
     //Apply inputs :
-        if (pkey!=nbKeys and process_input)
+        if (pkey!=nbKeys && process_input)
         {
             int t = clock.getElapsedTime().asMilliseconds();
             step = false;
@@ -545,11 +622,6 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
                     level.resize_bg(windowP);
                     steps.push_back("+");
                 }
-            }
-            else if (pkey == 8)
-            {
-                windowP->close();
-                return 0;
             }
 
             if (step)

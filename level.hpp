@@ -8,6 +8,7 @@
 #include "grid.hpp"
 #include "entities.hpp"
 #include "logic.hpp"
+#include "button.hpp"
 
 
 class Level
@@ -46,10 +47,12 @@ class Level
         void step_end_logic();
 
         void resize_bg(sf::RenderWindow* windowP);
-        void display(sf::RenderWindow* windowP, sf::Font font);
+        void display(sf::RenderWindow* windowP, sf::Font font, bool disp = true);
         void animate(sf::RenderWindow* windowP, sf::Font font);
 };
 
-int run(int, sf::RenderWindow*, sf::Font);    // Function replacing the original main loop of swap.cpp
+void display_pause(sf::RenderWindow*, sf::Font);    // Function to display the pause menu over the level
+int pause(Level*, sf::RenderWindow*, sf::Font);     // Function to handle pause menu interractions
+int run(int, sf::RenderWindow*, sf::Font);          // Function replacing the original main loop of swap.cpp
 
 #endif //LEVEL_H
