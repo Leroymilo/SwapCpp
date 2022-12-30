@@ -2,10 +2,13 @@
 #define LEVEL_H
 
 #include <list>
+
 #include <SFML/Graphics.hpp>
+
 #include "grid.hpp"
 #include "entities.hpp"
 #include "logic.hpp"
+
 
 class Level
 {
@@ -46,5 +49,7 @@ class Level
         void display(sf::RenderWindow* windowP, sf::Font font);
         void animate(sf::RenderWindow* windowP, sf::Font font);
 };
+
+int run(int, sf::RenderWindow*, sf::Font);    // Function replacing the original main loop of swap.cpp
 
 #endif //LEVEL_H

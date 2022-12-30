@@ -1,10 +1,10 @@
-#include "level.hpp"
+#include <iostream>
+#include <iomanip>
 
 #include <json/value.h>
 #include <json/json.h>
 
-#include <iostream>
-#include <iomanip>
+#include "level.hpp"
 
 
 //Constructor and meta
@@ -391,4 +391,187 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font)
         while (clock.getElapsedTime().asMilliseconds()-t1 < 20) {}
     }
     display(windowP, font);
+}
+
+// Main gameplay loop with keyboard input handling
+int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
+{
+    //SFML stuff and level initialization :
+    sf::Clock clock;
+    Level level(level_id);
+    level.resize_bg(windowP);
+
+    //First draw :
+    windowP->clear(sf::Color(0, 0, 120));
+    level.display(windowP, font);
+    
+    //Input handling :
+    int time = clock.getElapsedTime().asMilliseconds();
+    int long_deltaT = 200;
+    int short_deltaT = 100;
+    bool long_press = false;
+    bool process_input = false;
+    int nbKeys = 9;
+    sf::Keyboard::Key keys[] = {sf::Keyboard::Key::Up, sf::Keyboard::Key::Right, sf::Keyboard::Key::Down, sf::Keyboard::Key::Left, 
+    sf::Keyboard::Key::Space, sf::Keyboard::Key::BackSpace, sf::Keyboard::Key::Return, sf::Keyboard::Key::Add, sf::Keyboard::Key::Escape};
+    std::string keysNames[] = {"Up", "Right", "Down", "Left", "Swap", "Undo", "Wait", "Restart", "Exit"};//Unused, just a description of the actions.
+    bool keysStates[] = {false, false, false, false, false, false, false, false, false};
+    int pkey = nbKeys;
+
+    //Gameplay variables :
+    bool step = false;
+    bool didSwap = false;
+    std::string directions = "URDL";
+    std::list<std::string> steps;
+    //A step can be : U, R, D, L, H (shot), P (swap), W or + (reset)
+    std::list<Level> pre_resets;
+    pre_resets.push_back(level);
+
+    //Debug :
+    int t0;
+
+    while (windowP->isOpen())
+    {
+        sf::Event evnt;
+        if (windowP->pollEvent(evnt))
+        {
+            if (evnt.type == sf::Event::Closed)
+                windowP->close();
+            
+            else if (evnt.type == sf::Event::Resized)
+            {
+                sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
+                windowP->setView(sf::View(view));
+                level.resize_bg(windowP);
+                level.display(windowP, font);
+            }
+            else if (evnt.type == sf::Event::KeyPressed)
+            {
+                for (int i = 0; i < nbKeys; i++)
+                {
+                    if (sf::Keyboard::isKeyPressed(keys[i]))
+                        keysStates[i] = true;
+                }
+            }
+            else if (evnt.type == sf::Event::KeyReleased)
+            {
+                for (int i = 0; i < nbKeys; i++)
+                {
+                    if (!sf::Keyboard::isKeyPressed(keys[i]))
+                        keysStates[i] = false;
+                }
+            }
+        }
+
+    //Manage input delay and changed keys :
+        process_input = false;
+
+        //Key was kept pressed :
+        if (pkey!=nbKeys and keysStates[pkey])
+        {
+            if (!long_press and clock.getElapsedTime().asMilliseconds() >= time + long_deltaT)
+            {
+                process_input = true;
+                long_press = true;
+                time = clock.getElapsedTime().asMilliseconds();
+            }
+
+            else if (long_press and clock.getElapsedTime().asMilliseconds() >= time + short_deltaT)
+            {
+                process_input = true;
+                time = clock.getElapsedTime().asMilliseconds();
+            }
+        }
+
+        //Key was unpressed :
+        else
+        {
+            pkey = nbKeys;
+            long_press = false;
+            for(int i = 0; i < nbKeys; i++)
+            {
+                if (keysStates[i])
+                {
+                    pkey = i;
+                    process_input = true;
+                    time = clock.getElapsedTime().asMilliseconds();
+                    break;
+                }
+            }
+        }
+        
+    //Apply inputs :
+        if (pkey!=nbKeys and process_input)
+        {
+            int t = clock.getElapsedTime().asMilliseconds();
+            step = false;
+            didSwap = false;
+            std::string act = level.get_pLike_state();
+            if (pkey < 4)
+            {
+                act.push_back(directions[pkey]);
+                step = level.push(directions[pkey], &act);
+            }
+            else if (pkey == 4)
+            {
+                step = level.swap(&act);
+                didSwap = true;
+            }
+            else if (pkey == 5)
+            {
+                if (steps.size() > 0)
+                {
+                    if (steps.back() == "+")
+                    {
+                        level = pre_resets.back();
+                        pre_resets.pop_back();
+                        steps.pop_back();
+                    }
+                    else
+                        level.undo(&steps);
+                }
+            }
+            else if (pkey == 6)
+            {
+                step = level.wait();
+                act.push_back('W');
+            }
+            else if (pkey == 7)
+            {
+                if (steps.size() > 0 && steps.back() != "+")
+                {
+                    pre_resets.push_back(level);
+                    level = pre_resets.front();
+                    level.resize_bg(windowP);
+                    steps.push_back("+");
+                }
+            }
+            else if (pkey == 8)
+            {
+                windowP->close();
+                return 0;
+            }
+
+            if (step)
+            {
+                if (act != "")
+                {
+                    steps.push_back(act);
+                }
+                level.step(didSwap);
+                t0 = clock.getElapsedTime().asMilliseconds();
+                level.animate(windowP, font);
+                level.step_end_logic();
+            }
+            else
+                level.display(windowP, font);
+
+            std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
+        }
+
+    if (level.won)
+        return 1;
+    }
+
+    return 0;
 }
