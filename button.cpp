@@ -71,7 +71,7 @@ void Button::draw(sf::Font font)
     float H = text_disp.getLocalBounds().height;
     text_disp.setPosition(sf::Vector2f(
         hitbox.left + (hitbox.width - W)/2,
-        hitbox.top + (hitbox.height - H)/2
+        hitbox.top + (hitbox.height - H*1.2)/2
     ));
     ref_win_p->draw(text_disp);
 }

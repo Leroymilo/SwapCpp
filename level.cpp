@@ -398,7 +398,7 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font)
 int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
 {
     Button continue_("continue", "Continue", Alignment(1, 0, 0, 3, 2, 0), windowP);
-    Button exit_("continue", "Exit", Alignment(1, 0, 0, 3, 0, 0), windowP);
+    Button exit_("exit", "Exit", Alignment(1, 0, 0, 3, 0, 0), windowP);
     
     // First draw :
 

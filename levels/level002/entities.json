@@ -1,11 +1,23 @@
 {
-    "PlayerX" : 3,
-    "PlayerY" : 5,
+    "player" : {
+        "X" : 3,
+        "Y" : 5,
+        "dir" : "U",
+        "alive" : true
+    },
+
+    "bullet" : {
+        "X" : 0,
+        "Y" : 0,
+        "dir" : "U",
+        "alive" : false
+    },
+
     "nbBoxes" : 1,
     "Boxes" : [
         {
-            "BoxX" : 3,
-            "BoxY" : 3
+            "X" : 3,
+            "Y" : 3
         }
     ]
 }
