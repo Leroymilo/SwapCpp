@@ -85,7 +85,7 @@ PlayerLike::PlayerLike(std::string directory, std::string name)
         sprites[directions[i]] = sprite;
     }
     
-    is_alive = actualJson[name]["isalive"].asBool();
+    is_alive = actualJson[name]["alive"].asBool();
     prev_is_alive = is_alive;
 }
 

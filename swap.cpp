@@ -9,19 +9,48 @@
 
 int main()
 {
-
-    //SFML stuff and level initialization :
-    sf::RenderWindow window(sf::VideoMode(500, 500), "SWAP!");
-    window.clear(sf::Color(138, 208, 234));
+    // SFML initialization stuff :
+    sf::RenderWindow window(sf::VideoMode(800, 800), "SWAP!");
     sf::Font font;
     if (!font.loadFromFile("assets/font.ttf"))
         std::cout << "Could not load font" << std::endl;
-    int won = run(2, &window, font);
-    window.close();
+    
+    std::string scene = "Title";
+    int level_id = 1;
 
-    if (won == 1)
+    // Menu navigation loop :
+    while (window.isOpen())
     {
-        std::cout << "level " << 1 << " won!" << std::endl;
+        if (scene == "Title")
+        {
+            // Title screen logic :
+            int res = title_screen(&window, font);
+            if (res == 0)
+            {
+                window.close();
+            }
+            else
+            {
+                scene = "Play";
+            }
+        }
+
+        else if (scene == "Play")
+        {
+            // Running a level :
+            int won = run(level_id, &window, font);
+
+            if (won == 1)
+            {
+                std::cout << "level " << level_id << " won!" << std::endl;
+            }
+            else 
+            {
+                std::cout << "level exited" << std::endl;
+            }
+
+            scene = "Title";
+        }
     }
         
     return 0;

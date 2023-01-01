@@ -307,6 +307,8 @@ void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every ti
 
 void Level::displayBG(sf::RenderWindow * windowP, sf::Font font)
 {
+    windowP->clear(sf::Color(0, 0, 230));
+
     backGround.display(windowP);
 
     sf::Vector2u winSize = windowP->getSize();
@@ -352,8 +354,6 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font)
 {
     sf::Clock clock;
     int t1;
-    windowP->clear(sf::Color(0, 0, 230));
-    displayBG(windowP, font);
 
     sf::Vector2f windowSize = sf::Vector2f(windowP->getSize());
 
@@ -364,7 +364,7 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font)
     for (int i = 1; i <= 3; i++)//All animations are 4 frames long
     {
         t1 = clock.getElapsedTime().asMilliseconds();
-        backGround.display(windowP);
+        displayBG(windowP, font);
 
         //Animation of logic elements
         logic.anim(C0, delta, windowP, i);
@@ -413,7 +413,10 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
         if (windowP->pollEvent(evnt))
         {
             if (evnt.type == sf::Event::Closed)
+            {
                 windowP->close();
+                return 0;
+            }
             
             else if (evnt.type == sf::Event::Resized)
             {
@@ -432,18 +435,18 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
             {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
                 {
-                    return 0;
+                    return 1;
                 }
             }
         }
 
         if (continue_.clicked())
         {
-            return 0;
+            return 1;
         }
         else if (exit_.clicked())
         {
-            return 1;
+            return 0;
         }
 
         if (continue_.update() || exit_.update())
@@ -502,7 +505,10 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
         if (windowP->pollEvent(evnt))
         {
             if (evnt.type == sf::Event::Closed)
+            {
                 windowP->close();
+                return 0;
+            }
             
             else if (evnt.type == sf::Event::Resized)
             {
@@ -511,6 +517,7 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
                 level.resize_bg(windowP);
                 level.display(windowP, font);
             }
+
             else if (evnt.type == sf::Event::KeyPressed)
             {
                 for (int i = 0; i < nbKeys; i++)
@@ -523,7 +530,7 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
                 {
                     int res = pause(&level, windowP, font);
 
-                    if (res == 1)
+                    if (res == 0)
                     {
                         return 0;
                     }

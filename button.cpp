@@ -4,6 +4,11 @@
 #include "button.hpp"
 
 
+Alignment::Alignment()
+{
+    nb_h = 1, i_h = 0, d_h = 0, nb_v = 1, i_h = 0, d_h = 0;
+}
+
 Alignment::Alignment(int nb_h, int i_h, int d_h, int nb_v, int i_v, int d_v) :
     nb_h(nb_h), i_h(i_h), d_h(d_h), nb_v(nb_v), i_v(i_v), d_v(d_v) {}
 
@@ -17,9 +22,13 @@ sf::Vector2i Alignment::compute(sf::Vector2i size, sf::Vector2u win_size)
 }
 
 
+Button::Button() {}
+
 Button::Button(std::string texture_name, std::string text, Alignment alignment, sf::RenderWindow* win_p) :
     text(text), alignment(alignment), ref_win_p(win_p)
 {
+    defined = true;
+
     sprite_on.loadFromFile("assets/Menu/" + texture_name + "_on.png");
     sprite_off.loadFromFile("assets/Menu/" + texture_name + "_off.png");
 
@@ -27,12 +36,18 @@ Button::Button(std::string texture_name, std::string text, Alignment alignment, 
 
     if (sprite_off.getSize() != sprite_on.getSize())
     {
-        std::cout << "different on/off sizes for button " << texture_name << std::endl;
+        std::cout << "different on/off sizes for \"" << text << "\" button !" << std::endl;
     }
 }
 
 void Button::reshape()
 {
+    if (!defined)
+    {
+        std::cout << "button \"" << text << "\" not defined, cannot reshape." << std::endl;
+        return;
+    }
+    
     sf::Vector2i box_size = sf::Vector2i(sprite_off.getSize());
     sf::Vector2i top_left = alignment.compute(box_size, ref_win_p->getSize());
     hitbox = sf::Rect<int>(top_left, box_size);
@@ -40,6 +55,12 @@ void Button::reshape()
 
 bool Button::update()
 {
+    if (!defined)
+    {
+        std::cout << "button \"" << text << "\" not defined, cannot update." << std::endl;
+        return false;
+    }
+
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
     prev_on = on;
 
@@ -50,6 +71,12 @@ bool Button::update()
 
 void Button::draw(sf::Font font)
 {
+    if (!defined)
+    {
+        std::cout << "button \"" << text << "\" not defined, cannot draw." << std::endl;
+        return;
+    }
+
     sf::RectangleShape button;
     if (on)
     {
@@ -78,10 +105,12 @@ void Button::draw(sf::Font font)
 
 bool Button::clicked()
 {
-    sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
-    if (prev_on && !on && hitbox.contains(mouse_pos))
+    if (!defined)
     {
-        return true;
+        std::cout << "button \"" << text << "\" not defined, cannot click." << std::endl;
+        return false;
     }
-    return false;
+
+    sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
+    return (prev_on && !on && hitbox.contains(mouse_pos));
 }
