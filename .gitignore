@@ -3,4 +3,5 @@
 Archives
 *.o
 *.exe
+*.out
 test*
