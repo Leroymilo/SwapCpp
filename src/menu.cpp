@@ -1,11 +1,8 @@
 #include "UI/menu.hpp"
-#include "UI/button.hpp"
 
-sf::Texture title;
-
-Button start_;
-Button exit_;
-
+#include <filesystem>
+#include <string>
+#include <regex>
 
 void draw_title(sf::RenderWindow* win_p, sf::Font font)
 {
@@ -74,7 +71,93 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
     return 0;
 }
 
-int level_select(sf::RenderWindow* win_p)
+LevelGrid::LevelGrid(sf::RenderWindow* win_p) : win_p(win_p)
 {
+    std::regex exp("^levels(/|\\\\)level[0-9]{3}$");
+
+    for(auto& dir : std::filesystem::recursive_directory_iterator("levels"))
+    {
+        std::string dir_name = dir.path().string().substr(7);
+        if (dir.is_directory() && std::regex_match(dir_name, exp))
+        {
+            int lvl_nb = std::stoi(dir_name.substr(5));
+            Button new_button("level/locked", std::to_string(lvl_nb), Alignment(), win_p);
+            levels[lvl_nb] = new_button;
+        }
+    }
+}
+
+void LevelGrid::reshape()
+{
+    lvl_grid_w = 1;
+    while (win_p->getSize().x - (lvl_grid_w + 2) * lvl_button_size - (lvl_grid_w + 1) * lvl_button_delta > 0)
+    {
+        lvl_grid_w++;
+    }
+
+    lvl_grid_h = 1;
+    while (win_p->getSize().y - (lvl_grid_h) * lvl_button_size - (lvl_grid_h - 1) * lvl_button_delta > 0)
+    {
+        lvl_grid_h++;
+    }
+
+    
+}
+
+bool LevelGrid::update()
+{
+
+}
+
+void LevelGrid::draw(sf::Font font)
+{
+
+}
+
+int LevelGrid::clicked()
+{
+    return 0;
+}
+
+sf::Vector2i lvl_grid_size(sf::RenderWindow* win_p)
+{
+
+}
+
+void draw_levels(sf::RenderWindow* win_p, sf::Font font)
+{
+
+    win_p->display();
+}
+
+int level_select(sf::RenderWindow* win_p, sf::Font font)
+{
+
+    LevelGrid level_grid(win_p);
+
+    // First draw
+    draw_title(win_p, font);
+
+    while (win_p->isOpen())
+    {
+        sf::Event evnt;
+        if (win_p->pollEvent(evnt))
+        {
+            if (evnt.type == sf::Event::Closed)
+            {
+                return 0;
+            }
+            
+            else if (evnt.type == sf::Event::Resized)
+            {
+                sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
+                win_p->setView(sf::View(view));
+                draw_levels(win_p, font);
+                win_p->display();
+            }
+        }
+    
+    }
+
     return 0;
 }
