@@ -1,4 +1,4 @@
-#include "grid.hpp"
+#include "gameplay/grid.hpp"
 
 #include <json/value.h>
 #include <json/json.h>

@@ -1,5 +1,5 @@
-#include "menu.hpp"
-#include "button.hpp"
+#include "UI/menu.hpp"
+#include "UI/button.hpp"
 
 sf::Texture title;
 

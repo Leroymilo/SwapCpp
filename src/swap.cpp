@@ -3,8 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "level.hpp"
-#include "menu.hpp"
+#include "gameplay/level.hpp"
+#include "UI/menu.hpp"
 
 
 int main()

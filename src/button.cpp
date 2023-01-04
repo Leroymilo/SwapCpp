@@ -1,7 +1,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "button.hpp"
+#include "UI/button.hpp"
 
 
 Alignment::Alignment()

@@ -1,4 +1,4 @@
-#include "logic.hpp"
+#include "gameplay/logic.hpp"
 
 #include <json/value.h>
 #include <json/json.h>

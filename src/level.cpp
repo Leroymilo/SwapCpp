@@ -4,7 +4,7 @@
 #include <json/value.h>
 #include <json/json.h>
 
-#include "level.hpp"
+#include "gameplay/level.hpp"
 
 
 //Constructor and meta

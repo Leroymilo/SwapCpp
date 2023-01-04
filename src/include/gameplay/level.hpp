@@ -5,10 +5,10 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "grid.hpp"
-#include "entities.hpp"
-#include "logic.hpp"
-#include "button.hpp"
+#include "gameplay/grid.hpp"
+#include "gameplay/entities.hpp"
+#include "gameplay/logic.hpp"
+#include "UI/button.hpp"
 
 
 class Level

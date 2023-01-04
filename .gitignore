@@ -1,7 +1,7 @@
 .git
 .vscode
 Archives
-*.o
+objects
 *.exe
 *.out
 test*

@@ -1,4 +1,4 @@
-#include "entities.hpp"
+#include "gameplay/entities.hpp"
 
 #include <json/value.h>
 #include <json/json.h>
