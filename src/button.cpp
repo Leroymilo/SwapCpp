@@ -114,3 +114,9 @@ bool Button::clicked()
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
     return (prev_on && !on && hitbox.contains(mouse_pos));
 }
+
+void Button::set_alignment(Alignment new_align)
+{
+    alignment = new_align;
+    reshape();
+}

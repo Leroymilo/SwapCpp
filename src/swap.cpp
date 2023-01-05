@@ -31,6 +31,21 @@ int main()
             }
             else
             {
+                scene = "Select";
+            }
+        }
+
+        else if (scene == "Select")
+        {
+            // Selecting a level :
+            int res = level_select(&window, font);
+            if (res == 0)
+            {
+                scene = "Title";
+            }
+            else
+            {
+                level_id = res;
                 scene = "Play";
             }
         }
@@ -49,7 +64,7 @@ int main()
                 std::cout << "level exited" << std::endl;
             }
 
-            scene = "Title";
+            scene = "Select";
         }
     }
         

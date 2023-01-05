@@ -33,6 +33,8 @@ class Button
         bool update();
         void draw(sf::Font);
         bool clicked();
+
+        void set_alignment(Alignment new_align);
 };
 
 #endif //BUTTON_H

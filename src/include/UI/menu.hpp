@@ -7,18 +7,12 @@
 
 #include "UI/button.hpp"
 
-// Variables and Functions for Title screen
-sf::Texture title;
-Button start_;
-Button exit_;
+// Functions for Title screen
 
 void draw_title(sf::RenderWindow*, sf::Font);
 int title_screen(sf::RenderWindow*, sf::Font);
 
-// Varibales and Functions for Level selection screen
-int lvl_grid_w, lvl_grid_h;
-int page;
-int lvl_button_size = 60, lvl_button_delta = 40;
+// Class and Functions for Level selection screen
 
 class LevelGrid
 {
@@ -27,6 +21,11 @@ class LevelGrid
         std::map<int, Button> levels;
     
     public:
+        int W, H;
+        int page = 0;
+        int button_size = 60;
+        int delta = 40;
+
         LevelGrid(sf::RenderWindow*);
         void reshape();
         bool update();
@@ -34,8 +33,7 @@ class LevelGrid
         int clicked();
 };
 
-sf::Vector2i lvl_grid_size(sf::RenderWindow* win_p);
-void draw_levels(sf::RenderWindow*, sf::Font);
+void draw_levels(sf::RenderWindow*, LevelGrid*, sf::Font);
 int level_select(sf::RenderWindow*, sf::Font);
 
 #endif //BUTTON_H

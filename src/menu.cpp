@@ -3,6 +3,11 @@
 #include <filesystem>
 #include <string>
 #include <regex>
+#include <iostream>
+
+sf::Texture title;
+Button start_;
+Button exit_;
 
 void draw_title(sf::RenderWindow* win_p, sf::Font font)
 {
@@ -39,6 +44,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
         {
             if (evnt.type == sf::Event::Closed)
             {
+                win_p->close();
                 return 0;
             }
             
@@ -73,7 +79,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
 
 LevelGrid::LevelGrid(sf::RenderWindow* win_p) : win_p(win_p)
 {
-    std::regex exp("^levels(/|\\\\)level[0-9]{3}$");
+    std::regex exp("^level[0-9]{3}$");
 
     for(auto& dir : std::filesystem::recursive_directory_iterator("levels"))
     {
@@ -81,6 +87,11 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p) : win_p(win_p)
         if (dir.is_directory() && std::regex_match(dir_name, exp))
         {
             int lvl_nb = std::stoi(dir_name.substr(5));
+            if (lvl_nb < 1)
+            {
+                std::cout << "level number cannot be 0 or negative" << std::endl;
+                continue;
+            }
             Button new_button("level/locked", std::to_string(lvl_nb), Alignment(), win_p);
             levels[lvl_nb] = new_button;
         }
@@ -89,54 +100,116 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p) : win_p(win_p)
 
 void LevelGrid::reshape()
 {
-    lvl_grid_w = 1;
-    while (win_p->getSize().x - (lvl_grid_w + 2) * lvl_button_size - (lvl_grid_w + 1) * lvl_button_delta > 0)
+    W = 1;
+    while (win_p->getSize().x - (W + 2) * button_size - (W + 1) * delta > 0)
     {
-        lvl_grid_w++;
+        W++;
     }
+    W--;
 
-    lvl_grid_h = 1;
-    while (win_p->getSize().y - (lvl_grid_h) * lvl_button_size - (lvl_grid_h - 1) * lvl_button_delta > 0)
+    H = 1;
+    while (win_p->getSize().y - (H) * button_size - (H - 1) * delta > 0)
     {
-        lvl_grid_h++;
+        H++;
     }
-
+    H--;
     
+    for (int y=0; y<H; y++)
+    {
+        for (int x=0; x<W; x++)
+        {
+            int lvl_id = 1 + page * W * H + y * W + x;
+
+            auto button = levels.find(lvl_id);
+
+            if (button == levels.end())
+                continue;   // The level is not in the list
+            
+            button->second.set_alignment(Alignment(W, x, delta, H, y, delta));
+        }
+    }
 }
 
 bool LevelGrid::update()
 {
+    bool updated = false;
 
+    for (int y=0; y<H; y++)
+    {
+        for (int x=0; x<W; x++)
+        {
+            int lvl_id = 1 + page * W * H + y * W + x;
+
+            auto button = levels.find(lvl_id);
+
+            if (button == levels.end())
+                continue;   // The level is not in the list
+            
+            updated |= button->second.update();
+        }
+    }
+
+    return updated;
 }
 
 void LevelGrid::draw(sf::Font font)
 {
+    std::cout << levels.size() << std::endl;
 
+    for (int y=0; y<H; y++)
+    {
+        for (int x=0; x<W; x++)
+        {
+            int lvl_id = 1 + page * W * H + y * W + x;
+
+            auto button = levels.find(lvl_id);
+
+            if (button == levels.end())
+                continue;   // The level is not in the list
+            
+            button->second.draw(font);
+        }
+    }
 }
 
 int LevelGrid::clicked()
 {
+    for (int y=0; y<H; y++)
+    {
+        for (int x=0; x<W; x++)
+        {
+            int lvl_id = 1 + page * W * H + y * W + x;
+
+            auto button = levels.find(lvl_id);
+
+            if (button == levels.end())
+                continue;   // The level is not in the list
+            
+            if (button->second.clicked())
+            {
+                return lvl_id;
+            }
+        }
+    }
+
     return 0;
 }
 
-sf::Vector2i lvl_grid_size(sf::RenderWindow* win_p)
+void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p, sf::Font font)
 {
+    win_p->clear(sf::Color(20, 30, 200));
 
-}
-
-void draw_levels(sf::RenderWindow* win_p, sf::Font font)
-{
+    lvl_g_p->draw(font);
 
     win_p->display();
 }
 
 int level_select(sf::RenderWindow* win_p, sf::Font font)
 {
-
     LevelGrid level_grid(win_p);
 
     // First draw
-    draw_title(win_p, font);
+    draw_levels(win_p, &level_grid, font);
 
     while (win_p->isOpen())
     {
@@ -145,6 +218,7 @@ int level_select(sf::RenderWindow* win_p, sf::Font font)
         {
             if (evnt.type == sf::Event::Closed)
             {
+                win_p->close();
                 return 0;
             }
             
@@ -152,9 +226,20 @@ int level_select(sf::RenderWindow* win_p, sf::Font font)
             {
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 win_p->setView(sf::View(view));
-                draw_levels(win_p, font);
-                win_p->display();
+                draw_levels(win_p, &level_grid, font);
             }
+        }
+
+        int clicked = level_grid.clicked();
+
+        if (clicked > 0)
+        {
+            return clicked;
+        }
+
+        if (level_grid.update())
+        {
+            draw_levels(win_p, &level_grid, font);
         }
     
     }
