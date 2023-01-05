@@ -55,7 +55,6 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
                 start_.reshape();
                 exit_.reshape();
                 draw_title(win_p, font);
-                win_p->display();
             }
         }
 

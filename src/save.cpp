@@ -56,7 +56,6 @@ void Save::refresh_playable()
     int nb_unlocked = std::min(4, int(std::round(solved.size()/5)) + 1);
 
     int i = 1;
-    std::cout << "in loop" << std::endl;
     while (nb_unlocked > 0)
     {
         if (!is_solved(i))
@@ -68,8 +67,6 @@ void Save::refresh_playable()
     }
 
     last_playable = i - 1;
-
-    std::cout << "finished refresh" << std::endl;
 }
 
 bool Save::is_solved(int lvl_id)
