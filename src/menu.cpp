@@ -96,23 +96,27 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p) : win_p(win_p)
             levels[lvl_nb] = new_button;
         }
     }
+
+    reshape();
 }
 
 void LevelGrid::reshape()
 {
     W = 1;
-    while (win_p->getSize().x - (W + 2) * button_size - (W + 1) * delta > 0)
+    while (win_p->getSize().x * 0.8 > (W + 2) * button_size + (W + 1) * delta)
     {
         W++;
     }
     W--;
 
     H = 1;
-    while (win_p->getSize().y - (H) * button_size - (H - 1) * delta > 0)
+    while (win_p->getSize().y * 0.8 > (H + 1) * button_size + H * delta)
     {
         H++;
     }
     H--;
+
+    std::cout << "grid dimentions : " << W << ", " << H << std::endl;
     
     for (int y=0; y<H; y++)
     {
@@ -154,8 +158,6 @@ bool LevelGrid::update()
 
 void LevelGrid::draw(sf::Font font)
 {
-    std::cout << levels.size() << std::endl;
-
     for (int y=0; y<H; y++)
     {
         for (int x=0; x<W; x++)
@@ -226,7 +228,16 @@ int level_select(sf::RenderWindow* win_p, sf::Font font)
             {
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 win_p->setView(sf::View(view));
+                level_grid.reshape();
                 draw_levels(win_p, &level_grid, font);
+            }
+
+            else if (evnt.type == sf::Event::KeyPressed)
+            {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                {
+                    return 0;
+                }
             }
         }
 

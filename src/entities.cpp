@@ -1,10 +1,11 @@
-#include "gameplay/entities.hpp"
+#include <fstream>
+#include <iostream>
 
 #include <json/value.h>
 #include <json/json.h>
 
-#include <fstream>
-#include <iostream>
+#include "gameplay/entities.hpp"
+
 
 //Methods for Entity
 Entity::Entity(){}

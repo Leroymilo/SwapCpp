@@ -14,20 +14,20 @@ Level::Level(int number)
 {
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(3) << number;
-    std::string str = ss.str();
+    std::string str = "levels/level" + ss.str();
 
     bg_tiles['X'].loadFromFile("assets/Tiles/Wall.png");
     bg_tiles['x'].loadFromFile("assets/Tiles/Grate.png");
     bg_tiles['.'].loadFromFile("assets/Tiles/Floor.png");
     bg_tiles['W'].loadFromFile("assets/Tiles/Win.png");
 
-    win_tile = backGround.readFile("levels/level" + str + "/bg.json");
-    Player = PlayerLike("levels/level" + str + "/entities.json", "player");
+    win_tile = backGround.readFile(str + "/bg.json");
+    Player = PlayerLike(str + "/entities.json", "player");
     Player.is_alive = true;
-    bullet = PlayerLike("levels/level" + str + "/entities.json", "bullet");
+    bullet = PlayerLike(str + "/entities.json", "bullet");
     bullet.is_alive = false;
-    boxes = Boxes("levels/level" + str + "/entities.json");
-    logic = Logic("levels/level" + str + "/logic.json");
+    boxes = Boxes(str + "/entities.json");
+    logic = Logic(str + "/logic.json");
 }
 
 std::string Level::get_pLike_state()
