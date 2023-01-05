@@ -5,7 +5,7 @@
 
 #include "gameplay/level.hpp"
 #include "UI/menu.hpp"
-
+#include "save.hpp"
 
 int main()
 {
@@ -14,6 +14,8 @@ int main()
     sf::Font font;
     if (!font.loadFromFile("assets/font.ttf"))
         std::cout << "Could not load font" << std::endl;
+    
+    Save save(1);
     
     std::string scene = "Title";
     int level_id = 1;
@@ -38,7 +40,7 @@ int main()
         else if (scene == "Select")
         {
             // Selecting a level :
-            int res = level_select(&window, font);
+            int res = level_select(&window, &save, font);
             if (res == 0)
             {
                 scene = "Title";
@@ -53,11 +55,13 @@ int main()
         else if (scene == "Play")
         {
             // Running a level :
-            int won = run(level_id, &window, font);
+            int nb_steps;
+            int won = run(level_id, &window, font, &nb_steps);
 
             if (won == 1)
             {
                 std::cout << "level " << level_id << " won!" << std::endl;
+                save.solve(level_id, nb_steps);
             }
             else 
             {
@@ -67,6 +71,7 @@ int main()
             scene = "Select";
         }
     }
-        
+    
+    save.write();
     return 0;
 }

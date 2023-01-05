@@ -1,4 +1,4 @@
 {
-    "name" : "test",
-    "data": ""
+	"data" : "{\"lvl_ids\":[],\"nb_comp\":0,\"steps\":[]}\n",
+	"name" : "test"
 }

@@ -77,7 +77,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
     return 0;
 }
 
-LevelGrid::LevelGrid(sf::RenderWindow* win_p) : win_p(win_p)
+LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save_p(save_p)
 {
     std::regex exp("^level[0-9]{3}$");
 
@@ -92,7 +92,16 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p) : win_p(win_p)
                 std::cout << "level number cannot be 0 or negative" << std::endl;
                 continue;
             }
-            Button new_button("level/locked", std::to_string(lvl_nb), Alignment(), win_p);
+
+            std::string texture_name;
+            if (save_p->is_solved(lvl_nb))
+                texture_name = "solved";
+            else if (save_p->is_playable(lvl_nb))
+                texture_name = "unlocked";
+            else
+                texture_name = "locked";
+    
+            Button new_button("level/" + texture_name, std::to_string(lvl_nb), Alignment(), win_p);
             levels[lvl_nb] = new_button;
         }
     }
@@ -187,7 +196,7 @@ int LevelGrid::clicked()
             if (button == levels.end())
                 continue;   // The level is not in the list
             
-            if (button->second.clicked())
+            if (button->second.clicked() && save_p->is_playable(lvl_id))
             {
                 return lvl_id;
             }
@@ -206,9 +215,9 @@ void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p, sf::Font font)
     win_p->display();
 }
 
-int level_select(sf::RenderWindow* win_p, sf::Font font)
+int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
 {
-    LevelGrid level_grid(win_p);
+    LevelGrid level_grid(win_p, save_p);
 
     // First draw
     draw_levels(win_p, &level_grid, font);

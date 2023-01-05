@@ -463,7 +463,7 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
 }
 
 // Main gameplay loop with keyboard input handling
-int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
+int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
 {
     //SFML stuff and level initialization :
     sf::Clock clock;
@@ -648,8 +648,11 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font)
             std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }
 
-    if (level.won)
-        return 1;
+        if (level.won)
+        {
+            *nb_steps = level.nbSteps;
+            return 1;
+        }
     }
 
     return 0;

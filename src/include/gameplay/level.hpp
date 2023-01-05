@@ -19,7 +19,6 @@ class Level
         Boxes boxes;
         sf::Vector2i win_tile;
         Grid backGround;
-        int nbSteps = 0;
         Logic logic;
 
         std::map<char, sf::Texture> bg_tiles;
@@ -31,6 +30,7 @@ class Level
         void displayBG(sf::RenderWindow * windowP, sf::Font font);
 
     public:
+        int nbSteps = 0;
         bool won = false;
 
         Level();
@@ -53,6 +53,6 @@ class Level
 
 void display_pause(sf::RenderWindow*, sf::Font);    // Function to display the pause menu over the level
 int pause(Level*, sf::RenderWindow*, sf::Font);     // Function to handle pause menu interractions
-int run(int, sf::RenderWindow*, sf::Font);          // Function replacing the original main loop of swap.cpp
+int run(int, sf::RenderWindow*, sf::Font, int*);          // Function replacing the original main loop of swap.cpp
 
 #endif //LEVEL_H

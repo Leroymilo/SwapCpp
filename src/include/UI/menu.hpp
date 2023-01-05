@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "UI/button.hpp"
+#include "save.hpp"
 
 // Functions for Title screen
 
@@ -18,6 +19,7 @@ class LevelGrid
 {
     private:
         sf::RenderWindow* win_p;
+        Save* save_p;
         std::map<int, Button> levels;
     
     public:
@@ -26,7 +28,7 @@ class LevelGrid
         int button_size = 60;
         int delta = 40;
 
-        LevelGrid(sf::RenderWindow*);
+        LevelGrid(sf::RenderWindow*, Save*);
         void reshape();
         bool update();
         void draw(sf::Font);
@@ -34,6 +36,6 @@ class LevelGrid
 };
 
 void draw_levels(sf::RenderWindow*, LevelGrid*, sf::Font);
-int level_select(sf::RenderWindow*, sf::Font);
+int level_select(sf::RenderWindow*, Save* save_p, sf::Font);
 
 #endif //BUTTON_H
