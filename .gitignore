@@ -6,3 +6,4 @@ objects
 *.exe
 *.out
 test*
+temp*
