@@ -24,6 +24,7 @@ class LevelGrid
         int nb_pages;
         Button left;
         Button right;
+        Button exit_;
     
     public:
         int W, H;

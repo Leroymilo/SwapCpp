@@ -109,13 +109,15 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save
     right = Button("right", "", Alignment(), win_p);
     left = Button("left", "", Alignment(), win_p);
 
+    exit_ = Button("exit", "Exit", Alignment(), win_p);
+
     reshape();
 }
 
 void LevelGrid::reshape()
 {
     W = 1;
-    while (win_p->getSize().x * 0.8 > (W + 2) * button_size + (W + 1) * delta)
+    while (W < 11 && win_p->getSize().x * 0.8 > (W + 2) * button_size + (W + 1) * delta)
     {
         W++;
     }
@@ -148,12 +150,14 @@ void LevelGrid::reshape()
             if (button == levels.end())
                 continue;   // The level is not in the list
             
-            button->second.set_alignment(Alignment(W, x, delta, H, y, delta));
+            button->second.set_alignment(Alignment(W, x, delta, H+1, y, delta));
         }
     }
 
     right.set_alignment(Alignment(W+2, W+1, delta, 1, 0, 0));
     left.set_alignment(Alignment(W+2, 0, delta, 1, 0, 0));
+
+    exit_.set_alignment(Alignment(1, 0, 0, H+1, H, delta));
 }
 
 bool LevelGrid::update()
@@ -177,6 +181,8 @@ bool LevelGrid::update()
 
     updated |= right.update();
     updated |= left.update();
+
+    updated |= exit_.update();
 
     return updated;
 }
@@ -203,6 +209,8 @@ void LevelGrid::draw(sf::Font font)
         right.draw(font);
         left.draw(font);
     }
+
+    exit_.draw(font);
 }
 
 int LevelGrid::clicked()
@@ -241,6 +249,11 @@ int LevelGrid::clicked()
             }
             return -1;
         }
+    }
+
+    if (exit_.clicked())
+    {
+        return -2;
     }
 
     return 0;
@@ -295,6 +308,10 @@ int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
         if (clicked > 0)
         {
             return clicked;
+        }
+        else if (clicked == -2)
+        {
+            return 0;
         }
         else if (clicked == -1)
         {
