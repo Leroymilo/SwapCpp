@@ -4,6 +4,7 @@
 #include <string>
 #include <regex>
 #include <iostream>
+#include <cmath>
 
 sf::Texture title;
 Button start_;
@@ -105,6 +106,9 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save
         }
     }
 
+    right = Button("right", "", Alignment(), win_p);
+    left = Button("left", "", Alignment(), win_p);
+
     reshape();
 }
 
@@ -124,6 +128,13 @@ void LevelGrid::reshape()
     }
     H--;
 
+    nb_pages = std::ceil((float)levels.rbegin()->first / ((float)W * (float)H));
+    if (page >= nb_pages)
+    {
+        page = 0;
+    }
+
+    std::cout << "page " << page+1 << "/" << nb_pages << std::endl;
     std::cout << "grid dimentions : " << W << ", " << H << std::endl;
     
     for (int y=0; y<H; y++)
@@ -140,6 +151,9 @@ void LevelGrid::reshape()
             button->second.set_alignment(Alignment(W, x, delta, H, y, delta));
         }
     }
+
+    right.set_alignment(Alignment(W+2, W+1, delta, 1, 0, 0));
+    left.set_alignment(Alignment(W+2, 0, delta, 1, 0, 0));
 }
 
 bool LevelGrid::update()
@@ -161,6 +175,9 @@ bool LevelGrid::update()
         }
     }
 
+    updated |= right.update();
+    updated |= left.update();
+
     return updated;
 }
 
@@ -180,6 +197,9 @@ void LevelGrid::draw(sf::Font font)
             button->second.draw(font);
         }
     }
+
+    right.draw(font);
+    left.draw(font);
 }
 
 int LevelGrid::clicked()
@@ -200,6 +220,21 @@ int LevelGrid::clicked()
                 return lvl_id;
             }
         }
+    }
+
+    if (right.clicked())
+    {
+        page = (page + 1) % nb_pages;
+        return -1;
+    }
+    if (left.clicked())
+    {
+        page--;
+        if (page < 0)
+        {
+            page = nb_pages - 1;
+        }
+        return -1;
     }
 
     return 0;
@@ -254,6 +289,11 @@ int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
         if (clicked > 0)
         {
             return clicked;
+        }
+        else if (clicked == -1)
+        {
+            level_grid.reshape();
+            draw_levels(win_p, &level_grid, font);
         }
 
         if (level_grid.update())

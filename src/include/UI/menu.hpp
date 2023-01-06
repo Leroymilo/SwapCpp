@@ -21,6 +21,9 @@ class LevelGrid
         sf::RenderWindow* win_p;
         Save* save_p;
         std::map<int, Button> levels;
+        int nb_pages;
+        Button left;
+        Button right;
     
     public:
         int W, H;
