@@ -1,6 +1,6 @@
 import wx
 
-from src.gen_level_editor import LevelEditor
+from src.python_classes.level_editor import LevelEditor
 
 app = wx.App()
 frame = LevelEditor(None)
