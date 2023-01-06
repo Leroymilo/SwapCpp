@@ -7,7 +7,7 @@ import pygame as pg
 from src.python.gen_level_editor import LevelEditor
 from src.python.sprites import *
 
-blank_level = json.load(open("levels/blank_level.json"))
+blank_level = json.load(open("levels/example_level.json"))
 
 tools = ["Wall", "Grate", "Goal", "Player", "Bullet", "Box", "Button", "Target", "Door", "AND Gate", "OR Gate", "NO Gate", "Connector"]
 tool_icon_paths = {
@@ -61,6 +61,7 @@ class LevelEditor(LevelEditor) :
         W, H = self.level["bg"]["W"], self.level["bg"]["H"]
 
         # Draw :
+        #background
         self.surf.fill(color=(0, 0, 0))
         for x in range(W) :
             for y in range(H) :
@@ -77,6 +78,7 @@ class LevelEditor(LevelEditor) :
                 
                 self.surf.blit(img, (delta * x, delta * y))
         
+        #entities
         player_data = self.level["entities"]["player"]
         if player_data["alive"] :
             img = player[player_data["dir"]]
@@ -91,11 +93,35 @@ class LevelEditor(LevelEditor) :
             x, y = box_data["X"], box_data["Y"]
             self.surf.blit(box, (delta * x, delta * y))
 
-        # "Save" :
-        bitmap = io.BytesIO()
-        pg.image.save(self.surf, "assets/temp.png", "PNG")
+        #logic
+        for activator in self.level["logic"]["activators"] :
+            x, y, type_ = activator["X"], activator["Y"], activator["type"]
+
+            if type_ == 'I' :
+                self.surf.blit(interruptor, (delta * x, delta * y))
+            elif type_ == 'T' :
+                self.surf.blit(target, (delta * x, delta * y))
+        
+        for gate in self.level["logic"]["gates"] :
+            x, y, type_ = gate["X"], gate["Y"], gate["type"]
+
+            if type_ == '&' :
+                self.surf.blit(AND, (delta * x, delta * y))
+            elif type_ == '|' :
+                self.surf.blit(OR, (delta * x, delta * y))
+            elif type_ == '!' :
+                self.surf.blit(NOT, (delta * x, delta * y))
+        
+        for door_data in self.level["logic"]["doors"] :
+            for tile in door_data["tiles"] :
+                x, y = tile["X"], tile["Y"]
+                self.surf.blit(door, (delta * x, delta * y))
 
         # Display :
-        
+        bitmap = io.BytesIO()
+        pg.image.save(self.surf, "assets/temp.png", "PNG")
         bmp = wx.Bitmap(wx.Image("assets/temp.png"))
         self.display.SetBitmap(bmp)
+
+        # It would be very nice if saving an image was avoidable,
+        # but I couldn't make wxPython read a io.BytesIO for some reason.
