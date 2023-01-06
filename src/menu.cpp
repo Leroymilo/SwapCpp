@@ -198,8 +198,11 @@ void LevelGrid::draw(sf::Font font)
         }
     }
 
-    right.draw(font);
-    left.draw(font);
+    if (nb_pages > 1)
+    {
+        right.draw(font);
+        left.draw(font);
+    }
 }
 
 int LevelGrid::clicked()
@@ -222,19 +225,22 @@ int LevelGrid::clicked()
         }
     }
 
-    if (right.clicked())
+    if (nb_pages > 1)
     {
-        page = (page + 1) % nb_pages;
-        return -1;
-    }
-    if (left.clicked())
-    {
-        page--;
-        if (page < 0)
+        if (right.clicked())
         {
-            page = nb_pages - 1;
+            page = (page + 1) % nb_pages;
+            return -1;
         }
-        return -1;
+        if (left.clicked())
+        {
+            page--;
+            if (page < 0)
+            {
+                page = nb_pages - 1;
+            }
+            return -1;
+        }
     }
 
     return 0;
