@@ -131,7 +131,7 @@ void LevelGrid::reshape()
     nb_pages = std::ceil((float)levels.rbegin()->first / ((float)W * (float)H));
     if (page >= nb_pages)
     {
-        page = 0;
+        page = nb_pages - 1;
     }
 
     std::cout << "page " << page+1 << "/" << nb_pages << std::endl;
