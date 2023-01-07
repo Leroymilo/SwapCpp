@@ -95,3 +95,63 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 
+###########################################################################
+## Class ResizeDlg
+###########################################################################
+
+class ResizeDlg ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Choose new dimentions", pos = wx.DefaultPosition, size = wx.Size( 223,142 ), style = wx.DEFAULT_DIALOG_STYLE )
+
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+
+		v_sizer = wx.BoxSizer( wx.VERTICAL )
+
+		h_sizer_height = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.height_text = wx.StaticText( self, wx.ID_ANY, u"Height :", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.height_text.Wrap( -1 )
+
+		h_sizer_height.Add( self.height_text, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.height_spin = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 3, 20, 3 )
+		h_sizer_height.Add( self.height_spin, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+
+		v_sizer.Add( h_sizer_height, 0, wx.EXPAND, 5 )
+
+		h_sizer_width = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.width_text = wx.StaticText( self, wx.ID_ANY, u"Width :", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.width_text.Wrap( -1 )
+
+		h_sizer_width.Add( self.width_text, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.width_spin = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 3, 40, 3 )
+		h_sizer_width.Add( self.width_spin, 0, wx.ALL, 5 )
+
+
+		v_sizer.Add( h_sizer_width, 0, wx.EXPAND, 5 )
+
+		self.confirm_button = wx.Button( self, wx.ID_ANY, u"Confirm", wx.DefaultPosition, wx.DefaultSize, 0 )
+		v_sizer.Add( self.confirm_button, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+
+
+		self.SetSizer( v_sizer )
+		self.Layout()
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.confirm_button.Bind( wx.EVT_BUTTON, self.confirm )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, override them in your derived class
+	def confirm( self, event ):
+		event.Skip()
+
+

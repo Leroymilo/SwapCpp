@@ -4,7 +4,7 @@ import io
 import wx
 import pygame as pg
 
-from src.python.gen_level_editor import LevelEditor
+from src.python.gen_level_editor import LevelEditor, ResizeDlg
 from src.python.sprites import *
 
 blank_level = json.load(open("levels/example_level.json"))
@@ -25,6 +25,22 @@ tool_icon_paths = {
     "NO Gate"   : "assets/Logic/NO0.png",
     "Connector" : "assets/connector.png"
 }
+
+
+class ResizeDlg(ResizeDlg) :
+    def __init__(self, parent, cur_W: int, cur_H: int) :
+        super().__init__(parent)
+        self.height_spin.SetValue(cur_H)
+        self.width_spin.SetValue(cur_W)
+    
+    def confirm(self, event) :
+        value = 100 * self.width_spin.GetValue() + self.height_spin.GetValue()
+        self.EndModal(value)
+    
+    def Close(self, force=False):
+        self.EndModal(0)
+        return super().Close(force)
+
 
 class LevelEditor(LevelEditor) :
     def __init__(self, parent):
@@ -50,12 +66,32 @@ class LevelEditor(LevelEditor) :
     
     def resize(self, event) :
         # Ask for new dimentions :
+        W, H = self.level["bg"]["W"], self.level["bg"]["H"]
+        value = ResizeDlg(self, W, H).ShowModal()
+        if value == 0 :
+            return
+        new_W, new_H = value // 100, value % 100
 
         # Update dimensions :
-        #self.level["bg"]["H"] = new_H
-        #self.level["bg"]["W"] = new_W
-        #self.surf = pg.Surface((new_W * 32, new_H * 32))
-        pass
+        self.level["bg"]["W"] = new_W
+        self.level["bg"]["H"] = new_H
+
+        grid = self.level["bg"]["BG"]
+        new_grid = []
+        for y in range(new_H) :
+            if y >= H :
+                new_grid.append(['.' for _ in range(new_W)])
+                continue
+
+            if new_W >= W :
+                new_grid.append(grid[y] + ['.' for _ in range(new_W - W)])
+            else :
+                new_grid.append(grid[y][:new_W])
+        self.level["bg"]["BG"] = new_grid
+        
+        self.surf = pg.Surface((new_W * 32, new_H * 32))
+
+        self.display_level()
     
     def display_level(self) :
         W, H = self.level["bg"]["W"], self.level["bg"]["H"]
@@ -118,10 +154,10 @@ class LevelEditor(LevelEditor) :
                 self.surf.blit(door, (delta * x, delta * y))
 
         # Display :
-        bitmap = io.BytesIO()
         pg.image.save(self.surf, "assets/temp.png", "PNG")
         bmp = wx.Bitmap(wx.Image("assets/temp.png"))
         self.display.SetBitmap(bmp)
+        self.Layout()
 
         # It would be very nice if saving an image was avoidable,
         # but I couldn't make wxPython read a io.BytesIO for some reason.
