@@ -73,6 +73,11 @@ class LevelEditor ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.save_level, id = self.save_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.resize, id = self.resize_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
+		self.display.Bind( wx.EVT_LEFT_DOWN, self.left_down )
+		self.display.Bind( wx.EVT_LEFT_UP, self.left_up )
+		self.display.Bind( wx.EVT_MOTION, self.mouse_move )
+		self.display.Bind( wx.EVT_RIGHT_DOWN, self.right_down )
+		self.display.Bind( wx.EVT_RIGHT_UP, self.right_up )
 
 	def __del__( self ):
 		pass
@@ -92,6 +97,21 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 	def change_tool( self, event ):
+		event.Skip()
+
+	def left_down( self, event ):
+		event.Skip()
+
+	def left_up( self, event ):
+		event.Skip()
+
+	def mouse_move( self, event ):
+		event.Skip()
+
+	def right_down( self, event ):
+		event.Skip()
+
+	def right_up( self, event ):
 		event.Skip()
 
 

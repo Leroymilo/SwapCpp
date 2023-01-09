@@ -455,6 +455,11 @@
                         <property name="window_extra_style"></property>
                         <property name="window_name"></property>
                         <property name="window_style"></property>
+                        <event name="OnLeftDown">left_down</event>
+                        <event name="OnLeftUp">left_up</event>
+                        <event name="OnMotion">mouse_move</event>
+                        <event name="OnRightDown">right_down</event>
+                        <event name="OnRightUp">right_up</event>
                     </object>
                 </object>
             </object>

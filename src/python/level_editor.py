@@ -54,6 +54,10 @@ class LevelEditor(LevelEditor) :
         self.level = blank_level
         self.surf = pg.Surface((self.level["bg"]["W"] * 32, self.level["bg"]["H"] * 32))
 
+        # Setting up clicks :
+        self.left_c = self.right_c = False
+        self.prev_click = (-1, -1)
+
         self.display_level()
 
     def change_tool(self, event: wx.Event) :
@@ -153,6 +157,8 @@ class LevelEditor(LevelEditor) :
                 x, y = tile["X"], tile["Y"]
                 self.surf.blit(door, (delta * x, delta * y))
 
+        # TODO : cables 
+
         # Display :
         pg.image.save(self.surf, "assets/temp.png", "PNG")
         bmp = wx.Bitmap(wx.Image("assets/temp.png"))
@@ -161,3 +167,94 @@ class LevelEditor(LevelEditor) :
 
         # It would be very nice if saving an image was avoidable,
         # but I couldn't make wxPython read a io.BytesIO for some reason.
+    
+    def process_click(self, event: wx.MouseEvent) :
+        x, y = event.GetPosition()
+        disp_W, disp_H = self.display.GetSize()
+
+        W, H = self.level["bg"]["W"], self.level["bg"]["H"]
+        x0, y0 = (disp_W - W * delta) // 2, (disp_H - H * delta) // 2
+        x, y = (x - x0)//32, (y - y0)//32
+
+        if not (0 <= x < W and 0 <= y < H) :
+            return
+        
+        if (x, y) == self.prev_click :
+            return
+        
+        self.prev_click = (x, y)
+        self.update_level((x, y))
+
+    def update_level(self, click: tuple[int]) :
+        x, y = click
+
+        grid = self.level["bg"]["BG"]
+        tile = grid[y][x]
+
+        if self.tool == "Wall" :
+            if self.right_c :
+                grid[y][x] = 'X'
+            elif self.left_c and tile == 'X' :
+                grid[y][x] = '.'
+        
+        elif self.tool == "Grate" :
+            if self.right_c :
+                grid[y][x] = 'x'
+            elif self.left_c and tile == 'x' :
+                grid[y][x] = '.'
+        
+        elif self.tool == "Goal" :
+            if self.right_c :
+                self.level["bg"]["EndX"], self.level["bg"]["EndY"] = x, y
+
+        elif self.tool == "Player" :
+            player = self.level["entities"]["player"]
+            if self.right_c :
+                player["X"], player["Y"] = x, y
+                player["alive"] = True
+            elif self.left_c and (player["X"], player["Y"]) == (x, y) :
+                player["X"], player["Y"] = 0, 0
+                player["alive"] = False
+        
+        elif self.tool == "Bullet" :
+            bullet = self.level["entities"]["bullet"]
+            if self.right_c :
+                bullet["X"], bullet["Y"] = x, y
+                bullet["alive"] = True
+            elif self.left_c and (bullet["X"], bullet["Y"]) == (x, y) :
+                bullet["X"], bullet["Y"] = 0, 0
+                bullet["alive"] = False
+            
+        elif self.tool == "Box" :
+            boxes: list[dict[str, int]] = self.level["entities"]["Boxes"]
+            cur_box = {"X": x, "Y": y}
+            if self.right_c and cur_box not in boxes :
+                boxes.append(cur_box)
+            elif self.left_c and cur_box in boxes :
+                boxes.remove(cur_box)
+        
+        elif self.tool == "Button" :
+            pass
+            
+        self.display_level()
+
+
+    def mouse_move(self, event: wx.MouseEvent) :
+        if self.right_c ^ self.left_c :
+            self.process_click(event)
+    
+    def left_down(self, event: wx.MouseEvent) :
+        self.left_c = True
+        self.process_click(event)
+    
+    def right_down(self, event: wx.MouseEvent) :
+        self.right_c = True
+        self.process_click(event)
+    
+    def left_up(self, event) :
+        self.left_c = False
+        self.prev_click = (-1, -1)
+    
+    def right_up(self, event) :
+        self.right_c = False
+        self.prev_click = (-1, -1)
