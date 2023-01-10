@@ -8,7 +8,7 @@ from src.python.gen_level_editor import LevelEditor, ResizeDlg
 from src.python.sprites import *
 from src.python.level import Level
 
-blank_level = json.load(open("levels/example_level.json"))
+blank_level = "levels/example_level.json"
 
 tools = ["Wall", "Grate", "Goal", "Player", "Bullet", "Box", "Button", "Target", "Door", "AND Gate", "OR Gate", "NO Gate", "Connector"]
 tool_icon_paths = {
@@ -52,8 +52,8 @@ class LevelEditor(LevelEditor) :
         self.tools.AppendItems(tools)
 
         # Setting up level :
-        self.level = blank_level
-        self.surf = pg.Surface((self.level["bg"]["W"] * 32, self.level["bg"]["H"] * 32))
+        self.level = Level(blank_level)
+        self.surf = pg.Surface(self.level.get_surface(delta))
 
         # Setting up clicks :
         self.left_c = self.right_c = False
@@ -71,17 +71,16 @@ class LevelEditor(LevelEditor) :
     
     def resize(self, event) :
         # Ask for new dimentions :
-        W, H = self.level["bg"]["W"], self.level["bg"]["H"]
+        W, H = self.level.size
         value = ResizeDlg(self, W, H).ShowModal()
         if value == 0 :
             return
         new_W, new_H = value // 100, value % 100
 
         # Update dimensions :
-        self.level["bg"]["W"] = new_W
-        self.level["bg"]["H"] = new_H
+        self.size = (new_W, new_H)
 
-        grid = self.level["bg"]["BG"]
+        grid = self.level.grid
         new_grid = []
         for y in range(new_H) :
             if y >= H :
@@ -92,14 +91,14 @@ class LevelEditor(LevelEditor) :
                 new_grid.append(grid[y] + ['.' for _ in range(new_W - W)])
             else :
                 new_grid.append(grid[y][:new_W])
-        self.level["bg"]["BG"] = new_grid
+        self.level.grid = new_grid
         
         self.surf = pg.Surface((new_W * 32, new_H * 32))
 
         self.display_level()
     
     def display_level(self) :
-        W, H = self.level["bg"]["W"], self.level["bg"]["H"]
+        W, H = self.level.size
 
         # Draw :
         #background
