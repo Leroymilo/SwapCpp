@@ -10,7 +10,7 @@ from src.python.level import Level
 
 blank_level = "levels/example_level.json"
 
-tools = ["Wall", "Grate", "Goal", "Player", "Bullet", "Box", "Button", "Target", "Door", "AND Gate", "OR Gate", "NO Gate", "Connector"]
+tools = ["Wall", "Grate", "Goal", "Player", "Bullet", "Box", "Button", "Target", "AND Gate", "OR Gate", "NO Gate", "Door Tile", "Door Hub", "Connector"]
 tool_icon_paths = {
     "Wall"      : "assets/Tiles/Wall.png",
     "Grate"     : "assets/Tiles/Grate.png",
@@ -20,10 +20,11 @@ tool_icon_paths = {
     "Box"       : "assets/Entities/Box.png",
     "Button"    : "assets/Logic/Interruptor0.png",
     "Target"    : "assets/Logic/Target0.png",
-    "Door"      : "assets/Logic/Door0.png",
     "AND Gate"  : "assets/Logic/AND0.png",
     "OR Gate"   : "assets/Logic/OR0.png",
     "NO Gate"   : "assets/Logic/NO0.png",
+    "Door Tile" : "assets/Logic/Door0.png",
+    "Door Hub"  : "assets/door_hub.png",
     "Connector" : "assets/connector.png"
 }
 
@@ -105,9 +106,9 @@ class LevelEditor(LevelEditor) :
         self.surf.fill(color=(0, 0, 0))
         for x in range(W) :
             for y in range(H) :
-                tile = self.level["bg"]["BG"][y][x]
+                tile = self.level.get_tile(x, y)
 
-                if (x, y) == (self.level["bg"]["EndX"], self.level["bg"]["EndY"]) :
+                if (x, y) == self.level.goal :
                     img = goal
                 elif tile == 'X' :
                     img = wall
@@ -117,47 +118,43 @@ class LevelEditor(LevelEditor) :
                     img = floor
                 
                 self.surf.blit(img, (delta * x, delta * y))
+
+        #logic
+        for x, y in self.level.buttons :
+            self.surf.blit(interruptor, (delta * x, delta * y))
+        for x, y in self.level.targets :
+            self.surf.blit(target, (delta * x, delta * y))
+        
+        for x, y in self.level.ands :
+            self.surf.blit(AND, (delta * x, delta * y))
+        for x, y in self.level.ors :
+            self.surf.blit(OR, (delta * x, delta * y))
+        for x, y in self.level.nos :
+            self.surf.blit(NOT, (delta * x, delta * y))
+        
+        for door_obj in self.level.doors :
+            for x, y in door_obj.tiles :
+                self.surf.blit(door_tile, (delta * x, delta * y))
+        
+        for door_obj in self.level.doors :
+            x, y = door_obj.pos
+            self.surf.blit(door_hub, (delta * x, delta * y))
+
+        # TODO : cables 
         
         #entities
-        player_data = self.level["entities"]["player"]
+        player_data = self.level.player
         if player_data["alive"] :
             img = player[player_data["dir"]]
             self.surf.blit(img, (delta * player_data["X"], delta * player_data["Y"]))
         
-        bullet_data = self.level["entities"]["bullet"]
+        bullet_data = self.level.bullet
         if bullet_data["alive"] :
             img = bullet[bullet_data["dir"]]
             self.surf.blit(img, (delta * bullet_data["X"], delta * bullet_data["Y"]))
         
-        for box_data in self.level["entities"]["Boxes"] :
-            x, y = box_data["X"], box_data["Y"]
+        for x, y in self.level.boxes :
             self.surf.blit(box, (delta * x, delta * y))
-
-        #logic
-        for activator in self.level["logic"]["activators"] :
-            x, y, type_ = activator["X"], activator["Y"], activator["type"]
-
-            if type_ == 'I' :
-                self.surf.blit(interruptor, (delta * x, delta * y))
-            elif type_ == 'T' :
-                self.surf.blit(target, (delta * x, delta * y))
-        
-        for gate in self.level["logic"]["gates"] :
-            x, y, type_ = gate["X"], gate["Y"], gate["type"]
-
-            if type_ == '&' :
-                self.surf.blit(AND, (delta * x, delta * y))
-            elif type_ == '|' :
-                self.surf.blit(OR, (delta * x, delta * y))
-            elif type_ == '!' :
-                self.surf.blit(NOT, (delta * x, delta * y))
-        
-        for door_data in self.level["logic"]["doors"] :
-            for tile in door_data["tiles"] :
-                x, y = tile["X"], tile["Y"]
-                self.surf.blit(door, (delta * x, delta * y))
-
-        # TODO : cables 
 
         # Display :
         pg.image.save(self.surf, "assets/temp.png", "PNG")
@@ -172,7 +169,7 @@ class LevelEditor(LevelEditor) :
         x, y = event.GetPosition()
         disp_W, disp_H = self.display.GetSize()
 
-        W, H = self.level["bg"]["W"], self.level["bg"]["H"]
+        W, H = self.level.size
         x0, y0 = (disp_W - W * delta) // 2, (disp_H - H * delta) // 2
         x, y = (x - x0)//32, (y - y0)//32
 
@@ -188,76 +185,64 @@ class LevelEditor(LevelEditor) :
     def update_level(self, click: tuple[int]) :
         x, y = click
 
-        grid = self.level["bg"]["BG"]
-        tile = grid[y][x]
-
-        activators: list[dict[str, int | str]] = self.level["logic"]["activators"]
-        gates: list[dict[str, int]] = self.level["logic"]["gates"]
-        doors: list[dict[str, int | list]] = self.level["logic"]["doors"]
-        gate_dict = {"AND": '&', "OR": '|', "NO": '!'}
+        tile = self.level.get_tile(x, y)
 
         if self.tool == "Wall" :
             if self.right_c :
-                grid[y][x] = 'X'
+                self.level.set_tile(x, y, 'X')
             elif self.left_c and tile == 'X' :
-                grid[y][x] = '.'
+                self.level.set_tile(x, y, '.')
         
         elif self.tool == "Grate" :
             if self.right_c :
-                grid[y][x] = 'x'
+                self.level.set_tile(x, y, 'x')
             elif self.left_c and tile == 'x' :
-                grid[y][x] = '.'
+                self.level.set_tile(x, y, '.')
         
         elif self.tool == "Goal" :
             if self.right_c :
-                self.level["bg"]["EndX"], self.level["bg"]["EndY"] = x, y
+                self.level.goal = x, y
 
         elif self.tool == "Player" :
-            player = self.level["entities"]["player"]
-            if self.right_c :
-                player["X"], player["Y"] = x, y
-                player["alive"] = True
-            elif self.left_c and (player["X"], player["Y"]) == (x, y) :
-                player["X"], player["Y"] = 0, 0
-                player["alive"] = False
+            if self.right_c and self.level.can_place(x, y, "player") :
+                self.level.player["X"], self.level.player["Y"] = x, y
+                self.level.player["alive"] = True
+            elif self.left_c and (self.level.player["X"], self.level.player["Y"]) == (x, y) :
+                self.level.player["X"], self.level.player["Y"] = 0, 0
+                self.level.player["alive"] = False
         
         elif self.tool == "Bullet" :
-            bullet = self.level["entities"]["bullet"]
-            if self.right_c :
-                bullet["X"], bullet["Y"] = x, y
-                bullet["alive"] = True
-            elif self.left_c and (bullet["X"], bullet["Y"]) == (x, y) :
-                bullet["X"], bullet["Y"] = 0, 0
-                bullet["alive"] = False
+            if self.right_c and self.level.can_place(x, y, "bullet") :
+                self.level.bullet["X"], self.level.bullet["Y"] = x, y
+                self.level.bullet["alive"] = True
+            elif self.left_c and (self.level.bullet["X"], self.level.bullet["Y"]) == (x, y) :
+                self.level.bullet["X"], self.level.bullet["Y"] = 0, 0
+                self.level.bullet["alive"] = False
             
         elif self.tool == "Box" :
-            boxes: list[dict[str, int]] = self.level["entities"]["Boxes"]
-            cur_box = {"X": x, "Y": y}
-            if self.right_c and cur_box not in boxes :
-                boxes.append(cur_box)
-            elif self.left_c and cur_box in boxes :
-                boxes.remove(cur_box)
+            if self.right_c and self.level.can_place(x, y, "box") :
+                self.level.boxes.append((x, y))
+            elif self.left_c and (x, y) in self.level.boxes :
+                self.level.boxes.remove((x, y))
         
         elif self.tool == "Button" :
-            cur_button = {"type": "I", "X": x, "Y": y}
-            if self.right_c and cur_button not in activators :
-                activators.append(cur_button)
-            elif self.left_c and cur_button in activators :
-                activators.remove(cur_button)
+            if self.right_c and self.level.can_place(x, y, "button") :
+                self.level.buttons.append((x, y))
+            elif self.left_c and (x, y) in self.level.buttons :
+                self.level.buttons.remove((x, y))
 
         elif self.tool == "Target" :
-            cur_target = {"type": "T", "X": x, "Y": y}
-            if self.right_c and cur_target not in activators :
-                activators.append(cur_target)
-            elif self.left_c and cur_target in activators :
-                activators.remove(cur_target)
+            if self.right_c and self.level.can_place(x, y, "target") :
+                self.level.targets.append((x, y))
+            elif self.left_c and (x, y) in self.level.targets :
+                self.level.targets.remove((x, y))
         
         elif self.tool.endswith("Gate") :
-            cur_gate = {"type": gate_dict[self.tool.split(' ')[0]], "X": x, "Y": y}
-            if self.right_c and cur_gate not in gates :
-                gates.append(cur_gate)
-            elif self.left_c and cur_gate in gates :
-                gates.remove(cur_gate)
+            type_ = self.tool.split(' ')[0]
+            if self.right_c and self.level.can_place(x, y, "gate") :
+                self.level.gates[type_].append((x, y))
+            elif self.left_c and (x, y) in self.level.gates[type_] :
+                self.level.gates[type_].remove((x, y))
 
             
         self.display_level()

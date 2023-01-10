@@ -21,7 +21,9 @@ bullet  = {dir_: get_image(f"assets/Entities/bullet{dir_}.png") for dir_ in dirs
 
 interruptor = get_image("assets/Logic/Interruptor0.png")
 target      = get_image("assets/Logic/Target0.png")
-door        = get_image("assets/Logic/Door0.png")
+door_tile   = get_image("assets/Logic/Door0.png")
 AND         = get_image("assets/Logic/AND0.png")
 OR          = get_image("assets/Logic/OR0.png")
 NOT         = get_image("assets/Logic/NO0.png")
+
+door_hub    = get_image("assets/door_hub.png")
