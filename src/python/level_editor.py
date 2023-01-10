@@ -6,6 +6,7 @@ import pygame as pg
 
 from src.python.gen_level_editor import LevelEditor, ResizeDlg
 from src.python.sprites import *
+from src.python.level import Level
 
 blank_level = json.load(open("levels/example_level.json"))
 
@@ -191,6 +192,11 @@ class LevelEditor(LevelEditor) :
         grid = self.level["bg"]["BG"]
         tile = grid[y][x]
 
+        activators: list[dict[str, int | str]] = self.level["logic"]["activators"]
+        gates: list[dict[str, int]] = self.level["logic"]["gates"]
+        doors: list[dict[str, int | list]] = self.level["logic"]["doors"]
+        gate_dict = {"AND": '&', "OR": '|', "NO": '!'}
+
         if self.tool == "Wall" :
             if self.right_c :
                 grid[y][x] = 'X'
@@ -234,7 +240,26 @@ class LevelEditor(LevelEditor) :
                 boxes.remove(cur_box)
         
         elif self.tool == "Button" :
-            pass
+            cur_button = {"type": "I", "X": x, "Y": y}
+            if self.right_c and cur_button not in activators :
+                activators.append(cur_button)
+            elif self.left_c and cur_button in activators :
+                activators.remove(cur_button)
+
+        elif self.tool == "Target" :
+            cur_target = {"type": "T", "X": x, "Y": y}
+            if self.right_c and cur_target not in activators :
+                activators.append(cur_target)
+            elif self.left_c and cur_target in activators :
+                activators.remove(cur_target)
+        
+        elif self.tool.endswith("Gate") :
+            cur_gate = {"type": gate_dict[self.tool.split(' ')[0]], "X": x, "Y": y}
+            if self.right_c and cur_gate not in gates :
+                gates.append(cur_gate)
+            elif self.left_c and cur_gate in gates :
+                gates.remove(cur_gate)
+
             
         self.display_level()
 
