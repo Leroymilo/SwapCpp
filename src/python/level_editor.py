@@ -126,7 +126,8 @@ class LevelEditor(LevelEditor) :
                 self.surf.blit(img, (delta * x, delta * y))
 
         #logic
-        # TODO : cables 
+        for link in self.level.links :
+            link.draw(self.surf, delta)
 
         for x, y in self.level.buttons :
             self.surf.blit(interruptor, (delta * x, delta * y))
@@ -142,18 +143,19 @@ class LevelEditor(LevelEditor) :
         
         #doors
         for door_obj in self.level.doors :
-            for x, y in door_obj.tiles :
-                self.surf.blit(door_tile, (delta * x, delta * y))
-
+            door_obj.draw_tiles(self.surf, delta)
         if self.door is not None :
-            self.door.draw_lines(self.surf, delta)
             self.door.draw_tiles(self.surf, delta)
-            self.door.draw_hub(self.surf, delta)
-
         
         for door_obj in self.level.doors :
-            x, y = door_obj.pos
-            self.surf.blit(door_hub, (delta * x, delta * y))
+            door_obj.draw_lines(self.surf, delta)
+        if self.door is not None :
+            self.door.draw_lines(self.surf, delta)
+
+        for door_obj in self.level.doors :
+            door_obj.draw_hub(self.surf, delta)
+        if self.door is not None :
+            self.door.draw_hub(self.surf, delta)
         
         #entities
         player_data = self.level.player

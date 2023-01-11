@@ -28,7 +28,13 @@ class Link :
         self.offsets = data["offsets"]
     
     def draw(self, surf: pg.Surface, delta: int) :
-        pass
+        for i in range(len(self.nodes) - 1) :
+            x1, y1 = self.nodes[i]
+            x2, y2 = self.nodes[i+1]
+            C1, C2 = (delta * (x1+0.5), delta * (y1+0.5)), (delta * (x2+0.5), delta * (y2+0.5))
+            pg.draw.line(surf, (61, 176, 254), C1, C2, delta//16)
+
+
 
 class Level :
     def __init__(self, dir_) -> None :
