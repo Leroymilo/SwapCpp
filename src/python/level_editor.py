@@ -6,7 +6,7 @@ import pygame as pg
 
 from src.python.gen_level_editor import LevelEditor, ResizeDlg
 from src.python.sprites import *
-from src.python.level import Level
+from src.python.level import Level, Door
 
 blank_level = "levels/example_level.json"
 
@@ -59,8 +59,12 @@ class LevelEditor(LevelEditor) :
         # Setting up clicks :
         self.left_c = self.right_c = False
         self.prev_click = (-1, -1)
+
+        # Setting up doors :
+        self.door: Door = None
+        
+        # Setting up cables :
         self.cable_origin = None
-        self.door_tile = None
 
         self.display_level()
 
@@ -136,9 +140,16 @@ class LevelEditor(LevelEditor) :
         for x, y in self.level.nos :
             self.surf.blit(NOT, (delta * x, delta * y))
         
+        #doors
         for door_obj in self.level.doors :
             for x, y in door_obj.tiles :
                 self.surf.blit(door_tile, (delta * x, delta * y))
+
+        if self.door is not None :
+            self.door.draw_lines(self.surf, delta)
+            self.door.draw_tiles(self.surf, delta)
+            self.door.draw_hub(self.surf, delta)
+
         
         for door_obj in self.level.doors :
             x, y = door_obj.pos
@@ -186,8 +197,18 @@ class LevelEditor(LevelEditor) :
         if self.right_c ^ self.left_c :
             self.update_level((x, y))
         
-        if (self.tool == "Door Tile") and (door_tile is not None) and (not self.left_c) :
-            self.level.connect_door(self.door_tile, (x, y))
+        if (self.tool == "Door Tile") and (self.door is not None) :
+            tx, ty = self.door.tiles.pop()
+            self.door.tiles.add((tx, ty))
+            if self.right_c :
+                self.door.pos = (x, y)
+            else :
+                if (self.level.can_place(x, y, "door_hub")) :
+                    self.level.erase_any(tx, ty)
+                    self.level.connect_door((tx, ty), (x, y))
+                self.door = None
+
+        self.display_level()
 
 
     def update_level(self, click: tuple[int]) :
@@ -197,12 +218,14 @@ class LevelEditor(LevelEditor) :
 
         if self.tool == "Wall" :
             if self.right_c and (x, y) != self.level.goal :
+                self.level.erase_any(x, y)
                 self.level.set_tile(x, y, 'X')
             elif self.left_c and tile == 'X' :
                 self.level.set_tile(x, y, '.')
         
         elif self.tool == "Grate" :
             if self.right_c and (x, y) != self.level.goal :
+                self.level.erase_any(x, y)
                 self.level.set_tile(x, y, 'x')
             elif self.left_c and tile == 'x' :
                 self.level.set_tile(x, y, '.')
@@ -210,6 +233,7 @@ class LevelEditor(LevelEditor) :
         elif self.tool == "Goal" :
             if self.right_c :
                 self.level.goal = x, y
+                self.level.erase_any(x, y)
 
         elif self.tool == "Player" :
             if self.right_c and self.level.can_place(x, y, "player") :
@@ -229,36 +253,41 @@ class LevelEditor(LevelEditor) :
             
         elif self.tool == "Box" :
             if self.right_c and self.level.can_place(x, y, "box") :
-                self.level.boxes.append((x, y))
+                self.level.boxes.add((x, y))
             elif self.left_c and (x, y) in self.level.boxes :
                 self.level.boxes.remove((x, y))
         
         elif self.tool == "Button" :
             if self.right_c and self.level.can_place(x, y, "button") :
-                self.level.buttons.append((x, y))
+                self.level.buttons.add((x, y))
             elif self.left_c and (x, y) in self.level.buttons :
                 self.level.buttons.remove((x, y))
 
         elif self.tool == "Target" :
             if self.right_c and self.level.can_place(x, y, "target") :
-                self.level.targets.append((x, y))
+                self.level.erase_any(x, y)
+                self.level.targets.add((x, y))
             elif self.left_c and (x, y) in self.level.targets :
                 self.level.targets.remove((x, y))
         
         elif self.tool.endswith("Gate") :
             type_ = self.tool.split(' ')[0]
             if self.right_c and self.level.can_place(x, y, "gate") :
-                self.level.gates[type_].append((x, y))
+                self.level.gates[type_].add((x, y))
             elif self.left_c and (x, y) in self.level.gates[type_] :
                 self.level.gates[type_].remove((x, y))
         
         elif self.tool == "Door Tile" :
-            if self.left_c and self.level.can_place(x, y, "door_tile") :
-                self.door_tile = (x, y)
-            elif self.right_c :
+            if self.right_c and (self.door is None) and self.level.can_place(x, y, "door_tile") :
+                self.door = Door({"X": x, "Y": y, "tiles": [{"X": x, "Y": y}]})
+            elif self.left_c :
                 self.level.remove_door_tile(x, y)
-
-        self.display_level()
+        
+        elif self.tool == "Door Hub" :
+            if self.right_c and self.level.can_place(x, y, "door_hub") :
+                self.level.add_door_hub(x, y)
+            elif self.left_c :
+                self.level.remove_door_hub(x, y)
 
 
     def mouse_move(self, event: wx.MouseEvent) :
@@ -279,4 +308,6 @@ class LevelEditor(LevelEditor) :
     
     def right_up(self, event) :
         self.right_c = False
+        self.prev_click = (-1, -1)
+        self.process_click(event)
         self.prev_click = (-1, -1)

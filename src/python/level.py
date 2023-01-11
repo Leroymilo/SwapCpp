@@ -1,9 +1,34 @@
 import json
 
+import pygame as pg
+
+from src.python.sprites import door_hub, door_tile
+
 class Door :
     def __init__(self, data) -> None :
         self.pos = (data["X"], data["Y"])
         self.tiles = {(tile["X"], tile["Y"]) for tile in data["tiles"]}
+    
+    def draw_lines(self, surf: pg.Surface, delta: int) -> None :
+        hx, hy = self.pos
+        for tx, ty in self.tiles :
+            sx, sy, ex, ey = delta * (hx+0.5), delta * (hy+0.5), delta * (tx+0.5), delta * (ty+0.5)
+            pg.draw.line(surf, (200, 0, 0), (sx, sy), (ex, ey), delta//16)
+
+    def draw_tiles(self, surf: pg.Surface, delta: int) -> None :
+        for x, y in self.tiles :
+            surf.blit(door_tile, (delta * x, delta * y))
+
+    def draw_hub(self, surf: pg.Surface, delta: int) -> None :
+        surf.blit(door_hub, (delta * self.pos[0], delta * self.pos[1]))
+
+class Link :
+    def __init__(self, data) -> None:
+        self.nodes = [(node["X"], node["Y"]) for node in data["nodes"]]
+        self.offsets = data["offsets"]
+    
+    def draw(self, surf: pg.Surface, delta: int) :
+        pass
 
 class Level :
     def __init__(self, dir_) -> None :
@@ -30,7 +55,7 @@ class Level :
 
         self.doors = [Door(door_data) for door_data in data["logic"]["doors"]]
 
-        self.links = data["logic"]["links"]
+        self.links = [Link(link_data) for link_data in data["logic"]["links"]]
 
     def get_surface(self, delta: int) :
         return (self.size[0] * delta, self.size[1] * delta)
@@ -41,7 +66,7 @@ class Level :
     def set_tile(self, x: int, y: int, char: str) :
         self.grid[y][x] = char
     
-    def place_wall(self, x: int, y: int) :
+    def erase_any(self, x: int, y: int) :
         # Removes anything standing on (x, y) to place a wall or a grate
         
         if (self.player["X"], self.player["Y"]) == (x, y) :
@@ -52,18 +77,19 @@ class Level :
             self.bullet["alive"] = False
             self.bullet["X"], self.bullet["Y"] = 0, 0
         
-        self.boxes.difference_update({(x, y)})
-        self.buttons.difference_update({(x, y)})
-        self.targets.difference_update({(x, y)})
+        self.boxes.discard((x, y))
+        self.buttons.discard((x, y))
+        self.targets.discard((x, y))
         for L in self.gates.values() :
-            L.difference_update({(x, y)})
+            L.discard((x, y))
         
-        for door in self.doors :
-            if (x, y) == door.pos :
-                self.doors.remove(door)
-                break
-
-            door.tiles.difference_update((x, y))
+        i = 0
+        while i < len(self.doors) :
+            if (x, y) == self.doors[i].pos :
+                self.doors.pop(i)
+                continue
+            self.doors[i].tiles.discard((x, y))
+            i += 1
     
     def can_place(self, x: int, y: int, type_: str) :
 
@@ -77,7 +103,7 @@ class Level :
 
         # Building sets of blocked coordinates :
 
-        entities = self.boxes
+        entities = self.boxes.copy()
         if self.player["alive"] :
             entities.add((self.player["X"], self.player["Y"]))
         if self.bullet["alive"] :
@@ -88,8 +114,9 @@ class Level :
             logics |= L
 
         door_tiles = set()
+        door_hubs = set()
         for door in self.doors :
-            logics.add(door.pos)
+            door_hubs.add(door.pos)
             door_tiles |= door.tiles
         
         # Specific checks :
@@ -99,13 +126,42 @@ class Level :
                 return False
             return True
         
-        if type_ in {"button", "target", "gate", "door"} :
+        if type_ in {"button", "target", "gate"} :
+            if (x, y) in (door_tiles | door_hubs | logics) :
+                return False
+            return True
+            
+        if type_ == "door_tile" :
             if (x, y) in (door_tiles | logics) :
                 return False
+            return True
+        
+        if type_ == "door_hub" :
+            return ((x, y) not in logics)
 
         return True
+
+    def add_door_hub(self, x: int, y: int) :
+        if (x, y) not in {door.pos for door in self.doors} :
+            self.doors.append(Door({"X": x, "Y": y, "tiles": []}))
+    
+    def connect_door(self, tile_pos: tuple[int], hub_pos: tuple[int]) :
+        for door in self.doors :
+            if door.pos == hub_pos :
+                door.tiles.add(tile_pos)
+                return
+        
+        hx, hy = hub_pos
+        tx, ty = tile_pos
+        self.doors.append(Door({"X": hx, "Y": hy, "tiles": [{"X": tx, "Y": ty}]}))
     
     def remove_door_tile(self, x: int, y: int) :
         for door in self.doors :
             if (x, y) in door.tiles :
                 door.tiles.remove((x, y))
+    
+    def remove_door_hub(self, x: int, y: int) :
+        for i in range(len(self.doors)) :
+            if self.doors[i].pos == (x, y) :
+                self.doors.pop(i)
+                return

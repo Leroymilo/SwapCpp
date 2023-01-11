@@ -88,28 +88,33 @@
         "nb_links" : 3,
         "links" : [
             {
-                "X_start" : 3,
-                "Y_start" : 6,
                 "type_start" : "Activator",
-                "X_end" : 4,
-                "Y_end" : 4,
-                "type_end" : "Gate"
+                "type_end" : "Gate",
+                "nodes" : [
+                    {"X" : 3, "Y" : 6},
+                    {"X" : 4, "Y" : 6},
+                    {"X" : 4, "Y" : 4}
+                ],
+                "offsets" : [0, -1]
             },
             {
-                "X_start" : 5,
-                "Y_start" : 6,
                 "type_start" : "Activator",
-                "X_end" : 4,
-                "Y_end" : 4,
-                "type_end" : "Gate"
+                "type_end" : "Gate",
+                "nodes" : [
+                    {"X" : 5, "Y" : 6},
+                    {"X" : 4, "Y" : 6},
+                    {"X" : 4, "Y" : 4}
+                ],
+                "offsets" : [0, 1]
             },
             {
-                "X_start" : 4,
-                "Y_start" : 4,
                 "type_start" : "Gate",
-                "X_end" : 4,
-                "Y_end" : 2,
-                "type_end" : "Door"
+                "type_end" : "Door",
+                "nodes" : [
+                    {"X" : 4, "Y" : 4},
+                    {"X" : 4, "Y" : 2}
+                ],
+                "offsets" : [0]
             }
         ]
     }
