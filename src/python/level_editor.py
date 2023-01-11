@@ -59,6 +59,8 @@ class LevelEditor(LevelEditor) :
         # Setting up clicks :
         self.left_c = self.right_c = False
         self.prev_click = (-1, -1)
+        self.cable_origin = None
+        self.door_tile = None
 
         self.display_level()
 
@@ -120,6 +122,8 @@ class LevelEditor(LevelEditor) :
                 self.surf.blit(img, (delta * x, delta * y))
 
         #logic
+        # TODO : cables 
+
         for x, y in self.level.buttons :
             self.surf.blit(interruptor, (delta * x, delta * y))
         for x, y in self.level.targets :
@@ -139,8 +143,6 @@ class LevelEditor(LevelEditor) :
         for door_obj in self.level.doors :
             x, y = door_obj.pos
             self.surf.blit(door_hub, (delta * x, delta * y))
-
-        # TODO : cables 
         
         #entities
         player_data = self.level.player
@@ -180,7 +182,13 @@ class LevelEditor(LevelEditor) :
             return
         
         self.prev_click = (x, y)
-        self.update_level((x, y))
+
+        if self.right_c ^ self.left_c :
+            self.update_level((x, y))
+        
+        if (self.tool == "Door Tile") and (door_tile is not None) and (not self.left_c) :
+            self.level.connect_door(self.door_tile, (x, y))
+
 
     def update_level(self, click: tuple[int]) :
         x, y = click
@@ -188,13 +196,13 @@ class LevelEditor(LevelEditor) :
         tile = self.level.get_tile(x, y)
 
         if self.tool == "Wall" :
-            if self.right_c :
+            if self.right_c and (x, y) != self.level.goal :
                 self.level.set_tile(x, y, 'X')
             elif self.left_c and tile == 'X' :
                 self.level.set_tile(x, y, '.')
         
         elif self.tool == "Grate" :
-            if self.right_c :
+            if self.right_c and (x, y) != self.level.goal :
                 self.level.set_tile(x, y, 'x')
             elif self.left_c and tile == 'x' :
                 self.level.set_tile(x, y, '.')
@@ -243,8 +251,13 @@ class LevelEditor(LevelEditor) :
                 self.level.gates[type_].append((x, y))
             elif self.left_c and (x, y) in self.level.gates[type_] :
                 self.level.gates[type_].remove((x, y))
+        
+        elif self.tool == "Door Tile" :
+            if self.left_c and self.level.can_place(x, y, "door_tile") :
+                self.door_tile = (x, y)
+            elif self.right_c :
+                self.level.remove_door_tile(x, y)
 
-            
         self.display_level()
 
 
