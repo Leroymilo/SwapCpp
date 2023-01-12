@@ -90,6 +90,7 @@
             {
                 "type_start" : "Activator",
                 "type_end" : "Gate",
+                "nb_nodes": 3,
                 "nodes" : [
                     {"X" : 3, "Y" : 6},
                     {"X" : 4, "Y" : 6},
@@ -100,6 +101,7 @@
             {
                 "type_start" : "Activator",
                 "type_end" : "Gate",
+                "nb_nodes": 3,
                 "nodes" : [
                     {"X" : 5, "Y" : 6},
                     {"X" : 4, "Y" : 6},
@@ -110,6 +112,7 @@
             {
                 "type_start" : "Gate",
                 "type_end" : "Door",
+                "nb_nodes": 2,
                 "nodes" : [
                     {"X" : 4, "Y" : 4},
                     {"X" : 4, "Y" : 2}

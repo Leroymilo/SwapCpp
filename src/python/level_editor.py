@@ -130,6 +130,7 @@ class LevelEditor(LevelEditor) :
         self.edited = False
         self.status_bar: wx.StatusBar
         base_editor_title = self.GetTitle()
+        self.SetTitle(base_editor_title + " : unnamed level")
 
         # Setting up the tools :
         self.tool = ""
@@ -429,7 +430,7 @@ class LevelEditor(LevelEditor) :
             self.display_error("Unknown tool somehow...")
 
         if self.level_name is None :
-            self.SetTitle(base_editor_title + " : *unnamed_level.json")
+            self.SetTitle(base_editor_title + " : *unnamed level")
         else :
             self.SetTitle(base_editor_title + " : *" + self.level_name)
         self.edited = True
@@ -515,7 +516,9 @@ class LevelEditor(LevelEditor) :
         self.level.player["X"] = (new_W-1)//2
         self.level.player["Y"] = new_H-2
         self.display_level()
-    
+        self.level_name = None
+        self.SetTitle(base_editor_title + " : unnamed level")
+
     def open_level(self, event) :
         if not self.check_save() : return
 
@@ -540,6 +543,7 @@ class LevelEditor(LevelEditor) :
         level_name = level_path.removeprefix("levels/")
         level_name = level_name.removeprefix("levels\\")
         self.level_name = level_name
+        self.SetTitle(base_editor_title + " : " + self.level_name)
     
     #=========================================================================================================================================================
     # Edit menu :
@@ -553,7 +557,7 @@ class LevelEditor(LevelEditor) :
         new_W, new_H = value // 100, value % 100
 
         # Update dimensions :
-        self.size = (new_W, new_H)
+        self.level.size = (new_W, new_H)
 
         grid = self.level.grid
         new_grid = []

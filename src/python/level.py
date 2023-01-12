@@ -51,6 +51,7 @@ class Link :
         return {
             "type_start": self.type_start,
             "type_end": self.type_end,
+            "nb_nodes": len(self.nodes),
             "nodes": [
                 {
                     "X": node[0],
