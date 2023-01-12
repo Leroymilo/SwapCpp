@@ -1,1 +1,30 @@
-{"bg": {"H": 7, "W": 8, "EndX": 1, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", "X", "X"], ["X", "X", "X", ".", "X", "X", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", "X", ".", ".", ".", ".", "X"], ["X", ".", "X", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 1, "Y": 5, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 3, "Boxes": [{"X": 2, "Y": 3}, {"X": 3, "Y": 3}, {"X": 4, "Y": 3}]}, "logic": {"nb_activators": 1, "activators": [{"X": 5, "Y": 3, "type": "I"}], "nb_gates": 1, "gates": [{"X": 3, "Y": 4, "type": "!"}], "nb_doors": 1, "doors": [{"X": 3, "Y": 2, "nb_tiles": 1, "tiles": [{"X": 3, "Y": 2}]}], "nb_links": 0, "links": []}}
+{"bg": {"H": 7, "W": 8, "EndX": 1, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", "X", "X"], ["X", "X", "X", ".", "X", "X", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", "X", ".", ".", ".", ".", "X"], ["X", ".", "X", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 1, "Y": 5, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 3, "Boxes": [{"X": 2, "Y": 3}, {"X": 3, "Y": 3}, {"X": 4, "Y": 3}]},
+"logic": {
+    "nb_activators": 1, "activators": [{"X": 5, "Y": 3, "type": "I"}],
+    "nb_gates": 1, "gates": [{"X": 3, "Y": 4, "type": "!"}],
+    "nb_doors": 1, "doors": [{"X": 3, "Y": 2, "nb_tiles": 1, "tiles": [{"X": 3, "Y": 2}]}],
+    "nb_links": 2,
+    "links": [
+        {
+            "type_start" : "Activator",
+            "type_end" : "Gate",
+            "nb_nodes": 4,
+            "nodes" : [
+                {"X" : 5, "Y" : 3},
+                {"X" : 5, "Y" : 5},
+                {"X" : 3, "Y" : 5},
+                {"X" : 3, "Y" : 4}
+            ],
+            "offsets" : [0, 0, 0]
+        },
+        {
+            "type_start" : "Gate",
+            "type_end" : "Door",
+            "nb_nodes": 2,
+            "nodes" : [
+                {"X" : 3, "Y" : 4},
+                {"X" : 3, "Y" : 2}
+            ],
+            "offsets" : [0]
+        }
+    ]}}
