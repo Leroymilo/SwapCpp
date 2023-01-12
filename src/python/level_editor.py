@@ -28,6 +28,23 @@ tool_icon_paths = {
     "Connector" : "assets/connector.png"
 }
 
+help_texts = {
+    "Wall"      : "Right click to place, left click to remove. Placing removes other objects.",
+    "Grate"     : "Right click to place, left click to remove. Placing removes other objects.",
+    "Goal"      : "Right click to place. There can only be one, cannot be removed. Placing removes other objects (can serve as an eraser).",
+    "Player"    : "Right click to place, left click to remove. There can only be one.",
+    "Bullet"    : "Right click to place, left click to remove. There can only be one.",
+    "Box"       : "Right click to place, left click to remove.",
+    "Button"    : "Right click to place, left click to remove.",
+    "Target"    : "Right click to place, left click to remove. Placing removes other objects.",
+    "AND Gate"  : "Right click to place, left click to remove.",
+    "OR Gate"   : "Right click to place, left click to remove.",
+    "NO Gate"   : "Right click to place, left click to remove.",
+    "Door Tile" : "Hold right click to place the tile, release to place a hud or connect to an existing hud. Left click to remove.",
+    "Door Hub"  : "Right click to place, left click to remove (will remove connected tiles).",
+    "Connector" : "Not implemented."
+}
+
 
 class ResizeDlg(ResizeDlg) :
     def __init__(self, parent, cur_W: int, cur_H: int) :
@@ -47,6 +64,7 @@ class ResizeDlg(ResizeDlg) :
 class LevelEditor(LevelEditor) :
     def __init__(self, parent):
         super().__init__(parent)
+        self.status_bar: wx.StatusBar
 
         # Setting up the tools :
         self.tool = ""
@@ -66,6 +84,7 @@ class LevelEditor(LevelEditor) :
         # Setting up cables :
         self.cable_origin = None
 
+        self.auto_path_check.Hide()
         self.display_level()
 
     def change_tool(self, event: wx.Event) :
@@ -75,6 +94,13 @@ class LevelEditor(LevelEditor) :
         path: str = tool_icon_paths[self.tool]
         bitmap = wx.Bitmap(path, type=wx.BITMAP_TYPE_PNG)
         self.tool_icon.SetBitmap(bitmap)
+
+        if self.tool == "Connector" :
+            self.auto_path_check.Show()
+        else :
+            self.auto_path_check.Hide()
+        
+        self.status_bar.PushStatusText(help_texts[self.tool], field = 0)
     
     def resize(self, event) :
         # Ask for new dimentions :
@@ -189,6 +215,7 @@ class LevelEditor(LevelEditor) :
         x, y = (x - x0)//32, (y - y0)//32
 
         if not (0 <= x < W and 0 <= y < H) :
+            self.display_error("Out of grid.")
             return
         
         if (x, y) == self.prev_click :
@@ -208,6 +235,8 @@ class LevelEditor(LevelEditor) :
                 if (self.level.can_place(x, y, "door_hub")) :
                     self.level.erase_any(tx, ty)
                     self.level.connect_door((tx, ty), (x, y))
+                else :
+                    self.display_error("Cannot place door hub here !")
                 self.door = None
 
         self.display_level()
@@ -219,16 +248,24 @@ class LevelEditor(LevelEditor) :
         tile = self.level.get_tile(x, y)
 
         if self.tool == "Wall" :
-            if self.right_c and (x, y) != self.level.goal :
-                self.level.erase_any(x, y)
-                self.level.set_tile(x, y, 'X')
+            if self.right_c :
+                if (x, y) != self.level.goal :
+                    self.level.erase_any(x, y)
+                    self.level.set_tile(x, y, 'X')
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and tile == 'X' :
                 self.level.set_tile(x, y, '.')
         
         elif self.tool == "Grate" :
-            if self.right_c and (x, y) != self.level.goal :
-                self.level.erase_any(x, y)
-                self.level.set_tile(x, y, 'x')
+            if self.right_c :
+                if (x, y) != self.level.goal :
+                    self.level.erase_any(x, y)
+                    self.level.set_tile(x, y, 'x')
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and tile == 'x' :
                 self.level.set_tile(x, y, '.')
         
@@ -236,60 +273,94 @@ class LevelEditor(LevelEditor) :
             if self.right_c :
                 self.level.goal = x, y
                 self.level.erase_any(x, y)
+                self.level.grid[y][x] = '.'
 
         elif self.tool == "Player" :
-            if self.right_c and self.level.can_place(x, y, "player") :
-                self.level.player["X"], self.level.player["Y"] = x, y
-                self.level.player["alive"] = True
+            if self.right_c :
+                if self.level.can_place(x, y, "player") :
+                    self.level.player["X"], self.level.player["Y"] = x, y
+                    self.level.player["alive"] = True
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and (self.level.player["X"], self.level.player["Y"]) == (x, y) :
                 self.level.player["X"], self.level.player["Y"] = 0, 0
                 self.level.player["alive"] = False
         
         elif self.tool == "Bullet" :
-            if self.right_c and self.level.can_place(x, y, "bullet") :
-                self.level.bullet["X"], self.level.bullet["Y"] = x, y
-                self.level.bullet["alive"] = True
+            if self.right_c :
+                if self.level.can_place(x, y, "bullet") :
+                    self.level.bullet["X"], self.level.bullet["Y"] = x, y
+                    self.level.bullet["alive"] = True
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and (self.level.bullet["X"], self.level.bullet["Y"]) == (x, y) :
                 self.level.bullet["X"], self.level.bullet["Y"] = 0, 0
                 self.level.bullet["alive"] = False
             
         elif self.tool == "Box" :
-            if self.right_c and self.level.can_place(x, y, "box") :
-                self.level.boxes.add((x, y))
+            if self.right_c :
+                if self.level.can_place(x, y, "box") :
+                    self.level.boxes.add((x, y))
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and (x, y) in self.level.boxes :
                 self.level.boxes.remove((x, y))
         
         elif self.tool == "Button" :
-            if self.right_c and self.level.can_place(x, y, "button") :
-                self.level.buttons.add((x, y))
+            if self.right_c :
+                if self.level.can_place(x, y, "button") :
+                    self.level.buttons.add((x, y))
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and (x, y) in self.level.buttons :
                 self.level.buttons.remove((x, y))
 
         elif self.tool == "Target" :
-            if self.right_c and self.level.can_place(x, y, "target") :
-                self.level.erase_any(x, y)
-                self.level.targets.add((x, y))
+            if self.right_c :
+                if self.level.can_place(x, y, "target") :
+                    self.level.erase_any(x, y)
+                    self.level.targets.add((x, y))
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and (x, y) in self.level.targets :
                 self.level.targets.remove((x, y))
         
         elif self.tool.endswith("Gate") :
             type_ = self.tool.split(' ')[0]
-            if self.right_c and self.level.can_place(x, y, "gate") :
-                self.level.gates[type_].add((x, y))
+            if self.right_c :
+                if self.level.can_place(x, y, "gate") :
+                    self.level.gates[type_].add((x, y))
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c and (x, y) in self.level.gates[type_] :
                 self.level.gates[type_].remove((x, y))
         
         elif self.tool == "Door Tile" :
-            if self.right_c and (self.door is None) and self.level.can_place(x, y, "door_tile") :
-                self.door = Door({"X": x, "Y": y, "tiles": [{"X": x, "Y": y}]})
+            if self.right_c and (self.door is None) :
+                if self.level.can_place(x, y, "door_tile") :
+                    self.door = Door({"X": x, "Y": y, "tiles": [{"X": x, "Y": y}]})
+                else :
+                    self.display_error("Cannot place door tile here !")
             elif self.left_c :
                 self.level.remove_door_tile(x, y)
         
         elif self.tool == "Door Hub" :
-            if self.right_c and self.level.can_place(x, y, "door_hub") :
-                self.level.add_door_hub(x, y)
+            if self.right_c :
+                if self.level.can_place(x, y, "door_hub") :
+                    self.level.add_door_hub(x, y)
+                else :
+                    self.display_error("Cannot place here !")
+                    return
             elif self.left_c :
                 self.level.remove_door_hub(x, y)
+        
+        self.clear_error()
 
 
     def mouse_move(self, event: wx.MouseEvent) :
@@ -313,3 +384,15 @@ class LevelEditor(LevelEditor) :
         self.prev_click = (-1, -1)
         self.process_click(event)
         self.prev_click = (-1, -1)
+
+    def display_error(self, text: str) :
+        self.error_timer.StartOnce(5000)
+        self.status_bar.PushStatusText(text, field = 1)
+    
+    def clear_error(self) :
+        self.error_timer.Stop()
+        if self.status_bar.GetField(1).GetText() != "" :
+            self.status_bar.PopStatusText(field = 1)
+
+    def end_timer(self, event) :
+        self.status_bar.PopStatusText(field = 1)

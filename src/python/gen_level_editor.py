@@ -42,7 +42,7 @@ class LevelEditor ( wx.Frame ):
 
 		self.SetMenuBar( self.menu_bar )
 
-		self.status_bar = self.CreateStatusBar( 1, wx.STB_ELLIPSIZE_END|wx.STB_SHOW_TIPS|wx.STB_SIZEGRIP, wx.ID_ANY )
+		self.status_bar = self.CreateStatusBar( 2, wx.STB_ELLIPSIZE_END|wx.STB_SHOW_TIPS|wx.STB_SIZEGRIP, wx.ID_ANY )
 		self.tool_bar = self.CreateToolBar( wx.TB_DEFAULT_STYLE, wx.ID_ANY )
 		self.tool_bar_text = wx.StaticText( self.tool_bar, wx.ID_ANY, u"Tool :", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.tool_bar_text.Wrap( -1 )
@@ -54,6 +54,11 @@ class LevelEditor ( wx.Frame ):
 		self.tool_bar.AddControl( self.tools )
 		self.tool_icon = wx.StaticBitmap( self.tool_bar, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.tool_bar.AddControl( self.tool_icon )
+		self.auto_path_check = wx.CheckBox( self.tool_bar, wx.ID_ANY, u"Auto path :", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_RIGHT )
+		self.auto_path_check.SetValue(True)
+		self.auto_path_check.Hide()
+
+		self.tool_bar.AddControl( self.auto_path_check )
 		self.tool_bar.Realize()
 
 		sizer = wx.BoxSizer( wx.VERTICAL )
@@ -64,6 +69,8 @@ class LevelEditor ( wx.Frame ):
 
 		self.SetSizer( sizer )
 		self.Layout()
+		self.error_timer = wx.Timer()
+		self.error_timer.SetOwner( self, wx.ID_ANY )
 
 		self.Centre( wx.BOTH )
 
@@ -78,6 +85,7 @@ class LevelEditor ( wx.Frame ):
 		self.display.Bind( wx.EVT_MOTION, self.mouse_move )
 		self.display.Bind( wx.EVT_RIGHT_DOWN, self.right_down )
 		self.display.Bind( wx.EVT_RIGHT_UP, self.right_up )
+		self.Bind( wx.EVT_TIMER, self.end_timer, id=wx.ID_ANY )
 
 	def __del__( self ):
 		pass
@@ -112,6 +120,9 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 	def right_up( self, event ):
+		event.Skip()
+
+	def end_timer( self, event ):
 		event.Skip()
 
 

@@ -27,13 +27,30 @@ class Link :
         self.nodes = [(node["X"], node["Y"]) for node in data["nodes"]]
         self.offsets = data["offsets"]
     
+    def get_offset(self, i) :
+        if i < 0 or i >= len(self.offsets) :
+            return 0
+        return self.offsets[i]
+    
     def draw(self, surf: pg.Surface, delta: int) :
+        width = delta//16
+
         for i in range(len(self.nodes) - 1) :
             x1, y1 = self.nodes[i]
             x2, y2 = self.nodes[i+1]
-            C1, C2 = (delta * (x1+0.5), delta * (y1+0.5)), (delta * (x2+0.5), delta * (y2+0.5))
-            pg.draw.line(surf, (61, 176, 254), C1, C2, delta//16)
+            x1, y1, x2, y2 = delta * (x1+0.5) - 1, delta * (y1+0.5) - 1, delta * (x2+0.5) - 1, delta * (y2+0.5) - 1
 
+            if x1 == x2 :
+                C1 = (x1 + width * self.get_offset(i), y1 + width * self.get_offset(i-1))
+                C2 = (x2 + width * self.get_offset(i), y2 + width * self.get_offset(i+1))
+            elif y1 == y2 :
+                C1 = (x1 + width * self.get_offset(i-1), y1 + width * self.get_offset(i))
+                C2 = (x2 + width * self.get_offset(i+1), y2 + width * self.get_offset(i))
+            else :
+                C1 = (x1, y1)
+                C2 = (x2, y2)
+
+            pg.draw.line(surf, (61, 176, 254), C1, C2, width)
 
 
 class Level :
