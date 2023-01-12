@@ -32,11 +32,17 @@ class LevelEditor ( wx.Frame ):
 		self.save_item = wx.MenuItem( self.file_menu, wx.ID_ANY, u"Save"+ u"\t" + u"CTRL+S", wx.EmptyString, wx.ITEM_NORMAL )
 		self.file_menu.Append( self.save_item )
 
+		self.save_as_item = wx.MenuItem( self.file_menu, wx.ID_ANY, u"Save as", wx.EmptyString, wx.ITEM_NORMAL )
+		self.file_menu.Append( self.save_as_item )
+
 		self.menu_bar.Append( self.file_menu, u"File" )
 
 		self.edit_menu = wx.Menu()
 		self.resize_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Resize Level", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.resize_item )
+
+		self.default_size_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Default Size", wx.EmptyString, wx.ITEM_NORMAL )
+		self.edit_menu.Append( self.default_size_item )
 
 		self.menu_bar.Append( self.edit_menu, u"Edit" )
 
@@ -75,10 +81,13 @@ class LevelEditor ( wx.Frame ):
 		self.Centre( wx.BOTH )
 
 		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.close )
 		self.Bind( wx.EVT_MENU, self.open_level, id = self.open_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.new_level, id = self.new_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.save_level, id = self.save_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.save_level_as, id = self.save_as_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.resize, id = self.resize_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.change_default_size, id = self.default_size_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
 		self.display.Bind( wx.EVT_LEFT_DOWN, self.left_down )
 		self.display.Bind( wx.EVT_LEFT_UP, self.left_up )
@@ -92,6 +101,9 @@ class LevelEditor ( wx.Frame ):
 
 
 	# Virtual event handlers, override them in your derived class
+	def close( self, event ):
+		event.Skip()
+
 	def open_level( self, event ):
 		event.Skip()
 
@@ -101,7 +113,13 @@ class LevelEditor ( wx.Frame ):
 	def save_level( self, event ):
 		event.Skip()
 
+	def save_level_as( self, event ):
+		event.Skip()
+
 	def resize( self, event ):
+		event.Skip()
+
+	def change_default_size( self, event ):
 		event.Skip()
 
 	def change_tool( self, event ):
@@ -127,13 +145,13 @@ class LevelEditor ( wx.Frame ):
 
 
 ###########################################################################
-## Class ResizeDlg
+## Class SizeDlg
 ###########################################################################
 
-class ResizeDlg ( wx.Dialog ):
+class SizeDlg ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Choose new dimentions", pos = wx.DefaultPosition, size = wx.Size( 223,142 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Choose dimentions", pos = wx.DefaultPosition, size = wx.Size( 220,145 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -146,7 +164,7 @@ class ResizeDlg ( wx.Dialog ):
 
 		h_sizer_height.Add( self.height_text, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.height_spin = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 3, 20, 3 )
+		self.height_spin = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 3, 20, 7 )
 		h_sizer_height.Add( self.height_spin, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
@@ -159,7 +177,7 @@ class ResizeDlg ( wx.Dialog ):
 
 		h_sizer_width.Add( self.width_text, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.width_spin = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 3, 40, 3 )
+		self.width_spin = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 3, 40, 7 )
 		h_sizer_width.Add( self.width_spin, 0, wx.ALL, 5 )
 
 
@@ -175,6 +193,127 @@ class ResizeDlg ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 
 		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.close )
+		self.confirm_button.Bind( wx.EVT_BUTTON, self.confirm )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, override them in your derived class
+	def close( self, event ):
+		event.Skip()
+
+	def confirm( self, event ):
+		event.Skip()
+
+
+###########################################################################
+## Class CheckSaveDlg
+###########################################################################
+
+class CheckSaveDlg ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Unsaved edits", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
+
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+
+		v_sizer = wx.BoxSizer( wx.VERTICAL )
+
+		self.text = wx.StaticText( self, wx.ID_ANY, u"You have unsaved edits, do you want to save?", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text.Wrap( -1 )
+
+		v_sizer.Add( self.text, 1, wx.ALL, 5 )
+
+		h_sizer = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.yes_button = wx.Button( self, wx.ID_ANY, u"Yes", wx.DefaultPosition, wx.DefaultSize, 0 )
+		h_sizer.Add( self.yes_button, 0, wx.ALL|wx.ALIGN_BOTTOM, 5 )
+
+		self.cancel_button = wx.Button( self, wx.ID_ANY, u"Cancel", wx.DefaultPosition, wx.DefaultSize, 0 )
+		h_sizer.Add( self.cancel_button, 0, wx.ALL|wx.ALIGN_BOTTOM, 5 )
+
+		self.no_button = wx.Button( self, wx.ID_ANY, u"No", wx.DefaultPosition, wx.DefaultSize, 0 )
+		h_sizer.Add( self.no_button, 0, wx.ALL|wx.ALIGN_BOTTOM, 5 )
+
+
+		v_sizer.Add( h_sizer, 1, wx.EXPAND, 5 )
+
+
+		self.SetSizer( v_sizer )
+		self.Layout()
+		v_sizer.Fit( self )
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.close )
+		self.yes_button.Bind( wx.EVT_BUTTON, self.yes )
+		self.cancel_button.Bind( wx.EVT_BUTTON, self.cancel )
+		self.no_button.Bind( wx.EVT_BUTTON, self.no )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, override them in your derived class
+	def close( self, event ):
+		event.Skip()
+
+	def yes( self, event ):
+		event.Skip()
+
+	def cancel( self, event ):
+		event.Skip()
+
+	def no( self, event ):
+		event.Skip()
+
+
+###########################################################################
+## Class NameDlg
+###########################################################################
+
+class NameDlg ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Choose a name for your level", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
+
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+
+		v_sizer = wx.BoxSizer( wx.VERTICAL )
+
+		h_sizer = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.text_ctrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		h_sizer.Add( self.text_ctrl, 1, wx.ALL, 5 )
+
+		self.ext_text = wx.StaticText( self, wx.ID_ANY, u".json", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.ext_text.Wrap( -1 )
+
+		h_sizer.Add( self.ext_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+
+		v_sizer.Add( h_sizer, 0, wx.EXPAND, 5 )
+
+		self.help_text = wx.StaticText( self, wx.ID_ANY, u"Only levels named 'levelXXX' will be read by the game.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.help_text.Wrap( -1 )
+
+		v_sizer.Add( self.help_text, 0, wx.ALL, 5 )
+
+		self.confirm_button = wx.Button( self, wx.ID_ANY, u"Confirm", wx.DefaultPosition, wx.DefaultSize, 0 )
+		v_sizer.Add( self.confirm_button, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+
+
+		self.SetSizer( v_sizer )
+		self.Layout()
+		v_sizer.Fit( self )
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.text_ctrl.Bind( wx.EVT_TEXT_ENTER, self.confirm )
 		self.confirm_button.Bind( wx.EVT_BUTTON, self.confirm )
 
 	def __del__( self ):
@@ -184,5 +323,6 @@ class ResizeDlg ( wx.Dialog ):
 	# Virtual event handlers, override them in your derived class
 	def confirm( self, event ):
 		event.Skip()
+
 
 

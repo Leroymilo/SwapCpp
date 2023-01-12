@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Any
+
 import json
 
 import pygame as pg
@@ -8,6 +11,20 @@ class Door :
     def __init__(self, data) -> None :
         self.pos = (data["X"], data["Y"])
         self.tiles = {(tile["X"], tile["Y"]) for tile in data["tiles"]}
+    
+    def to_dict(self) -> dict :
+        return {
+            "X": self.pos[0],
+            "Y": self.pos[1],
+            "nb_tiles": len(self.tiles),
+            "tiles": [
+                {
+                    "X": tile[0],
+                    "Y": tile[1]
+                }
+                for tile in self.tiles
+            ]
+        }
     
     def draw_lines(self, surf: pg.Surface, delta: int) -> None :
         hx, hy = self.pos
@@ -22,10 +39,27 @@ class Door :
     def draw_hub(self, surf: pg.Surface, delta: int) -> None :
         surf.blit(door_hub, (delta * self.pos[0], delta * self.pos[1]))
 
+
 class Link :
-    def __init__(self, data) -> None:
-        self.nodes = [(node["X"], node["Y"]) for node in data["nodes"]]
-        self.offsets = data["offsets"]
+    def __init__(self, **kwargs) -> None :
+        self.nodes = [(node["X"], node["Y"]) for node in kwargs["nodes"]]
+        self.offsets = kwargs["offsets"]
+        self.type_start = kwargs["type_start"]
+        self.type_end = kwargs["type_end"]
+    
+    def to_dict(self) -> dict :
+        return {
+            "type_start": self.type_start,
+            "type_end": self.type_end,
+            "nodes": [
+                {
+                    "X": node[0],
+                    "Y": node[1]
+                }
+                for node in self.nodes
+            ],
+            "offsets": self.offsets
+        }
     
     def get_offset(self, i) :
         if i < 0 or i >= len(self.offsets) :
@@ -54,9 +88,15 @@ class Link :
 
 
 class Level :
-    def __init__(self, dir_) -> None :
-        self.dir = dir_
-        data = json.load(open(dir_))
+    def __init__(self, source: str | dict[str, Any]) -> None :
+        if source.endswith(".json") :
+            data = json.load(open(source))
+        elif type(source) == str :
+            data = json.loads(source)
+        elif type(source) == dict :
+            data = source
+        else :
+            raise TypeError("source should be json dict, json dump or json file path")
 
         self.size = (data["bg"]["W"], data["bg"]["H"])
         self.grid = data["bg"]["BG"]
@@ -78,7 +118,81 @@ class Level :
 
         self.doors = [Door(door_data) for door_data in data["logic"]["doors"]]
 
-        self.links = [Link(link_data) for link_data in data["logic"]["links"]]
+        self.links = [Link(**link_data) for link_data in data["logic"]["links"]]
+    
+    def to_dict(self) :
+        return {
+            "bg": {
+                "H": self.size[1], "W": self.size[0],
+                "EndX": self.goal[0], "EndY": self.goal[1],
+                "BG": self.grid
+            },
+
+            "entities": {
+                "player": self.player,
+                "bullet": self.bullet,
+                "nbBoxes": len(self.boxes),
+                "Boxes": [
+                    {
+                        "X": box[0],
+                        "Y": box[1]
+                    }
+                    for box in self.boxes
+                ]
+            },
+
+            "logic": {
+                "nb_activators": len(self.buttons) + len(self.targets),
+                "activators": [
+                    {
+                        "X": button[0],
+                        "Y": button[1],
+                        "type": 'I'
+                    }
+                    for button in self.buttons
+                ] + [
+                    {
+                        "X": target[0],
+                        "Y": target[1],
+                        "type": 'T'
+                    }
+                    for target in self.targets
+                ],
+
+                "nb_gates": sum(len(gate_list) for gate_list in self.gates.values()),
+                "gates": [
+                    {
+                        "X": AND[0],
+                        "Y": AND[1],
+                        "type": '&'
+                    }
+                    for AND in self.ands
+                ] + [
+                    {
+                        "X": OR[0],
+                        "Y": OR[1],
+                        "type": '|'
+                    }
+                    for OR in self.ors
+                ] + [
+                    {
+                        "X": NO[0],
+                        "Y": NO[1],
+                        "type": '!'
+                    }
+                    for NO in self.nos
+                ],
+
+                "nb_doors": len(self.doors),
+                "doors": [door.to_dict() for door in self.doors],
+
+                "nb_links": len(self.links),
+                "links": [link.to_dict() for link in self.links],
+            }
+        }
+    
+    def save(self, dir_) :
+        json.dump(self.to_dict(), open(dir_, 'w'))
 
     def get_surface(self, delta: int) :
         return (self.size[0] * delta, self.size[1] * delta)

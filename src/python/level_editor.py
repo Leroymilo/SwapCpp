@@ -1,14 +1,14 @@
-import json
-import io
+import os
 
 import wx
 import pygame as pg
 
-from src.python.gen_level_editor import LevelEditor, ResizeDlg
+from src.python.gen_level_editor import LevelEditor, SizeDlg, CheckSaveDlg, NameDlg
 from src.python.sprites import *
 from src.python.level import Level, Door
 
-blank_level = "levels/example_level.json"
+main_path = "src".join(__file__.split("src")[:-1])
+blank_level = "levels/blank_level.json"
 
 tools = ["Wall", "Grate", "Goal", "Player", "Bullet", "Box", "Button", "Target", "AND Gate", "OR Gate", "NO Gate", "Door Tile", "Door Hub", "Connector"]
 tool_icon_paths = {
@@ -45,8 +45,12 @@ help_texts = {
     "Connector" : "Not implemented."
 }
 
+base_editor_title: str
 
-class ResizeDlg(ResizeDlg) :
+#=========================================================================================================================================================
+# SizeDlg heirs :
+
+class SizeDlg(SizeDlg) :
     def __init__(self, parent, cur_W: int, cur_H: int) :
         super().__init__(parent)
         self.height_spin.SetValue(cur_H)
@@ -56,15 +60,76 @@ class ResizeDlg(ResizeDlg) :
         value = 100 * self.width_spin.GetValue() + self.height_spin.GetValue()
         self.EndModal(value)
     
-    def Close(self, force=False):
+    def close(self, event) :
         self.EndModal(0)
-        return super().Close(force)
 
+class ResizeDlg(SizeDlg) :
+    def __init__(self, parent, cur_W: int, cur_H: int):
+        super().__init__(parent, cur_W, cur_H)
+        self.SetTitle("Choose new dimentions")
+
+#=========================================================================================================================================================
+# CheckSaveDlg :
+
+class CheckSaveDlg(CheckSaveDlg) :
+    def __init__(self, parent) :
+        super().__init__(parent)
+    
+    def yes(self, event) :
+        self.EndModal(1)
+    
+    def no(self, event) :
+        self.EndModal(-1)
+    
+    def cancel(self, event) :
+        self.EndModal(0)
+    
+    def close(self, event) :
+        self.EndModal(0)
+
+#=========================================================================================================================================================
+# CheckSaveDlg :
+
+class NameDlg(NameDlg) :
+    def __init__(self, parent: LevelEditor, cur_name = None) :
+        super().__init__(parent)
+        if cur_name is not None :
+            self.text_ctrl.SetValue(str(cur_name))
+    
+    def confirm(self, event) :
+        name: str = self.text_ctrl.GetValue()
+
+        if name == "" :
+            wx.MessageDialog(self, "Name cannot be empty !").ShowModal()
+            return
+        
+        if not name.endswith(".json") :
+            name += ".json"
+        
+        if os.path.exists("levels/" + name) :
+            res = wx.MessageDialog(
+                self,
+                "This level already exists, do you want to replace it?",
+                style=wx.YES_NO|wx.CENTRE
+            ).ShowModal()
+            if res == 5104 :
+                return
+
+        parent: LevelEditor = self.GetParent()
+        parent.set_level_name(name)
+        self.EndModal(0)
+
+#=========================================================================================================================================================
+# LevelEditor :
 
 class LevelEditor(LevelEditor) :
     def __init__(self, parent):
+        global base_editor_title
         super().__init__(parent)
+        self.level_name = None
+        self.edited = False
         self.status_bar: wx.StatusBar
+        base_editor_title = self.GetTitle()
 
         # Setting up the tools :
         self.tool = ""
@@ -102,34 +167,32 @@ class LevelEditor(LevelEditor) :
         
         self.status_bar.PushStatusText(help_texts[self.tool], field = 0)
     
-    def resize(self, event) :
-        # Ask for new dimentions :
-        W, H = self.level.size
-        value = ResizeDlg(self, W, H).ShowModal()
-        if value == 0 :
-            return
-        new_W, new_H = value // 100, value % 100
-
-        # Update dimensions :
-        self.size = (new_W, new_H)
-
-        grid = self.level.grid
-        new_grid = []
-        for y in range(new_H) :
-            if y >= H :
-                new_grid.append(['.' for _ in range(new_W)])
-                continue
-
-            if new_W >= W :
-                new_grid.append(grid[y] + ['.' for _ in range(new_W - W)])
-            else :
-                new_grid.append(grid[y][:new_W])
-        self.level.grid = new_grid
+    def check_save(self) :
+        """Returns 1 if saved or save skipped, 0 if canceled"""
+        if not self.edited :
+            return 1
         
-        self.surf = pg.Surface((new_W * 32, new_H * 32))
+        res = CheckSaveDlg(self).ShowModal()
 
-        self.display_level()
+        if res == -1 :
+            return 1
+        
+        if res == 0 :
+            return 0
+
+        return self.save_level(None)
     
+    def close(self, event: wx.Event) :
+        if self.check_save() :
+            event.Skip()
+    
+    def set_level_name(self, new_name: str) :
+        self.level_name = new_name
+        self.SetTitle(base_editor_title + " : *" + self.level_name)
+    
+    #=========================================================================================================================================================
+    # Display :
+
     def display_level(self) :
         W, H = self.level.size
 
@@ -206,6 +269,9 @@ class LevelEditor(LevelEditor) :
         # It would be very nice if saving an image was avoidable,
         # but I couldn't make wxPython read a io.BytesIO for some reason.
     
+    #=========================================================================================================================================================
+    # Level edition methods
+
     def process_click(self, event: wx.MouseEvent) :
         x, y = event.GetPosition()
         disp_W, disp_H = self.display.GetSize()
@@ -240,7 +306,6 @@ class LevelEditor(LevelEditor) :
                 self.door = None
 
         self.display_level()
-
 
     def update_level(self, click: tuple[int]) :
         x, y = click
@@ -360,8 +425,18 @@ class LevelEditor(LevelEditor) :
             elif self.left_c :
                 self.level.remove_door_hub(x, y)
         
+        else :
+            self.display_error("Unknown tool somehow...")
+
+        if self.level_name is None :
+            self.SetTitle(base_editor_title + " : *unnamed_level.json")
+        else :
+            self.SetTitle(base_editor_title + " : *" + self.level_name)
+        self.edited = True
         self.clear_error()
 
+    #=========================================================================================================================================================
+    # Click processing :
 
     def mouse_move(self, event: wx.MouseEvent) :
         if self.right_c ^ self.left_c :
@@ -385,6 +460,9 @@ class LevelEditor(LevelEditor) :
         self.process_click(event)
         self.prev_click = (-1, -1)
 
+    #=========================================================================================================================================================
+    # Status bar error display :
+
     def display_error(self, text: str) :
         self.error_timer.StartOnce(5000)
         self.status_bar.PushStatusText(text, field = 1)
@@ -396,3 +474,100 @@ class LevelEditor(LevelEditor) :
 
     def end_timer(self, event) :
         self.status_bar.PopStatusText(field = 1)
+
+    #=========================================================================================================================================================
+    # File menu :
+
+    def save_level(self, event, save_as=False) :
+        """Returns 1 if saved, 0 if canceled"""
+        if (self.level_name is None) or save_as :
+            res = NameDlg(self, self.level_name).ShowModal()
+            if res == 5101 :
+                return 0
+        
+        self.level.save("levels/" + self.level_name)
+        
+        self.edited = False
+        self.SetTitle(base_editor_title + " : " + self.level_name)
+        self.display_error(f"Level saved as \"{self.level_name}\" !")
+        return 1
+    
+    def save_level_as(self, event) :
+        return self.save_level(None, True)
+
+    def new_level(self, event) :
+        if not self.check_save() : return
+
+        value = SizeDlg(self, 7, 7).ShowModal()
+        if value == 0 :
+            return
+        new_W, new_H = value // 100, value % 100
+
+        self.level = Level(blank_level)
+        self.level.size = (new_W, new_H)
+        self.surf = pg.Surface((new_W * delta, new_H * delta))
+
+        self.level.grid = [['X' for _ in range(new_W)]] + \
+            [['X'] + ['.' for _ in range(new_W-2)] + ['X'] for _ in range(new_H-2)] + \
+            [['X' for _ in range(new_W)]]
+        
+        self.level.goal = (new_W//2, 1)
+        self.level.player["X"] = (new_W-1)//2
+        self.level.player["Y"] = new_H-2
+        self.display_level()
+    
+    def open_level(self, event) :
+        if not self.check_save() : return
+
+        level_path: str = wx.FileSelector(
+            message="Choose level to open",
+            default_path=main_path + "levels\\",
+            default_filename="example_level.json",
+            default_extension=".json",
+            parent=self
+        )
+
+        if level_path == "" :
+            return
+        
+        level_path = level_path.removeprefix(main_path)
+
+        self.level = Level(level_path)
+        W, H = self.level.size
+        self.surf = pg.Surface((W * delta, H * delta))
+        self.display_level()
+
+        level_name = level_path.removeprefix("levels/")
+        level_name = level_name.removeprefix("levels\\")
+        self.level_name = level_name
+    
+    #=========================================================================================================================================================
+    # Edit menu :
+
+    def resize(self, event) :
+        # Ask for new dimentions :
+        W, H = self.level.size
+        value = ResizeDlg(self, W, H).ShowModal()
+        if value == 0 :
+            return
+        new_W, new_H = value // 100, value % 100
+
+        # Update dimensions :
+        self.size = (new_W, new_H)
+
+        grid = self.level.grid
+        new_grid = []
+        for y in range(new_H) :
+            if y >= H :
+                new_grid.append(['.' for _ in range(new_W)])
+                continue
+
+            if new_W >= W :
+                new_grid.append(grid[y] + ['.' for _ in range(new_W - W)])
+            else :
+                new_grid.append(grid[y][:new_W])
+        self.level.grid = new_grid
+        
+        self.surf = pg.Surface((new_W * delta, new_H * delta))
+
+        self.display_level()
