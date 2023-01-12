@@ -302,6 +302,11 @@ class NameDlg ( wx.Dialog ):
 
 		v_sizer.Add( self.help_text, 0, wx.ALL, 5 )
 
+		self.help_text2 = wx.StaticText( self, wx.ID_ANY, u"Save as 'blank_level' to replace default level.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.help_text2.Wrap( -1 )
+
+		v_sizer.Add( self.help_text2, 0, wx.ALL, 5 )
+
 		self.confirm_button = wx.Button( self, wx.ID_ANY, u"Confirm", wx.DefaultPosition, wx.DefaultSize, 0 )
 		v_sizer.Add( self.confirm_button, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 
