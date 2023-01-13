@@ -88,7 +88,7 @@ class CheckSaveDlg(CheckSaveDlg) :
         self.EndModal(0)
 
 #=========================================================================================================================================================
-# CheckSaveDlg :
+# NameDlg :
 
 class NameDlg(NameDlg) :
     def __init__(self, parent: LevelEditor, cur_name = None) :
@@ -141,7 +141,7 @@ class LevelEditor(LevelEditor) :
         self.surf = pg.Surface(self.level.get_surface(delta))
 
         # Setting up clicks :
-        self.left_c = self.right_c = False
+        self.left_c, self.right_c = False, False
         self.prev_click = (-1, -1)
 
         # Setting up doors :
@@ -149,8 +149,10 @@ class LevelEditor(LevelEditor) :
         
         # Setting up cables :
         self.cable_origin = None
+        self.link = None
+        self.seg_nb = None
 
-        self.auto_path_check.Hide()
+        self.show_link_tools(False)
         self.display_level()
 
     def change_tool(self, event: wx.Event) :
@@ -161,10 +163,7 @@ class LevelEditor(LevelEditor) :
         bitmap = wx.Bitmap(path, type=wx.BITMAP_TYPE_PNG)
         self.tool_icon.SetBitmap(bitmap)
 
-        if self.tool == "Connector" :
-            self.auto_path_check.Show()
-        else :
-            self.auto_path_check.Hide()
+        self.show_link_tools(self.tool == "Connector")
         
         self.status_bar.PushStatusText(help_texts[self.tool], field = 0)
     
@@ -190,6 +189,34 @@ class LevelEditor(LevelEditor) :
     def set_level_name(self, new_name: str) :
         self.level_name = new_name
         self.SetTitle(base_editor_title + " : *" + self.level_name)
+    
+    def show_link_tools(self, show=True) :
+        self.auto_path_check.Show(show)
+        self.sel_link_text.Show(show)
+        self.sel_link_choice.Show(show)
+        self.sel_seg_text.Show(show)
+        self.sel_seg_spin.Show(show)
+        self.offset_text.Show(show)
+        self.offset_spin.Show(show)
+        self.del_link_button.Show(show)
+
+        if show :
+            self.update_link_choice()
+            if len(self.link_dict) > 1 :
+                self.sel_link_choice.SetSelection(0)
+                self.change_link(None)
+                self.sel_link_choice.Enable()
+                self.del_link_button.Enable()
+            else :
+                self.sel_link_choice.Disable()
+                self.sel_seg_spin.Disable()
+                self.offset_spin.Disable()
+                self.del_link_button.Disable()
+    
+    def update_link_choice(self) :
+        self.sel_link_choice.Clear()
+        self.link_dict = self.level.get_link_dict()
+        self.sel_link_choice.AppendItems(list(self.link_dict.keys()))
     
     #=========================================================================================================================================================
     # Display :
@@ -217,7 +244,10 @@ class LevelEditor(LevelEditor) :
 
         #logic
         for link in self.level.links :
-            link.draw(self.surf, delta)
+            if self.link is not None and link == self.link :
+                link.draw(self.surf, delta, self.seg_nb)
+            else :
+                link.draw(self.surf, delta)
 
         for x, y in self.level.buttons :
             self.surf.blit(interruptor, (delta * x, delta * y))
@@ -544,6 +574,7 @@ class LevelEditor(LevelEditor) :
         level_name = level_name.removeprefix("levels\\")
         self.level_name = level_name
         self.SetTitle(base_editor_title + " : " + self.level_name)
+        self.update_link_choice()
     
     #=========================================================================================================================================================
     # Edit menu :
@@ -575,3 +606,43 @@ class LevelEditor(LevelEditor) :
         self.surf = pg.Surface((new_W * delta, new_H * delta))
 
         self.display_level()
+    
+    #=========================================================================================================================================================
+    # Link tools :
+
+    def change_link(self, event) :
+        self.link = self.link_dict[self.sel_link_choice.GetStringSelection()]
+        if self.link is None :
+            self.sel_seg_spin.Disable()
+            self.offset_spin.Disable()
+            self.del_link_button.Disable()
+            return
+
+        self.del_link_button.Enable()
+        self.sel_seg_spin.Enable()
+        self.sel_seg_spin.SetValue(0)
+        self.sel_seg_spin.SetMax(len(self.link.nodes)-2)
+        self.change_segment(None)
+    
+    def change_segment(self, event) :
+        self.seg_nb = self.sel_seg_spin.GetValue()
+        start = self.link.nodes[self.seg_nb]
+        end = self.link.nodes[self.seg_nb]
+        if start[0] != end[0] and start[1] != end[1] :
+            self.offset_spin.Disable()
+            return
+        self.offset_spin.Enable()
+        self.offset_spin.SetValue(self.link.offsets[self.seg_nb])
+        self.display_level()
+
+    def change_offset(self, event) :
+        self.link.offsets[self.seg_nb] = self.offset_spin.GetValue()
+        self.display_level()
+        self.edited = True
+    
+    def delete_link(self, event) :
+        self.level.remove_link(link_id = self.link.get_id())
+        self.update_link_choice()
+        self.link = None
+        self.display_level()
+        self.edited = True

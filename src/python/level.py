@@ -62,13 +62,21 @@ class Link :
             "offsets": self.offsets
         }
     
+    def get_id(self) :
+        return f"{self.nodes[0]} -> {self.nodes[-1]}"
+    
     def get_offset(self, i) :
         if i < 0 or i >= len(self.offsets) :
             return 0
         return self.offsets[i]
     
-    def draw(self, surf: pg.Surface, delta: int) :
+    def __eq__(self, __o: Link) -> bool:
+        return self.get_id() == __o.get_id()
+    
+    def draw(self, surf: pg.Surface, delta: int, seg: int = -1) :
         width = delta//16
+
+        color = [(61, 176, 254), (255, 127, 39)]
 
         for i in range(len(self.nodes) - 1) :
             x1, y1 = self.nodes[i]
@@ -85,7 +93,7 @@ class Link :
                 C1 = (x1, y1)
                 C2 = (x2, y2)
 
-            pg.draw.line(surf, (61, 176, 254), C1, C2, width)
+            pg.draw.line(surf, color[i == seg], C1, C2, width)
 
 
 class Level :
@@ -191,6 +199,12 @@ class Level :
                 "links": [link.to_dict() for link in self.links],
             }
         }
+    
+    def get_link_dict(self) :
+        return {
+            link.get_id(): link
+            for link in self.links
+        } | {"": None}
     
     def save(self, dir_) :
         json.dump(self.to_dict(), open(dir_, 'w'))
@@ -303,3 +317,22 @@ class Level :
             if self.doors[i].pos == (x, y) :
                 self.doors.pop(i)
                 return
+    
+    def remove_link(self, link_id: str = None, coord: tuple[int] = None) :
+        if link_id is None and coord is None :
+            return
+        
+        i_link = 0
+        while i_link < len(self.links) :
+            if link_id is not None and \
+                    self.links[i_link].get_id() == link_id :
+                self.links.pop(i_link)
+                return
+            
+            elif coord is not None and (
+                    self.links[i_link].nodes[0] == coord or \
+                    self.links[i_link].nodes[-1] == coord ) :
+                self.links.pop(i_link)
+                continue
+
+            i_link += 1

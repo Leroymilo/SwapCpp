@@ -5,5 +5,5 @@ from src.python.level_editor import LevelEditor
 app = wx.App()
 frame = LevelEditor(None)
 frame.Show()
-# frame.Maximize()
+frame.Maximize()
 app.MainLoop()

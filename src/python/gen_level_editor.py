@@ -50,7 +50,7 @@ class LevelEditor ( wx.Frame ):
 
 		self.status_bar = self.CreateStatusBar( 2, wx.STB_ELLIPSIZE_END|wx.STB_SHOW_TIPS|wx.STB_SIZEGRIP, wx.ID_ANY )
 		self.tool_bar = self.CreateToolBar( wx.TB_DEFAULT_STYLE, wx.ID_ANY )
-		self.tool_bar_text = wx.StaticText( self.tool_bar, wx.ID_ANY, u"Tool :", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.tool_bar_text = wx.StaticText( self.tool_bar, wx.ID_ANY, u"Tool : ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.tool_bar_text.Wrap( -1 )
 
 		self.tool_bar.AddControl( self.tool_bar_text )
@@ -60,11 +60,54 @@ class LevelEditor ( wx.Frame ):
 		self.tool_bar.AddControl( self.tools )
 		self.tool_icon = wx.StaticBitmap( self.tool_bar, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.tool_bar.AddControl( self.tool_icon )
+		self.tool_bar.AddSeparator()
+
 		self.auto_path_check = wx.CheckBox( self.tool_bar, wx.ID_ANY, u"Auto path :", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_RIGHT )
-		self.auto_path_check.SetValue(True)
 		self.auto_path_check.Hide()
 
 		self.tool_bar.AddControl( self.auto_path_check )
+		self.tool_bar.AddSeparator()
+
+		self.sel_link_text = wx.StaticText( self.tool_bar, wx.ID_ANY, u"Selected link : ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sel_link_text.Wrap( -1 )
+
+		self.sel_link_text.Hide()
+
+		self.tool_bar.AddControl( self.sel_link_text )
+		sel_link_choiceChoices = []
+		self.sel_link_choice = wx.Choice( self.tool_bar, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sel_link_choiceChoices, 0 )
+		self.sel_link_choice.SetSelection( 0 )
+		self.sel_link_choice.Hide()
+
+		self.tool_bar.AddControl( self.sel_link_choice )
+		self.tool_bar.AddSeparator()
+
+		self.sel_seg_text = wx.StaticText( self.tool_bar, wx.ID_ANY, u"Segment : ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sel_seg_text.Wrap( -1 )
+
+		self.sel_seg_text.Hide()
+
+		self.tool_bar.AddControl( self.sel_seg_text )
+		self.sel_seg_spin = wx.SpinCtrl( self.tool_bar, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_RIGHT|wx.SP_ARROW_KEYS|wx.SP_WRAP, 0, 10, 0 )
+		self.sel_seg_spin.Hide()
+
+		self.tool_bar.AddControl( self.sel_seg_spin )
+		self.tool_bar.AddSeparator()
+
+		self.offset_text = wx.StaticText( self.tool_bar, wx.ID_ANY, u"Offset : ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.offset_text.Wrap( -1 )
+
+		self.tool_bar.AddControl( self.offset_text )
+		self.offset_spin = wx.SpinCtrl( self.tool_bar, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS|wx.SP_WRAP, -7, 7, 0 )
+		self.offset_spin.Hide()
+
+		self.tool_bar.AddControl( self.offset_spin )
+		self.tool_bar.AddSeparator()
+
+		self.del_link_button = wx.Button( self.tool_bar, wx.ID_ANY, u"Delete", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.del_link_button.Hide()
+
+		self.tool_bar.AddControl( self.del_link_button )
 		self.tool_bar.Realize()
 
 		sizer = wx.BoxSizer( wx.VERTICAL )
@@ -89,6 +132,10 @@ class LevelEditor ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.resize, id = self.resize_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_default_size, id = self.default_size_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
+		self.sel_link_choice.Bind( wx.EVT_CHOICE, self.change_link )
+		self.sel_seg_spin.Bind( wx.EVT_SPINCTRL, self.change_segment )
+		self.offset_spin.Bind( wx.EVT_SPINCTRL, self.change_offset )
+		self.del_link_button.Bind( wx.EVT_BUTTON, self.delete_link )
 		self.display.Bind( wx.EVT_LEFT_DOWN, self.left_down )
 		self.display.Bind( wx.EVT_LEFT_UP, self.left_up )
 		self.display.Bind( wx.EVT_MOTION, self.mouse_move )
@@ -123,6 +170,18 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 	def change_tool( self, event ):
+		event.Skip()
+
+	def change_link( self, event ):
+		event.Skip()
+
+	def change_segment( self, event ):
+		event.Skip()
+
+	def change_offset( self, event ):
+		event.Skip()
+
+	def delete_link( self, event ):
 		event.Skip()
 
 	def left_down( self, event ):
