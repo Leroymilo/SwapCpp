@@ -1,5 +1,7 @@
 #include <iostream>
 #include <list>
+#include <regex>
+#include <filesystem>
 
 #include <SFML/Graphics.hpp>
 
@@ -61,14 +63,39 @@ int main()
             if (won == 1)
             {
                 std::cout << "level " << level_id << " won!" << std::endl;
-                save.solve(level_id, nb_steps);
+
+                if (! save.is_solved(level_id))
+                {
+                    std::regex exp("^level[0-9]{3}.json$");
+                    bool next_level = false;
+                    for (const auto & entry : std::filesystem::directory_iterator("levels"))
+                    {
+                        std::string dir_name = entry.path().string().substr(7);
+                        if (std::regex_match(dir_name, exp))
+                        {
+                            int lvl_nb = std::stoi(dir_name.substr(5));
+                            if (lvl_nb == level_id + 1)
+                            {
+                                next_level = true;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    save.solve(level_id, nb_steps);
+                    
+                    if (next_level) level_id ++;
+                    else scene = "Select";
+                }
+                else scene = "Select";
             }
             else 
             {
                 std::cout << "level exited" << std::endl;
+                scene = "Select";
             }
 
-            scene = "Select";
         }
     }
     

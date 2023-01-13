@@ -20,6 +20,7 @@ class Level
         sf::Vector2i win_tile;
         Grid backGround;
         Logic logic;
+        bool won = false;
 
         std::map<char, sf::Texture> bg_tiles;
 
@@ -31,7 +32,6 @@ class Level
 
     public:
         int nbSteps = 0;
-        bool won = false;
 
         Level();
         Level(int number);
@@ -45,6 +45,7 @@ class Level
         void undo(std::list<std::string>* steps);
         void step(bool didSwap);
         void step_end_logic();
+        bool win();
 
         void resize_bg(sf::RenderWindow* windowP);
         void display(sf::RenderWindow* windowP, sf::Font font, bool disp = true);

@@ -79,12 +79,12 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
 
 LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save_p(save_p)
 {
-    std::regex exp("^level[0-9]{3}$");
+    std::regex exp("^level[0-9]{3}.json$");
 
-    for(auto& dir : std::filesystem::recursive_directory_iterator("levels"))
+    for(auto& entry : std::filesystem::directory_iterator("levels"))
     {
-        std::string dir_name = dir.path().string().substr(7);
-        if (dir.is_directory() && std::regex_match(dir_name, exp))
+        std::string dir_name = entry.path().string().substr(7);
+        if (std::regex_match(dir_name, exp))
         {
             int lvl_nb = std::stoi(dir_name.substr(5));
             if (lvl_nb < 1)

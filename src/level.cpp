@@ -98,8 +98,6 @@ bool Level::push(char direction, std::string* act)
     if (!isBlocked)
     {
         Player.C = newCoords;
-        if (newCoords == win_tile)
-            won = true;
         return true;
     }
     return STEP;
@@ -306,6 +304,11 @@ void Level::step_end_logic()
 
     boxes.step_end_logic();
     logic.step_end_logic();
+}
+
+bool Level::win()
+{
+    return Player.C == win_tile;
 }
 
 
@@ -658,7 +661,7 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
             std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }
 
-        if (level.won)
+        if (level.win())
         {
             *nb_steps = level.nbSteps;
             return 1;
