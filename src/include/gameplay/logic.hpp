@@ -1,8 +1,10 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
-#include <SFML/Graphics.hpp>
 #include <list>
+
+#include <SFML/Graphics.hpp>
+#include <json/value.h>
 
 //Comparator for a map using sf::Vector2i as keys
 //Found here : https://stackoverflow.com/questions/56506121/sfvector2i-as-key-in-stdmap-shows-as-1-1-if-the-y-value-is-1-even-if-the
@@ -17,9 +19,10 @@ struct VectorComparator
 class Link
 {
     private :
+        int nb_nodes;
         sf::Vector2i input;
-        std::string input_type;
         sf::Vector2i output;
+        std::string input_type;
         std::string output_type;
         // Types are "Activator", "Gate" or "Door". "Activator" cannot be output and "Door" cannot be input.
         bool state = false;
@@ -27,8 +30,8 @@ class Link
     
     public :
         Link();
-        Link(sf::Vector2i input, sf::Vector2i output, std::string input_type, std::string output_type);
-
+        Link(Json::Value json_link);
+        sf::Vector2i get_input();
         sf::Vector2i get_output();
         void set_state(bool new_state);
         bool get_state();
@@ -142,7 +145,7 @@ class Logic
     
     public :
         Logic();
-        Logic(std::string directory);
+        Logic(Json::Value json_logic);
         bool isClosedDoor(sf::Vector2i coords);
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
         bool isWallForBullet(sf::Vector2i coords);

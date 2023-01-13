@@ -1,8 +1,5 @@
 #include "gameplay/grid.hpp"
 
-#include <json/value.h>
-#include <json/json.h>
-
 #include <fstream>
 #include <iostream>
 
@@ -22,24 +19,18 @@ Grid& Grid::operator=(const Grid& other)
     return *this;
 }
 
-sf::Vector2i Grid::readFile(std::string directory)
+sf::Vector2i Grid::readJson(Json::Value json_bg)
 {
-    std::ifstream file(directory);
-    Json::Value actualJson;
-    Json::Reader reader;
-
-    reader.parse(file, actualJson);
-
-    h = actualJson["H"].asInt();
-    w = actualJson["W"].asInt();
-    int endX = actualJson["EndX"].asInt();
-    int endY = actualJson["EndY"].asInt();
+    h = json_bg["H"].asInt();
+    w = json_bg["W"].asInt();
+    int endX = json_bg["EndX"].asInt();
+    int endY = json_bg["EndY"].asInt();
     tiles.resize(h);
     
     for (int y=0; y<h; y++){
         tiles[y].resize(w);
         for (int x=0; x<w; x++){
-            tiles[y][x] = actualJson["BG"][y][x].asCString()[0];
+            tiles[y][x] = json_bg["BG"][y][x].asCString()[0];
         }
     }
 

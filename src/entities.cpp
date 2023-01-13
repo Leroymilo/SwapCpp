@@ -67,17 +67,11 @@ void Entity::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int
 //Methods for PlayerLike
 PlayerLike::PlayerLike(){}
 
-PlayerLike::PlayerLike(std::string directory, std::string name)
+PlayerLike::PlayerLike(Json::Value json_entity, std::string name)
 {
-    std::ifstream file(directory);
-    Json::Value actualJson;
-    Json::Reader reader;
-
-    reader.parse(file, actualJson);
-
-    C = sf::Vector2i(actualJson[name]["X"].asInt(), actualJson[name]["Y"].asInt());
+    C = sf::Vector2i(json_entity["X"].asInt(), json_entity["Y"].asInt());
     prev_Cs.push_back(C);
-    dir = actualJson[name]["dir"].asCString()[0];
+    dir = json_entity["dir"].asCString()[0];
 
     char directions [] = {'U', 'R', 'D', 'L'};
     for (int i=0; i<4; i++)
@@ -86,7 +80,7 @@ PlayerLike::PlayerLike(std::string directory, std::string name)
         sprites[directions[i]] = sprite;
     }
     
-    is_alive = actualJson[name]["alive"].asBool();
+    is_alive = json_entity["alive"].asBool();
     prev_is_alive = is_alive;
 }
 
@@ -161,22 +155,15 @@ void PlayerLike::destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoi
 //Methods for Boxes
 Boxes::Boxes(){}
 
-Boxes::Boxes(std::string directory)
+Boxes::Boxes(int nb_boxes, Json::Value boxes) : nb_boxes(nb_boxes)
 {
-    std::ifstream file(directory);
-    Json::Value actualJson;
-    Json::Reader reader;
-
-    reader.parse(file, actualJson);
-
-    nb_boxes = actualJson["nbBoxes"].asInt();
     list.resize(nb_boxes);
     sf::Texture sprite;
     sprite.loadFromFile("assets/Entities/Box.png");
 
     for (int i=0; i<nb_boxes; i++)
     {
-        sf::Vector2i C(actualJson["Boxes"][i]["X"].asInt(), actualJson["Boxes"][i]["Y"].asInt());
+        sf::Vector2i C(boxes[i]["X"].asInt(), boxes[i]["Y"].asInt());
         list[i] = Entity(C, sprite);
     }
 }

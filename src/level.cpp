@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 
 #include <json/value.h>
@@ -12,22 +13,31 @@ Level::Level(){}
 
 Level::Level(int number)
 {
+    // Level file name :
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(3) << number;
-    std::string str = "levels/level" + ss.str();
+    std::string const str = "levels/level" + ss.str() + ".json";
 
+    // Reading Json :
+    std::ifstream file(str);
+    Json::Reader reader;
+    Json::Value json_data;
+    reader.parse(file, json_data);
+
+    // Making objects :
+    win_tile = backGround.readJson(json_data["bg"]);
+    Player = PlayerLike(json_data["entities"]["player"], "player");
+    Player.is_alive = json_data["entities"]["player"]["alive"].asBool();
+    bullet = PlayerLike(json_data["entities"]["bullet"], "bullet");
+    bullet.is_alive = json_data["entities"]["bullet"]["alive"].asBool();
+    boxes = Boxes(json_data["entities"]["nbBoxes"].asInt(), json_data["entities"]["Boxes"]);
+    logic = Logic(json_data["logic"]);
+
+    // Loading tiles sprites :
     bg_tiles['X'].loadFromFile("assets/Tiles/Wall.png");
     bg_tiles['x'].loadFromFile("assets/Tiles/Grate.png");
     bg_tiles['.'].loadFromFile("assets/Tiles/Floor.png");
     bg_tiles['W'].loadFromFile("assets/Tiles/Win.png");
-
-    win_tile = backGround.readFile(str + "/bg.json");
-    Player = PlayerLike(str + "/entities.json", "player");
-    Player.is_alive = true;
-    bullet = PlayerLike(str + "/entities.json", "bullet");
-    bullet.is_alive = false;
-    boxes = Boxes(str + "/entities.json");
-    logic = Logic(str + "/logic.json");
 }
 
 std::string Level::get_pLike_state()

@@ -1,8 +1,10 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include <SFML/Graphics.hpp>
 #include <list>
+
+#include <SFML/Graphics.hpp>
+#include <json/value.h>
 
 class Entity    //Generic class describing entities
 {
@@ -35,7 +37,7 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
         std::list<sf::Vector2i> prev_Cs;
 
         PlayerLike();
-        PlayerLike(std::string directory, std::string name);
+        PlayerLike(Json::Value json_entity, std::string name);
         sf::Vector2i get_next_pos(char direction = '_');
         sf::Vector2i get_prev_pos(char direction = '_');
         void revert();
@@ -53,7 +55,7 @@ class Boxes     //list of boxes (simple entities)
     
     public:
         Boxes();
-        Boxes(std::string directory);
+        Boxes(int nb_boxes, Json::Value boxes);
 
         Entity* get_box(sf::Vector2i coords, bool* hasBox);
         std::vector<sf::Vector2i> get_boxes_pos();

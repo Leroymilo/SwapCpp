@@ -2,6 +2,7 @@
 #define GRID_H
 
 #include <SFML/Graphics.hpp>
+#include <json/value.h>
 
 class Grid
 {
@@ -18,7 +19,7 @@ class Grid
         Grid(const Grid& tocopy);
         Grid& operator=(const Grid& other);
         ~Grid();
-        sf::Vector2i readFile(std::string directory);
+        sf::Vector2i readJson(Json::Value json_bg);
 
         char getTile(sf::Vector2i coords);
         void resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures);

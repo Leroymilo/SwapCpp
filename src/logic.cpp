@@ -1,7 +1,6 @@
 #include "gameplay/logic.hpp"
 
 #include <json/value.h>
-#include <json/json.h>
 
 #include <fstream>
 #include <iostream>
@@ -9,12 +8,19 @@
 // Methods for Link
 Link::Link(){}
 
-Link::Link(sf::Vector2i input, sf::Vector2i output, std::string input_type, std::string output_type)
+Link::Link(Json::Value json_link)
 {
-    this->input = input;
-    this->output = output;
-    this->input_type = input_type;
-    this->output_type = output_type;
+    nb_nodes = json_link["nb_nodes"].asInt();
+
+    this->input = sf::Vector2i(json_link["nodes"][0]["X"].asInt(), json_link["nodes"][0]["Y"].asInt());
+    this->output = sf::Vector2i(json_link["nodes"][nb_nodes-1]["X"].asInt(), json_link["nodes"][nb_nodes-1]["Y"].asInt());
+    this->input_type = json_link["type_start"].asCString();
+    this->output_type = json_link["type_end"].asCString();
+}
+
+sf::Vector2i Link::get_input()
+{
+    return input;
 }
 
 sf::Vector2i Link::get_output()
@@ -361,57 +367,50 @@ void Door::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int f
 // Methods for Logic
 Logic::Logic(){}
 
-Logic::Logic(std::string directory)
+Logic::Logic(Json::Value json_logic)
 {
-    std::ifstream file(directory);
-    Json::Value actualJson;
-    Json::Reader reader;
-
-    reader.parse(file, actualJson);
-
     std::vector<sf::Vector2i> to_update;
 
-    int nb_activators = actualJson["nb_activators"].asInt();
+    int nb_activators = json_logic["nb_activators"].asInt();
     for (int i = 0; i < nb_activators; i++)
     {
-        sf::Vector2i C = sf::Vector2i(actualJson["activators"][i]["X"].asInt(), actualJson["activators"][i]["Y"].asInt());
-        activators[C] = Activator(*actualJson["activators"][i]["type"].asCString());
+        sf::Vector2i C = sf::Vector2i(json_logic["activators"][i]["X"].asInt(), json_logic["activators"][i]["Y"].asInt());
+        activators[C] = Activator(*json_logic["activators"][i]["type"].asCString());
     }
 
-    int nb_gates = actualJson["nb_gates"].asInt();
+    int nb_gates = json_logic["nb_gates"].asInt();
     for (int i = 0; i < nb_gates; i++)
     {
-        sf::Vector2i C = sf::Vector2i(actualJson["gates"][i]["X"].asInt(), actualJson["gates"][i]["Y"].asInt());
-        char type = actualJson["gates"][i]["type"].asCString()[0];
+        sf::Vector2i C = sf::Vector2i(json_logic["gates"][i]["X"].asInt(), json_logic["gates"][i]["Y"].asInt());
+        char type = json_logic["gates"][i]["type"].asCString()[0];
         gates[C] = Gate(type);
         if (type == '!')
             to_update.push_back(C);
     }
 
-    int nb_doors = actualJson["nb_doors"].asInt();
+    int nb_doors = json_logic["nb_doors"].asInt();
     for (int i = 0; i < nb_doors; i++)
     {
-        sf::Vector2i C = sf::Vector2i(actualJson["doors"][i]["X"].asInt(), actualJson["doors"][i]["Y"].asInt());
+        sf::Vector2i C = sf::Vector2i(json_logic["doors"][i]["X"].asInt(), json_logic["doors"][i]["Y"].asInt());
         doors[C] = Door(true);
-        int nb_tiles = actualJson["doors"][i]["nb_tiles"].asInt();
+        int nb_tiles = json_logic["doors"][i]["nb_tiles"].asInt();
         for (int j = 0; j < nb_tiles; j++)
         {
-            int X = actualJson["doors"][i]["tiles"][j]["X"].asInt();
-            int Y = actualJson["doors"][i]["tiles"][j]["Y"].asInt();
+            int X = json_logic["doors"][i]["tiles"][j]["X"].asInt();
+            int Y = json_logic["doors"][i]["tiles"][j]["Y"].asInt();
             doors[C].add_tile(sf::Vector2i(X, Y));
             door_tiles[sf::Vector2i(X, Y)] = C;
         }
     }
 
-    int nb_links = actualJson["nb_links"].asInt();
+    int nb_links = json_logic["nb_links"].asInt();
     for (int i = 0; i < nb_links; i++)
     {
-        std::string type_start = actualJson["links"][i]["type_start"].asCString();
-        sf::Vector2i C_start = sf::Vector2i(actualJson["links"][i]["X_start"].asInt(), actualJson["links"][i]["Y_start"].asInt());
-        std::string type_end = actualJson["links"][i]["type_end"].asCString();
-        sf::Vector2i C_end = sf::Vector2i(actualJson["links"][i]["X_end"].asInt(), actualJson["links"][i]["Y_end"].asInt());
+        Link link(json_logic["links"][i]);
 
-        Link link(C_start, C_end, type_start, type_end);
+        std::string type_start = json_logic["links"][i]["type_start"].asCString();
+        std::string type_end = json_logic["links"][i]["type_end"].asCString();
+        sf::Vector2i C_start = link.get_input(), C_end = link.get_output();
 
         links[i] = link;
 
