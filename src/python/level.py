@@ -52,13 +52,7 @@ class Link :
             "type_start": self.type_start,
             "type_end": self.type_end,
             "nb_nodes": len(self.nodes),
-            "nodes": [
-                {
-                    "X": node[0],
-                    "Y": node[1]
-                }
-                for node in self.nodes
-            ],
+            "nodes": [{"X": node[0], "Y": node[1]} for node in self.nodes],
             "offsets": self.offsets
         }
     
@@ -131,65 +125,28 @@ class Level :
     
     def to_dict(self) :
         return {
-            "bg": {
-                "H": self.size[1], "W": self.size[0],
-                "EndX": self.goal[0], "EndY": self.goal[1],
-                "BG": self.grid
-            },
+            "bg": {"H": self.size[1], "W": self.size[0], "EndX": self.goal[0], "EndY": self.goal[1], "BG": self.grid},
 
             "entities": {
-                "player": self.player,
-                "bullet": self.bullet,
-                "nbBoxes": len(self.boxes),
-                "Boxes": [
-                    {
-                        "X": box[0],
-                        "Y": box[1]
-                    }
-                    for box in self.boxes
-                ]
+                "player": self.player, "bullet": self.bullet,
+                "nbBoxes": len(self.boxes), "Boxes": [{"X": box[0], "Y": box[1]} for box in self.boxes]
             },
 
             "logic": {
                 "nb_activators": len(self.buttons) + len(self.targets),
                 "activators": [
-                    {
-                        "X": button[0],
-                        "Y": button[1],
-                        "type": 'I'
-                    }
-                    for button in self.buttons
+                    {"X": button[0], "Y": button[1], "type": 'I'} for button in self.buttons
                 ] + [
-                    {
-                        "X": target[0],
-                        "Y": target[1],
-                        "type": 'T'
-                    }
-                    for target in self.targets
+                    {"X": target[0], "Y": target[1], "type": 'T'} for target in self.targets
                 ],
 
                 "nb_gates": sum(len(gate_list) for gate_list in self.gates.values()),
                 "gates": [
-                    {
-                        "X": AND[0],
-                        "Y": AND[1],
-                        "type": '&'
-                    }
-                    for AND in self.ands
+                    {"X": AND[0], "Y": AND[1], "type": '&'} for AND in self.ands
                 ] + [
-                    {
-                        "X": OR[0],
-                        "Y": OR[1],
-                        "type": '|'
-                    }
-                    for OR in self.ors
+                    {"X": OR[0], "Y": OR[1], "type": '|'} for OR in self.ors
                 ] + [
-                    {
-                        "X": NO[0],
-                        "Y": NO[1],
-                        "type": '!'
-                    }
-                    for NO in self.nos
+                    {"X": NO[0], "Y": NO[1], "type": '!'} for NO in self.nos
                 ],
 
                 "nb_doors": len(self.doors),
@@ -290,6 +247,9 @@ class Level :
         
         if type_ == "door_hub" :
             return ((x, y) not in logics)
+        
+        if type_ == "link" :
+            return (x, y) not in (logics | door_hubs)
 
         return True
 
@@ -317,6 +277,42 @@ class Level :
             if self.doors[i].pos == (x, y) :
                 self.doors.pop(i)
                 return
+    
+    def is_link_start(self, x: int, y: int) :
+        return (x, y) in self.buttons | self.targets | self.ands | self.ors | self.nos
+
+    def is_link_end(self, x: int, y: int) :
+        return (x, y) in {door.pos for door in self.doors} | self.ands | self.ors | self.nos
+    
+    def add_link(self, nodes: list[tuple[int]]) -> bool :
+        l = len(nodes)
+        data = {
+            "nb_nodes": l,
+            "nodes": [
+                {"X": node[0], "Y": node[1]}
+                for node in nodes
+            ],
+            "offsets": [0 for _ in range(l-1)]
+        }
+
+        gates = (self.ands | self.ors | self.nos)
+
+        if nodes[0] in (self.buttons | self.targets) :
+            data["type_start"] = "Activator"
+        elif nodes[0] in gates :
+            data["type_start"] = "Gate"
+        else :
+            return False
+        
+        if nodes[-1] in gates :
+            data["type_end"] = "Gate"
+        elif nodes[-1] in {door.pos for door in self.doors} :
+            data["type_end"] = "Door"
+        else :
+            return False
+        
+        self.links.append(Link(**data))
+        return True
     
     def remove_link(self, link_id: str = None, coord: tuple[int] = None) :
         if link_id is None and coord is None :

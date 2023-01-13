@@ -42,7 +42,10 @@ help_texts = {
     "NO Gate"   : "Right click to place, left click to remove.",
     "Door Tile" : "Hold right click to place the tile, release to place a hud or connect to an existing hud. Left click to remove.",
     "Door Hub"  : "Right click to place, left click to remove (will remove connected tiles).",
-    "Connector" : "Not implemented."
+    "Connector" : [
+        "Right click to place the start, then left click to place corners, and right click again to place the end",
+        "Not implemented"
+    ]
 }
 
 base_editor_title: str
@@ -148,7 +151,7 @@ class LevelEditor(LevelEditor) :
         self.door: Door = None
         
         # Setting up cables :
-        self.cable_origin = None
+        self.nodes = None
         self.link = None
         self.seg_nb = None
 
@@ -165,7 +168,13 @@ class LevelEditor(LevelEditor) :
 
         self.show_link_tools(self.tool == "Connector")
         
-        self.status_bar.PushStatusText(help_texts[self.tool], field = 0)
+        if self.tool == "Connector" :
+            self.status_bar.PushStatusText(
+                help_texts[self.tool][self.auto_path_check.GetValue()],
+                field = 0
+            )
+        else :
+            self.status_bar.PushStatusText(help_texts[self.tool], field = 0)
     
     def check_save(self) :
         """Returns 1 if saved or save skipped, 0 if canceled"""
@@ -221,6 +230,18 @@ class LevelEditor(LevelEditor) :
     #=========================================================================================================================================================
     # Display :
 
+    def draw_wip_link(self) :
+        width = delta//16
+
+        color = (255, 127, 39)
+
+        for i in range(len(self.nodes)-1) :
+            x1, y1 = self.nodes[i]
+            x2, y2 = self.nodes[i+1]
+            C1, C2 = (delta * (x1+0.5) - 1, delta * (y1+0.5) - 1), (delta * (x2+0.5) - 1, delta * (y2+0.5) - 1)
+
+            pg.draw.line(self.surf, color, C1, C2, width)
+
     def display_level(self) :
         W, H = self.level.size
 
@@ -248,6 +269,9 @@ class LevelEditor(LevelEditor) :
                 link.draw(self.surf, delta, self.seg_nb)
             else :
                 link.draw(self.surf, delta)
+        
+        if self.nodes is not None :
+            self.draw_wip_link()
 
         for x, y in self.level.buttons :
             self.surf.blit(interruptor, (delta * x, delta * y))
@@ -303,17 +327,26 @@ class LevelEditor(LevelEditor) :
     #=========================================================================================================================================================
     # Level edition methods
 
-    def process_click(self, event: wx.MouseEvent) :
+    def compute_coords(self, event: wx.MouseEvent) :
         x, y = event.GetPosition()
         disp_W, disp_H = self.display.GetSize()
 
         W, H = self.level.size
         x0, y0 = (disp_W - W * delta) // 2, (disp_H - H * delta) // 2
-        x, y = (x - x0)//32, (y - y0)//32
+        x, y = (x - x0)//delta, (y - y0)//delta
 
         if not (0 <= x < W and 0 <= y < H) :
             self.display_error("Out of grid.")
+            return False, None
+        
+        return True, (x, y)
+
+    def process_click(self, event: wx.MouseEvent) :
+
+        res, coords = self.compute_coords(event)
+        if not res :
             return
+        x, y = coords
         
         if (x, y) == self.prev_click :
             return
@@ -335,8 +368,25 @@ class LevelEditor(LevelEditor) :
                 else :
                     self.display_error("Cannot place door hub here !")
                 self.door = None
+        else :
+            self.door = None
+        
+        self.update_link_end
 
         self.display_level()
+    
+    def update_link_end(self, x: int, y: int) -> bool :
+        if self.tool == "Connector" :
+            if self.nodes is None :
+                # self.auto_path_check.Enable()
+                pass
+            else :
+                if self.nodes[-1] != (x, y) :
+                    self.nodes[-1] = (x, y)
+                    return True
+        else :
+            self.nodes = None
+        return False
 
     def update_level(self, click: tuple[int]) :
         x, y = click
@@ -448,14 +498,35 @@ class LevelEditor(LevelEditor) :
         
         elif self.tool == "Door Hub" :
             if self.right_c :
-                if self.level.can_place(x, y, "door_hub") :
-                    self.level.add_door_hub(x, y)
-                else :
+                if not self.level.can_place(x, y, "door_hub") :
                     self.display_error("Cannot place here !")
                     return
+                self.level.add_door_hub(x, y)
             elif self.left_c :
                 self.level.remove_door_hub(x, y)
         
+        elif self.tool == "Connector" :
+            if self.right_c :
+                if self.nodes is None :
+                    if not self.level.is_link_start(x, y) :
+                        self.display_error("Cannot start connector here ! Try a button, a target or a logic gate.")
+                        return
+                    self.nodes = [(x, y), (x, y)]
+                    self.auto_path_check.Disable()
+                else :
+                    if not self.level.is_link_end(x, y) :
+                        self.display_error("Cannot end connector here ! Try a door hub or a logic gate.")
+                        return
+                    self.level.add_link(self.nodes)
+                    self.update_link_choice()
+                    self.nodes = None
+                    # self.auto_path_check.Enable()
+            elif self.left_c and self.nodes is not None :
+                if not self.level.can_place(x, y, "link") :
+                    self.display_error("Cannot place connector corner here : there's a logic element here !")
+                    return
+                self.nodes.append((x, y))
+
         else :
             self.display_error("Unknown tool somehow...")
 
@@ -472,6 +543,12 @@ class LevelEditor(LevelEditor) :
     def mouse_move(self, event: wx.MouseEvent) :
         if self.right_c ^ self.left_c :
             self.process_click(event)
+        else :
+            res, coords = self.compute_coords(event)
+            if not res :
+                return
+            if self.update_link_end(*coords) :
+                self.display_level()
     
     def left_down(self, event: wx.MouseEvent) :
         self.left_c = True
