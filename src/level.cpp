@@ -38,6 +38,16 @@ Level::Level(int number)
     bg_tiles['x'].loadFromFile("assets/Tiles/Grate.png");
     bg_tiles['.'].loadFromFile("assets/Tiles/Floor.png");
     bg_tiles['W'].loadFromFile("assets/Tiles/Win.png");
+
+    // Loading text :
+    if (json_data.isMember("text"))
+    {
+        text = json_data["text"].asCString();
+    }
+    else
+    {
+        text = "";
+    }
 }
 
 std::string Level::get_pLike_state()
@@ -326,14 +336,21 @@ void Level::displayBG(sf::RenderWindow * windowP, sf::Font font)
 
     sf::Vector2u winSize = windowP->getSize();
 
-    sf::Text stepDisp;
-    stepDisp.setFont(font);
+    float max_y = winSize.y;
+
     std::stringstream ss;
     ss << "step : " << nbSteps;
-    stepDisp.setString(ss.str());
-    stepDisp.setPosition((winSize.x-stepDisp.getLocalBounds().width)/2, winSize.y-40);
+    sf::Text stepDisp(ss.str(), font);
+    sf::FloatRect bounds = stepDisp.getLocalBounds();
+    stepDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
     windowP->draw(stepDisp);
-    //Use this method to display tips and text on the screen
+    max_y += bounds.height;
+
+    sf::Text helpDisp(text, font, 15);
+    bounds = helpDisp.getLocalBounds();
+    stepDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
+    windowP->draw(helpDisp);
+    max_y += bounds.height;
 }
 
 void Level::display(sf::RenderWindow * windowP, sf::Font font, bool disp)

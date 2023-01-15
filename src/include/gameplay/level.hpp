@@ -1,6 +1,7 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#include <string>
 #include <list>
 
 #include <SFML/Graphics.hpp>
@@ -21,6 +22,7 @@ class Level
         Grid backGround;
         Logic logic;
         bool won = false;
+        std::string text;
 
         std::map<char, sf::Texture> bg_tiles;
 
