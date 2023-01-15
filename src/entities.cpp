@@ -11,13 +11,10 @@
 Entity::Entity(){}
 
 
-Entity::Entity(sf::Vector2i C, sf::Texture sprite)
+Entity::Entity(sf::Vector2i C, sf::Texture sprite) : C(C), prev_C(C), sprite(sprite)
 {
     is_alive = true;
     prev_is_alive = true;
-    this->C = C;
-    this->prev_C = C;
-    this->sprite = sprite;
 }
 
 sf::Vector2i Entity::get_next_pos(char direction)
@@ -76,8 +73,17 @@ PlayerLike::PlayerLike(Json::Value json_entity, std::string name)
     char directions [] = {'U', 'R', 'D', 'L'};
     for (int i=0; i<4; i++)
     {
-        sprite.loadFromFile("assets/Entities/" + name + directions[i] + ".png");
+        sprite.loadFromFile(
+            "assets/Entities/" + name + ".png",
+            sf::IntRect(0, i*16, 16, 16)
+        );
         sprites[directions[i]] = sprite;
+
+        sprite.loadFromFile(
+            "assets/Entities/" + name + "_death.png",
+            sf::IntRect(i*16, 0, 16, 16)
+        );
+        death_sprites[i] = sprite;
     }
     
     is_alive = json_entity["alive"].asBool();
@@ -148,7 +154,12 @@ void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint,
 
 void PlayerLike::destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    //Add the destroy animation here
+    float pxlX = C0.x + delta * ((float)C.x + (float)prev_Cs.back().x) / 2;
+    float pxlY = C0.y + delta * ((float)C.y + (float)prev_Cs.back().y) / 2;
+    sf::RectangleShape tile(sf::Vector2f(delta, delta));
+    tile.setTexture(&death_sprites[frame]);
+    tile.setPosition(pxlX, pxlY);
+    windowPoint->draw(tile);
 }
 
 

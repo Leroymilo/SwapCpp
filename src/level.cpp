@@ -349,13 +349,9 @@ void Level::display(sf::RenderWindow * windowP, sf::Font font, bool disp)
 
     if (Player.is_alive)
         Player.draw(C0, delta, windowP);
-    else if (Player.prev_is_alive)
-        Player.destroy(C0, delta, windowP, 4);
 
     if (bullet.is_alive)
         bullet.draw(C0, delta, windowP);
-    else if (bullet.prev_is_alive)
-        bullet.destroy(C0, delta, windowP, 4);
     
     boxes.draw(C0, delta, windowP);
 

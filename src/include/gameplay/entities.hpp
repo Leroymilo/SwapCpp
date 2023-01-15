@@ -31,6 +31,7 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
 {
     private:
         std::map<char, sf::Texture> sprites;
+        sf::Texture death_sprites [4];
 
     public:
         char dir;
