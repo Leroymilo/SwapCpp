@@ -11,7 +11,7 @@
 //Constructor and meta
 Level::Level(){}
 
-Level::Level(int number)
+Level::Level(int number, sf::Font font) : font(font)
 {
     // Level file name :
     std::stringstream ss;
@@ -42,12 +42,15 @@ Level::Level(int number)
     // Loading text :
     if (json_data.isMember("text"))
     {
-        text = json_data["text"].asCString();
+        text_lines = json_data["text"].size();
+        text.resize(text_lines);
+        for (int i = 0; i < text_lines; i++)
+        {
+            text[i] = json_data["text"][i].asCString();
+        }
     }
-    else
-    {
-        text = "";
-    }
+    else {text_lines = 0;}
+
 }
 
 std::string Level::get_pLike_state()
@@ -325,38 +328,60 @@ bool Level::win()
 //Display
 void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every time the game's window is resized
 {
-    backGround.resize(sf::Vector2f(windowP->getSize()), bg_tiles);
+    sf::Vector2f winSize(windowP->getSize());
+
+    float max_y = winSize.y;
+    sf::FloatRect bounds = sf::Text("Ip", font, 40).getLocalBounds();
+    max_y -= bounds.height + bounds.top;
+    // A literal string is used because the number of steps changing makes the whole text bump around if used.
+    // The font size's bigger than what's actually used for step number display to avoid text cluttering.
+    for (int i = text_lines-1; i >= 0; i--)
+    {
+        sf::FloatRect bounds = sf::Text(text[i], font, 30).getLocalBounds();
+        max_y -= bounds.height + bounds.top;
+    }
+
+    winSize.y = max_y;
+
+    backGround.resize(winSize, bg_tiles);
 }
 
-void Level::displayBG(sf::RenderWindow * windowP, sf::Font font)
+void Level::displayBG(sf::RenderWindow * windowP)
 {
     windowP->clear(sf::Color(0, 0, 230));
 
     backGround.display(windowP);
 
     sf::Vector2u winSize = windowP->getSize();
-
     float max_y = winSize.y;
 
+    // Displaying number of steps :
     std::stringstream ss;
     ss << "step : " << nbSteps;
-    sf::Text stepDisp(ss.str(), font);
+    sf::Text stepDisp(ss.str(), font, 40);
     sf::FloatRect bounds = stepDisp.getLocalBounds();
     stepDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
     windowP->draw(stepDisp);
-    max_y += bounds.height;
+    bounds = sf::Text("Ip", font, 40).getLocalBounds();
+    max_y -= bounds.height + bounds.top;
+    // This is because stepDisp changes height when the step number changes, so I put something that only depends on the font used.
+    // The bigger font size is because the text looked cluttered
 
-    sf::Text helpDisp(text, font, 15);
-    bounds = helpDisp.getLocalBounds();
-    stepDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
-    windowP->draw(helpDisp);
-    max_y += bounds.height;
+    // Displaying level text :
+    for (int i = text_lines-1; i >= 0; i--)
+    {
+        sf::Text helpDisp(text[i], font, 30);
+        bounds = helpDisp.getLocalBounds();
+        helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
+        windowP->draw(helpDisp);
+        max_y -= bounds.height + bounds.top;
+    }
 }
 
-void Level::display(sf::RenderWindow * windowP, sf::Font font, bool disp)
+void Level::display(sf::RenderWindow * windowP, bool disp)
 {
     windowP->clear(sf::Color(0, 0, 230));
-    displayBG(windowP, font);
+    displayBG(windowP);
 
     sf::Vector2i C0;
     int delta;
@@ -376,7 +401,7 @@ void Level::display(sf::RenderWindow * windowP, sf::Font font, bool disp)
         windowP->display();
 }
 
-void Level::animate(sf::RenderWindow * windowP, sf::Font font)
+void Level::animate(sf::RenderWindow * windowP)
 {
     sf::Clock clock;
     int t1;
@@ -390,7 +415,7 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font)
     for (int i = 1; i <= 3; i++)//All animations are 4 frames long
     {
         t1 = clock.getElapsedTime().asMilliseconds();
-        displayBG(windowP, font);
+        displayBG(windowP);
 
         //Animation of logic elements
         logic.anim(C0, delta, windowP, i);
@@ -417,7 +442,7 @@ void Level::animate(sf::RenderWindow * windowP, sf::Font font)
         windowP->display();
         while (clock.getElapsedTime().asMilliseconds()-t1 < 20) {}
     }
-    display(windowP, font);
+    display(windowP);
 }
 
 // Handling pause menu
@@ -428,7 +453,7 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
     
     // First draw :
 
-    levelP->display(windowP, font, false);
+    levelP->display(windowP, false);
     continue_.draw(font);
     exit_.draw(font);
     windowP->display();
@@ -449,7 +474,7 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 windowP->setView(sf::View(view));
                 levelP->resize_bg(windowP);
-                levelP->display(windowP, font, false);
+                levelP->display(windowP, false);
                 continue_.reshape();
                 exit_.reshape();
                 continue_.draw(font);
@@ -477,7 +502,7 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
 
         if (continue_.update() || exit_.update())
         {
-            levelP->display(windowP, font, false);
+            levelP->display(windowP, false);
             continue_.draw(font);
             exit_.draw(font);
             windowP->display();
@@ -493,12 +518,12 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
 {
     //SFML stuff and level initialization :
     sf::Clock clock;
-    Level level(level_id);
+    Level level(level_id, font);
     level.resize_bg(windowP);
 
     //First draw :
     windowP->clear(sf::Color(0, 0, 120));
-    level.display(windowP, font);
+    level.display(windowP);
     
     //Input handling :
     int time = clock.getElapsedTime().asMilliseconds();
@@ -541,7 +566,7 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 windowP->setView(sf::View(view));
                 level.resize_bg(windowP);
-                level.display(windowP, font);
+                level.display(windowP);
             }
 
             else if (evnt.type == sf::Event::KeyPressed)
@@ -560,7 +585,7 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
                     {
                         return 0;
                     }
-                    level.display(windowP, font);
+                    level.display(windowP);
                 }
             }
             else if (evnt.type == sf::Event::KeyReleased)
@@ -665,11 +690,11 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
                 }
                 level.step(didSwap);
                 t0 = clock.getElapsedTime().asMilliseconds();
-                level.animate(windowP, font);
+                level.animate(windowP);
                 level.step_end_logic();
             }
             else
-                level.display(windowP, font);
+                level.display(windowP);
 
             std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }

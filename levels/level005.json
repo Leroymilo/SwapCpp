@@ -48,4 +48,5 @@
             ],
             "offsets" : [0]
         }
-    ]}}
+    ]},
+"text": ["This is an AND logic gate,", "all of its inputs need to be activated for it to activate."]}

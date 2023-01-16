@@ -15,8 +15,8 @@ tool_icon_paths = {
     "Wall"      : "assets/Tiles/Wall.png",
     "Grate"     : "assets/Tiles/Grate.png",
     "Goal"      : "assets/Tiles/Win.png",
-    "Player"    : "assets/Entities/playerR.png",
-    "Bullet"    : "assets/Entities/bulletR.png",
+    "Player"    : "assets/Entities/player.png",
+    "Bullet"    : "assets/Entities/bullet.png",
     "Box"       : "assets/Entities/Box.png",
     "Button"    : "assets/Logic/Interruptor0.png",
     "Target"    : "assets/Logic/Target0.png",
@@ -304,13 +304,11 @@ class LevelEditor(LevelEditor) :
         #entities
         player_data = self.level.player
         if player_data["alive"] :
-            img = player[player_data["dir"]]
-            self.surf.blit(img, (delta * player_data["X"], delta * player_data["Y"]))
+            self.surf.blit(player, (delta * player_data["X"], delta * player_data["Y"]))
         
         bullet_data = self.level.bullet
         if bullet_data["alive"] :
-            img = bullet[bullet_data["dir"]]
-            self.surf.blit(img, (delta * bullet_data["X"], delta * bullet_data["Y"]))
+            self.surf.blit(bullet, (delta * bullet_data["X"], delta * bullet_data["Y"]))
         
         for x, y in self.level.boxes :
             self.surf.blit(box, (delta * x, delta * y))

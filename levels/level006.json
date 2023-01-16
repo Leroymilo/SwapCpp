@@ -67,4 +67,5 @@
             ],
             "offsets" : [0]
         }
-    ]}}
+    ]},
+"text": ["This is an OR logic gate,", "at least one of its inputs need to be activated for it to activate."]}

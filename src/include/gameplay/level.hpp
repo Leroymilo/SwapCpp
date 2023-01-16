@@ -2,6 +2,7 @@
 #define LEVEL_H
 
 #include <string>
+#include <vector>
 #include <list>
 
 #include <SFML/Graphics.hpp>
@@ -22,21 +23,24 @@ class Level
         Grid backGround;
         Logic logic;
         bool won = false;
-        std::string text;
+
+        sf::Font font;
+        int text_lines;
+        std::vector<std::string> text;
 
         std::map<char, sf::Texture> bg_tiles;
 
         bool boxPush(Entity* pusher, char direction, int* nb_pushed);//Recursive calls of the pushing function
         void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy
-        //(or the player but it's not currently possoble)
+        //(or the player but it's not currently possible)
 
-        void displayBG(sf::RenderWindow * windowP, sf::Font font);
+        void displayBG(sf::RenderWindow * windowP);
 
     public:
         int nbSteps = 0;
 
         Level();
-        Level(int number);
+        Level(int number, sf::Font font);
         std::string get_pLike_state();  //To record the states of the Player and bullet into the list of steps
 
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
@@ -50,8 +54,8 @@ class Level
         bool win();
 
         void resize_bg(sf::RenderWindow* windowP);
-        void display(sf::RenderWindow* windowP, sf::Font font, bool disp = true);
-        void animate(sf::RenderWindow* windowP, sf::Font font);
+        void display(sf::RenderWindow* windowP, bool disp = true);
+        void animate(sf::RenderWindow* windowP);
 };
 
 void display_pause(sf::RenderWindow*, sf::Font);    // Function to display the pause menu over the level

@@ -27,4 +27,5 @@
             ],
             "offsets" : [0]
         }
-    ]}}
+    ]},
+"text": ["This is a NOT logic gate,", "it will revert its single input."]}

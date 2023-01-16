@@ -1,18 +1,2 @@
-{"bg": {"H": 9, "W": 9, "EndX": 4, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", ".", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 4, "Y": 7, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 0, "Boxes": []},
-"logic": {
-    "nb_activators": 1, "activators": [{"X": 6, "Y": 6, "type": "I"}],
-    "nb_gates": 0, "gates": [],
-    "nb_doors": 1, "doors": [{"X": 4, "Y": 4, "nb_tiles": 1, "tiles": [{"X": 4, "Y": 4}]}],
-    "nb_links": 1, "links": [
-        {
-            "type_start" : "Activator",
-            "type_end" : "Door",
-            "nb_nodes": 3,
-            "nodes" : [
-                {"X" : 6, "Y" : 6},
-                {"X" : 4, "Y" : 6},
-                {"X" : 4, "Y" : 4}
-            ],
-            "offsets" : [0, 0]
-        }
-    ]}}
+{"bg": {"H": 7, "W": 7, "EndX": 3, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X"], ["X", ".", "X", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", "x", "x", ".", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 3, "Y": 5, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 1, "Boxes": [{"X": 3, "Y": 3}]}, "logic": {"nb_activators": 0, "activators": [], "nb_gates": 0, "gates": [], "nb_doors": 0, "doors": [], "nb_links": 0, "links": []},
+"text": ["Remember that you can undo your moves with BACKSPACE,", "and reset the level with PLUS."]}
