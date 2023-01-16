@@ -2,6 +2,7 @@
 #define LOGIC_H
 
 #include <list>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 #include <json/value.h>
@@ -20,6 +21,8 @@ class Link
 {
     private :
         int nb_nodes;
+        std::vector<sf::Vector2i> nodes;
+        std::vector<int> offsets;
         sf::Vector2i input;
         sf::Vector2i output;
         std::string input_type;
@@ -27,6 +30,8 @@ class Link
         // Types are "Activator", "Gate" or "Door". "Activator" cannot be output and "Door" cannot be input.
         bool state = false;
         std::list<bool> prev_states = {false};
+
+        int get_offset(int i);
     
     public :
         Link();

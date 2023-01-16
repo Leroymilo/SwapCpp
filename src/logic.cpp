@@ -11,21 +11,26 @@ Link::Link(){}
 Link::Link(Json::Value json_link)
 {
     nb_nodes = json_link["nb_nodes"].asInt();
-
-    this->input = sf::Vector2i(json_link["nodes"][0]["X"].asInt(), json_link["nodes"][0]["Y"].asInt());
-    this->output = sf::Vector2i(json_link["nodes"][nb_nodes-1]["X"].asInt(), json_link["nodes"][nb_nodes-1]["Y"].asInt());
-    this->input_type = json_link["type_start"].asCString();
-    this->output_type = json_link["type_end"].asCString();
+    nodes.resize(nb_nodes);
+    offsets.resize(nb_nodes-1);
+    for (int i = 0; i < nb_nodes; i++)
+    {
+        if (i < nb_nodes - 1) {offsets[i] = json_link["offsets"][i].asInt();}
+        nodes[i] = sf::Vector2i(json_link["nodes"][i]["X"].asInt(), json_link["nodes"][i]["Y"].asInt());
+    }
+    
+    input_type = json_link["type_start"].asCString();
+    output_type = json_link["type_end"].asCString();
 }
 
 sf::Vector2i Link::get_input()
 {
-    return input;
+    return nodes[0];
 }
 
 sf::Vector2i Link::get_output()
 {
-    return output;
+    return nodes[nb_nodes-1];
 }
 
 void Link::set_state(bool new_state)
@@ -50,21 +55,65 @@ void Link::undo()
     prev_states.pop_back();
 }
 
+int Link::get_offset(int i)
+{
+    if (i < 0 || i >= nb_nodes - 1) return 0;
+    return offsets[i];
+}
+
 void Link::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
+    int thick = delta/16;
+
     sf::Color color;
     if (state)
         color = sf::Color(255, 127, 39);
     else 
         color = sf::Color(61, 176, 254);
     
-    sf::VertexArray lines(sf::LinesStrip, 2);
-    lines[0].position = sf::Vector2f(C0.x+(input.x+0.5)*delta, C0.y+(input.y+0.5)*delta);
-    lines[1].position = sf::Vector2f(C0.x+(output.x+0.5)*delta, C0.y+(output.y+0.5)*delta);
-    lines[0].color = color;
-    lines[1].color = color;
+    for (int i = 0; i < nb_nodes - 1; i++)
+    {
+        sf::Vector2i n1 = nodes[i], n2 = nodes[i+1];
+        float W, H;
+        float X = C0.x, Y = C0.y;
 
-    windowPoint->draw(lines);
+        if (n1.x == n2.x)
+        {
+            X += delta * n1.x + thick * (7 + get_offset(i));
+            W = thick;
+            if (n1.y < n2.y)
+            {
+                Y += delta * n1.y + thick * (7 + get_offset(i-1));
+                H = delta * (n2.y - n1.y) + thick * (1 - get_offset(i-1) + get_offset(i+1));
+            }
+            else
+            {
+                Y += delta * n2.y + thick * (7 + get_offset(i+1));
+                H = delta * (n1.y - n2.y) + thick * (1 - get_offset(i+1) + get_offset(i-1));
+            }
+        }
+        else if (n1.y == n2.y)
+        {
+            Y += delta * n1.y + thick * (7 + get_offset(i));
+            H = thick;
+            if (n1.x < n2.x)
+            {
+                X += delta * n1.x + thick * (7 + get_offset(i-1));
+                W = delta * (n2.x - n1.x) + thick * (1 - get_offset(i-1) + get_offset(i+1));
+            }
+            else
+            {
+                X += delta * n2.x + thick * (7 + get_offset(i+1));
+                W = delta * (n1.x - n2.x) + thick * (1 - get_offset(i+1) + get_offset(i-1));
+            }
+        }
+        else continue;  //I'm not drawing a diagonal rectangle, fuck you.
+
+        sf::RectangleShape line(sf::Vector2f(W, H));
+        line.setPosition(sf::Vector2f(X, Y));
+        line.setFillColor(color);
+        windowPoint->draw(line);
+    }
 }
 
 // Methods for Activator
