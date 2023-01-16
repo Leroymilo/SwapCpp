@@ -11,22 +11,6 @@ main_path = "src".join(__file__.split("src")[:-1])
 blank_level = "levels/blank_level.json"
 
 tools = ["Wall", "Grate", "Goal", "Player", "Bullet", "Box", "Button", "Target", "AND Gate", "OR Gate", "NO Gate", "Door Tile", "Door Hub", "Connector"]
-tool_icon_paths = {
-    "Wall"      : "assets/Tiles/Wall.png",
-    "Grate"     : "assets/Tiles/Grate.png",
-    "Goal"      : "assets/Tiles/Win.png",
-    "Player"    : "assets/Entities/player.png",
-    "Bullet"    : "assets/Entities/bullet.png",
-    "Box"       : "assets/Entities/Box.png",
-    "Button"    : "assets/Logic/Interruptor0.png",
-    "Target"    : "assets/Logic/Target0.png",
-    "AND Gate"  : "assets/Logic/AND0.png",
-    "OR Gate"   : "assets/Logic/OR0.png",
-    "NO Gate"   : "assets/Logic/NO0.png",
-    "Door Tile" : "assets/Logic/Door0.png",
-    "Door Hub"  : "assets/door_hub.png",
-    "Connector" : "assets/connector.png"
-}
 
 help_texts = {
     "Wall"      : "Right click to place, left click to remove. Placing removes other objects.",
@@ -132,6 +116,8 @@ class LevelEditor(LevelEditor) :
         self.level_name = None
         self.edited = False
         self.status_bar: wx.StatusBar
+        self.tool_bar: wx.ToolBar
+
         base_editor_title = self.GetTitle()
         self.SetTitle(base_editor_title + " : unnamed level")
 
@@ -162,8 +148,12 @@ class LevelEditor(LevelEditor) :
         self.tool = self.tools.GetStringSelection()
         if self.tool not in tools :
             return
-        path: str = tool_icon_paths[self.tool]
-        bitmap = wx.Bitmap(path, type=wx.BITMAP_TYPE_PNG)
+
+        if self.tool == "Connector" :
+            bitmap = wx.Bitmap("assets/connector.png", type=wx.BITMAP_TYPE_PNG)
+        else :
+            pg.image.save(sprites[self.tool], "temp.png")
+            bitmap = wx.Bitmap("temp.png", type=wx.BITMAP_TYPE_PNG)
         self.tool_icon.SetBitmap(bitmap)
 
         self.show_link_tools(self.tool == "Connector")

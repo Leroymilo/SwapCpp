@@ -37,3 +37,27 @@ OR          = get_image("assets/Logic/OR0.png")
 NOT         = get_image("assets/Logic/NO0.png")
 
 door_hub    = get_image("assets/door_hub.png")
+
+
+def for_tool_bar(image: pg.Surface) :
+    return pg.transform.scale(image, (16, 16))
+
+sprites = {
+    "Wall"      : wall,
+    "Grate"     : grate,
+    "Goal"      : goal,
+    "Player"    : player,
+    "Bullet"    : bullet,
+    "Box"       : box,
+    "Button"    : interruptor,
+    "Target"    : target,
+    "AND Gate"  : AND,
+    "OR Gate"   : OR,
+    "NO Gate"   : NOT,
+    "Door Tile" : door_tile,
+    "Door Hub"  : door_hub,
+}
+
+sprites = {key: for_tool_bar(image) for key, image in sprites.items()}
+
+sprites |= {"Connector" : "assets/connector.png"}
