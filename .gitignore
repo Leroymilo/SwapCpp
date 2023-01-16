@@ -8,3 +8,4 @@ objects
 *.out
 test*
 temp*
+save??.json

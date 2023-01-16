@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
+#include <filesystem>
 
 #include <json/value.h>
 #include <json/json.h>
@@ -25,7 +26,17 @@ Save::Save(int save_nb) : id(save_nb)
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(2) << save_nb;
 
+    if (!std::filesystem::exists("saves"))
+    {
+        std::filesystem::create_directory("saves");
+    }
+
     dir = "saves/save" + ss.str() + ".json";
+
+    if (!std::filesystem::exists(dir))
+    {
+        std::filesystem::copy_file("saves/blank_save.json", dir);
+    }
 
     std::ifstream file(dir);
     Json::Value actualJson;
