@@ -61,8 +61,8 @@ class Link :
     
     def get_offset(self, i) :
         if i < 0 or i >= len(self.offsets) :
-            return 0
-        return self.offsets[i]
+            return -1
+        return self.offsets[i] - 1
     
     def __eq__(self, __o: Link) -> bool:
         return self.get_id() == __o.get_id()
@@ -75,7 +75,7 @@ class Link :
         for i in range(len(self.nodes) - 1) :
             x1, y1 = self.nodes[i]
             x2, y2 = self.nodes[i+1]
-            x1, y1, x2, y2 = delta * (x1+0.5) - 1, delta * (y1+0.5) - 1, delta * (x2+0.5) - 1, delta * (y2+0.5) - 1
+            x1, y1, x2, y2 = delta * (x1+0.5), delta * (y1+0.5), delta * (x2+0.5), delta * (y2+0.5)
 
             if x1 == x2 :
                 C1 = (x1 + width * self.get_offset(i), y1 + width * self.get_offset(i-1))

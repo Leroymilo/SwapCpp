@@ -98,7 +98,7 @@ class LevelEditor ( wx.Frame ):
 		self.offset_text.Wrap( -1 )
 
 		self.tool_bar.AddControl( self.offset_text )
-		self.offset_spin = wx.SpinCtrl( self.tool_bar, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS|wx.SP_WRAP, -7, 7, 0 )
+		self.offset_spin = wx.SpinCtrl( self.tool_bar, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS|wx.SP_WRAP, -7, 8, 0 )
 		self.offset_spin.Hide()
 
 		self.tool_bar.AddControl( self.offset_spin )
