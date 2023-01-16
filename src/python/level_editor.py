@@ -304,8 +304,8 @@ class LevelEditor(LevelEditor) :
             self.surf.blit(box, (delta * x, delta * y))
 
         # Display :
-        pg.image.save(self.surf, "assets/temp.png", "PNG")
-        bmp = wx.Bitmap(wx.Image("assets/temp.png"))
+        pg.image.save(self.surf, "temp.png", "PNG")
+        bmp = wx.Bitmap(wx.Image("temp.png"))
         self.display.SetBitmap(bmp)
         self.Layout()
 
