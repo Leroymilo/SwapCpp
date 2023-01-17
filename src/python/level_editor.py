@@ -337,7 +337,8 @@ class LevelEditor(LevelEditor) :
         x, y = (x - x0)//delta, (y - y0)//delta
 
         if not (0 <= x < W and 0 <= y < H) :
-            self.display_error("Out of grid.")
+            if self.left_c ^ self.right_c :
+                self.display_error("Out of grid.")
             return False, None
         
         return True, (x, y)
@@ -519,7 +520,7 @@ class LevelEditor(LevelEditor) :
                         self.display_error("Cannot end connector here ! Try a door hub or a logic gate.")
                         return
                     self.level.add_link(self.nodes)
-                    self.update_link_choice()
+                    self.change_tool(None)
                     self.nodes = None
                     # self.auto_path_check.Enable()
             elif self.left_c and self.nodes is not None :
@@ -539,7 +540,7 @@ class LevelEditor(LevelEditor) :
         self.clear_error()
 
     #=========================================================================================================================================================
-    # Click processing :
+    # Input processing :
 
     def mouse_move(self, event: wx.MouseEvent) :
         if self.right_c ^ self.left_c :
@@ -568,6 +569,13 @@ class LevelEditor(LevelEditor) :
         self.prev_click = (-1, -1)
         self.process_click(event)
         self.prev_click = (-1, -1)
+    
+    def process_key(self, event: wx.KeyEvent) :
+        if event.GetKeyCode() == wx.WXK_ESCAPE :
+            if self.tool == "Connector" :
+                self.nodes = None
+                self.display_level()
+        event.Skip()
 
     #=========================================================================================================================================================
     # Status bar error display :
@@ -687,12 +695,15 @@ class LevelEditor(LevelEditor) :
         
         self.surf = pg.Surface((new_W * delta, new_H * delta))
 
-        self.display_level()
         self.edited = True
+        self.SetTitle(base_editor_title + " : *" + self.level_name)
+        self.display_level()
     
     def change_level_text(self, event) :
         res = LvlTxtDlg(self, self.level.text).ShowModal()
+        print(res)
         if res == 0 :
+            self.SetTitle(base_editor_title + " : *" + self.level_name)
             self.edited = True
     
     #=========================================================================================================================================================

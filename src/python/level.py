@@ -213,7 +213,7 @@ class Level :
 
         # Walls and goal check :
 
-        if self.get_tile(x, y) in {'X', 'x'} :
+        if type_ != "link" and self.get_tile(x, y) in {'X', 'x'} :
             return False
         
         if (x, y) == self.goal :

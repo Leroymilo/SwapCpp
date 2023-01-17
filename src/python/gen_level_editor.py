@@ -128,6 +128,7 @@ class LevelEditor ( wx.Frame ):
 		self.Centre( wx.BOTH )
 
 		# Connect Events
+		self.Bind( wx.EVT_CHAR_HOOK, self.process_key )
 		self.Bind( wx.EVT_CLOSE, self.close )
 		self.Bind( wx.EVT_MENU, self.open_level, id = self.open_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.new_level, id = self.new_item.GetId() )
@@ -152,6 +153,9 @@ class LevelEditor ( wx.Frame ):
 
 
 	# Virtual event handlers, override them in your derived class
+	def process_key( self, event ):
+		event.Skip()
+
 	def close( self, event ):
 		event.Skip()
 
