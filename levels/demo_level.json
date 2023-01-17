@@ -234,5 +234,8 @@
             }
         ]
         
+    },
+    "flags": {
+        "can_swap": true
     }
 }

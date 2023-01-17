@@ -51,6 +51,8 @@ Level::Level(int number, sf::Font font) : font(font)
     }
     else {text_lines = 0;}
 
+    // Loading flags :
+    can_swap = json_data["flags"]["can_swap"].asBool();
 }
 
 std::string Level::get_pLike_state()
@@ -158,6 +160,8 @@ void Level::pLikePush(PlayerLike* pushed, char direction)
 
 bool Level::swap(std::string* act)
 {
+    if (!can_swap) {return false;}
+
     if (Player.is_alive && !bullet.is_alive)
     {
         if (isWallForBullet(Player.get_next_pos()))

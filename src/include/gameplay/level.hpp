@@ -23,6 +23,7 @@ class Level
         Grid backGround;
         Logic logic;
         bool won = false;
+        bool can_swap = true;
 
         sf::Font font;
         int text_lines;

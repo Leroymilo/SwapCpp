@@ -120,5 +120,8 @@
                 "offsets" : [0]
             }
         ]
+    },
+    "flags": {
+        "can_swap": true
     }
 }
