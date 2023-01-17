@@ -45,19 +45,25 @@ char Grid::getTile(sf::Vector2i coords)
 
 void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
 {
-    float shapeQ = float(w)/float(h);
+    if (win_size.y <= 0)
+    {
+        delta = 0;
+        return;
+    }
+
+    float shapeQ = float(w)/float(h+1);
 
     float WinQ = float(win_size.x)/float(win_size.y);
 
     if (WinQ > shapeQ)
-        delta = win_size.y/h;
+        delta = win_size.y/(h+1);
     else
         delta = win_size.x/w;
     
     delta -= delta % 16;
-    float pxlW = delta*w, pxlH = delta*h;
+    if (delta == 0) {return;}
 
-    x0 = (win_size.x-pxlW)/2, y0 = (win_size.y-pxlH)/2;
+    float pxlW = delta*w, pxlH = delta*h;
 
     pre_render.create(pxlW, pxlH);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
@@ -69,15 +75,28 @@ void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
             pre_render.draw(tile);
         }
     }
+
+    x0 = (win_size.x-pxlW)/2, y0 = (win_size.y-pxlH-delta)/2 + delta;
 }
 
-void Grid::display(sf::RenderWindow* windowPoint)
+void Grid::display(sf::RenderWindow* windowPoint, sf::Font font)
 {
-    sf::RectangleShape rect(sf::Vector2f(pre_render.getSize()));
-    rect.setTexture(&pre_render.getTexture());
-    rect.setPosition(x0, y0+delta*h);
-    rect.setScale(sf::Vector2f(1, -1));
-    windowPoint->draw(rect);
+    if (delta > 0)
+    {
+        sf::RectangleShape rect(sf::Vector2f(pre_render.getSize()));
+        rect.setTexture(&pre_render.getTexture());
+        rect.setPosition(x0, y0+delta*h);
+        rect.setScale(sf::Vector2f(1, -1));
+        windowPoint->draw(rect);
+    }
+    else
+    {
+        sf::Vector2u winSize = windowPoint->getSize();
+        sf::Text helpDisp("smol window owo", font, 12);
+        sf::FloatRect bounds = helpDisp.getLocalBounds();
+        helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, y0);
+        windowPoint->draw(helpDisp);
+    }
 }
 
 void Grid::getDisplay(sf::Vector2i* C0, int* deltaP)
@@ -88,4 +107,5 @@ void Grid::getDisplay(sf::Vector2i* C0, int* deltaP)
 
 Grid::~Grid()
 {
+    //TODO mdr
 }

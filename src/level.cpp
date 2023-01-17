@@ -354,7 +354,7 @@ void Level::displayBG(sf::RenderWindow * windowP)
 {
     windowP->clear(sf::Color(0, 0, 230));
 
-    backGround.display(windowP);
+    backGround.display(windowP, font);
 
     sf::Vector2u winSize = windowP->getSize();
     float max_y = winSize.y;
