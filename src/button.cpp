@@ -94,11 +94,10 @@ void Button::draw(sf::Font font)
     sf::Text text_disp;
     text_disp.setFont(font);
     text_disp.setString(text);
-    float W = text_disp.getLocalBounds().width;
-    float H = text_disp.getLocalBounds().height;
+    sf::FloatRect bounds = text_disp.getLocalBounds();
     text_disp.setPosition(sf::Vector2f(
-        hitbox.left + (hitbox.width - W)/2,
-        hitbox.top + (hitbox.height - H*1.2)/2
+        hitbox.left + (hitbox.width - bounds.width - bounds.left)/2,
+        hitbox.top + (hitbox.height - bounds.height - bounds.top)/2
     ));
     ref_win_p->draw(text_disp);
 }
