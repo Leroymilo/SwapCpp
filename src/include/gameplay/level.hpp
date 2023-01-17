@@ -30,6 +30,7 @@ class Level
         std::vector<std::string> text;
 
         std::map<char, sf::Texture> bg_tiles;
+        std::map<std::string, sf::Texture> flag_icons;
 
         bool boxPush(Entity* pusher, char direction, int* nb_pushed);//Recursive calls of the pushing function
         void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy

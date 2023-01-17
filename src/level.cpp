@@ -53,6 +53,7 @@ Level::Level(int number, sf::Font font) : font(font)
 
     // Loading flags :
     can_swap = json_data["flags"]["can_swap"].asBool();
+    flag_icons["no_swap"].loadFromFile("assets/no_swap.png");
 }
 
 std::string Level::get_pLike_state()
@@ -379,6 +380,22 @@ void Level::displayBG(sf::RenderWindow * windowP)
         helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
         windowP->draw(helpDisp);
         max_y -= bounds.height + bounds.top;
+    }
+
+    // Displaying flags :
+    sf::Vector2i C0;
+    int delta;
+    backGround.getDisplay(&C0, &delta);
+    delta = delta/2;
+    C0.y -= delta;
+    sf::RectangleShape tile(sf::Vector2f(delta, delta));
+
+    if (!can_swap)
+    {
+        tile.setTexture(&flag_icons["no_swap"]);
+        tile.setPosition(sf::Vector2f(C0));
+        windowP->draw(tile);
+        C0.x += delta;
     }
 }
 

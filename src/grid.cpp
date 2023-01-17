@@ -51,12 +51,12 @@ void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
         return;
     }
 
-    float shapeQ = float(w)/float(h+1);
+    float shapeQ = float(w)/(float(h) + 0.5);
 
     float WinQ = float(win_size.x)/float(win_size.y);
 
     if (WinQ > shapeQ)
-        delta = win_size.y/(h+1);
+        delta = win_size.y/(h+0.5);
     else
         delta = win_size.x/w;
     
@@ -76,7 +76,7 @@ void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
         }
     }
 
-    x0 = (win_size.x-pxlW)/2, y0 = (win_size.y-pxlH-delta)/2 + delta;
+    x0 = (win_size.x-pxlW)/2, y0 = (win_size.y-pxlH)/2 + delta/4;
 }
 
 void Grid::display(sf::RenderWindow* windowPoint, sf::Font font)
