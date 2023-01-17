@@ -581,7 +581,10 @@ class LevelEditor(LevelEditor) :
             if res == 5101 :
                 return 0
         
-        self.level.save("levels/" + self.level_name)
+        self.level.save(
+            "levels/" + self.level_name,
+            swap=self.allow_swap_item.IsChecked()
+        )
         
         self.edited = False
         self.SetTitle(base_editor_title + " : " + self.level_name)
@@ -671,6 +674,9 @@ class LevelEditor(LevelEditor) :
         self.surf = pg.Surface((new_W * delta, new_H * delta))
 
         self.display_level()
+    
+    def change_level_text(self, event) :
+        pass
     
     #=========================================================================================================================================================
     # Link tools :

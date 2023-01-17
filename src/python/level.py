@@ -168,7 +168,8 @@ class Level :
             for link in self.links
         } | {"": None}
     
-    def save(self, dir_) :
+    def save(self, dir_, swap: bool = True) :
+        self.flags["can_swap"] = swap
         json.dump(self.to_dict(), open(dir_, 'w'))
 
     def get_surface(self, delta: int) :

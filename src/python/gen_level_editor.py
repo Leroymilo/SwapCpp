@@ -41,8 +41,12 @@ class LevelEditor ( wx.Frame ):
 		self.resize_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Resize Level", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.resize_item )
 
-		self.default_size_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Default Size", wx.EmptyString, wx.ITEM_NORMAL )
-		self.edit_menu.Append( self.default_size_item )
+		self.level_text_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Text", wx.EmptyString, wx.ITEM_NORMAL )
+		self.edit_menu.Append( self.level_text_item )
+
+		self.allow_swap_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Allow Swaps", wx.EmptyString, wx.ITEM_CHECK )
+		self.edit_menu.Append( self.allow_swap_item )
+		self.allow_swap_item.Check( True )
 
 		self.menu_bar.Append( self.edit_menu, u"Edit" )
 
@@ -130,7 +134,7 @@ class LevelEditor ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.save_level, id = self.save_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.save_level_as, id = self.save_as_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.resize, id = self.resize_item.GetId() )
-		self.Bind( wx.EVT_MENU, self.change_default_size, id = self.default_size_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.change_level_text, id = self.level_text_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
 		self.sel_link_choice.Bind( wx.EVT_CHOICE, self.change_link )
 		self.sel_seg_spin.Bind( wx.EVT_SPINCTRL, self.change_segment )
@@ -166,7 +170,7 @@ class LevelEditor ( wx.Frame ):
 	def resize( self, event ):
 		event.Skip()
 
-	def change_default_size( self, event ):
+	def change_level_text( self, event ):
 		event.Skip()
 
 	def change_tool( self, event ):
@@ -200,6 +204,48 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 	def end_timer( self, event ):
+		event.Skip()
+
+
+###########################################################################
+## Class LvlTxtDlg
+###########################################################################
+
+class LvlTxtDlg ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Change level text", pos = wx.DefaultPosition, size = wx.Size( 318,137 ), style = wx.DEFAULT_DIALOG_STYLE )
+
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+
+		v_sizer = wx.BoxSizer( wx.VERTICAL )
+
+		self.txt = wx.StaticText( self, wx.ID_ANY, u"Type the text that will be displayed in game here :", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.txt.Wrap( -1 )
+
+		v_sizer.Add( self.txt, 0, wx.ALL, 5 )
+
+		self.txt_ctrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_CENTER|wx.TE_MULTILINE )
+		v_sizer.Add( self.txt_ctrl, 1, wx.ALL|wx.EXPAND, 5 )
+
+		self.confirm_button = wx.Button( self, wx.ID_ANY, u"Confirm", wx.DefaultPosition, wx.DefaultSize, 0 )
+		v_sizer.Add( self.confirm_button, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+
+
+		self.SetSizer( v_sizer )
+		self.Layout()
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.confirm_button.Bind( wx.EVT_BUTTON, self.confirm )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, override them in your derived class
+	def confirm( self, event ):
 		event.Skip()
 
 
