@@ -214,21 +214,18 @@ class LevelEditor(LevelEditor) :
 
         if show :
             self.update_link_choice()
-            if len(self.link_dict) > 1 :
+            if len(self.level.links) > 1 :
                 self.sel_link_choice.SetSelection(0)
                 self.change_link(None)
-                self.sel_link_choice.Enable()
                 self.del_link_button.Enable()
             else :
-                self.sel_link_choice.Disable()
                 self.sel_seg_spin.Disable()
                 self.offset_spin.Disable()
                 self.del_link_button.Disable()
     
     def update_link_choice(self) :
         self.sel_link_choice.Clear()
-        self.link_dict = self.level.get_link_dict()
-        self.sel_link_choice.AppendItems(list(self.link_dict.keys()))
+        self.sel_link_choice.AppendItems(list(self.level.links.keys()))
     
     #=========================================================================================================================================================
     # Display :
@@ -267,7 +264,7 @@ class LevelEditor(LevelEditor) :
                 self.surf.blit(img, (delta * x, delta * y))
 
         #logic
-        for link in self.level.links :
+        for link in self.level.links.values() :
             if self.link is not None and link == self.link :
                 link.draw(self.surf, delta, self.seg_nb)
             else :
@@ -281,25 +278,21 @@ class LevelEditor(LevelEditor) :
         for x, y in self.level.targets :
             self.surf.blit(target, (delta * x, delta * y))
         
-        for x, y in self.level.ands :
-            self.surf.blit(AND, (delta * x, delta * y))
-        for x, y in self.level.ors :
-            self.surf.blit(OR, (delta * x, delta * y))
-        for x, y in self.level.nos :
-            self.surf.blit(NOT, (delta * x, delta * y))
+        for gate in self.level.gates.values() :
+            gate.draw(self.surf, delta)
         
         #doors
-        for door_obj in self.level.doors :
+        for door_obj in self.level.doors.values() :
             door_obj.draw_tiles(self.surf, delta)
         if self.door is not None :
             self.door.draw_tiles(self.surf, delta)
         
-        for door_obj in self.level.doors :
+        for door_obj in self.level.doors.values() :
             door_obj.draw_lines(self.surf, delta)
         if self.door is not None :
             self.door.draw_lines(self.surf, delta)
 
-        for door_obj in self.level.doors :
+        for door_obj in self.level.doors.values() :
             door_obj.draw_hub(self.surf, delta)
         if self.door is not None :
             self.door.draw_hub(self.surf, delta)
@@ -466,6 +459,7 @@ class LevelEditor(LevelEditor) :
                     return
             elif self.left_c and (x, y) in self.level.buttons :
                 self.level.buttons.remove((x, y))
+                self.level.remove_link(coords=(x, y))
 
         elif self.tool == "Target" :
             if self.right_c :
@@ -477,22 +471,23 @@ class LevelEditor(LevelEditor) :
                     return
             elif self.left_c and (x, y) in self.level.targets :
                 self.level.targets.remove((x, y))
+                self.level.remove_link(coords=(x, y))
         
         elif self.tool.endswith("Gate") :
             type_ = self.tool.split(' ')[0]
             if self.right_c :
                 if self.level.can_place(x, y, "gate") :
-                    self.level.gates[type_].add((x, y))
+                    self.level.add_gate(x, y, type_)
                 else :
                     self.display_error("Cannot place here !")
                     return
-            elif self.left_c and (x, y) in self.level.gates[type_] :
-                self.level.gates[type_].remove((x, y))
+            elif self.left_c :
+                self.level.remove_gate(x, y, type_)
         
         elif self.tool == "Door Tile" :
             if self.right_c and (self.door is None) :
                 if self.level.can_place(x, y, "door_tile") :
-                    self.door = Door({"X": x, "Y": y, "tiles": [{"X": x, "Y": y}]})
+                    self.door = Door(**{"X": x, "Y": y, "tiles": [{"X": x, "Y": y}]})
                 else :
                     self.display_error("Cannot place door tile here !")
             elif self.left_c :
@@ -520,8 +515,8 @@ class LevelEditor(LevelEditor) :
                         self.display_error("Cannot end connector here ! Try a door hub or a logic gate.")
                         return
                     self.level.add_link(self.nodes)
-                    self.change_tool(None)
                     self.nodes = None
+                    self.change_tool(None)
                     # self.auto_path_check.Enable()
             elif self.left_c and self.nodes is not None :
                 if not self.level.can_place(x, y, "link") :
@@ -703,14 +698,17 @@ class LevelEditor(LevelEditor) :
         res = LvlTxtDlg(self, self.level.text).ShowModal()
         print(res)
         if res == 0 :
-            self.SetTitle(base_editor_title + " : *" + self.level_name)
             self.edited = True
+            if self.level_name is None :
+                self.SetTitle(base_editor_title + " : *unnamed level")
+            else :
+                self.SetTitle(base_editor_title + " : *" + self.level_name)
     
     #=========================================================================================================================================================
     # Link tools :
 
     def change_link(self, event) :
-        self.link = self.link_dict[self.sel_link_choice.GetStringSelection()]
+        self.link = self.level.links[self.sel_link_choice.GetStringSelection()]
         if self.link is None :
             self.sel_seg_spin.Disable()
             self.offset_spin.Disable()
@@ -738,6 +736,7 @@ class LevelEditor(LevelEditor) :
         self.link.offsets[self.seg_nb] = self.offset_spin.GetValue()
         self.display_level()
         self.edited = True
+        self.SetTitle(base_editor_title + " : *" + self.level_name)
     
     def delete_link(self, event) :
         self.level.remove_link(link_id = self.link.get_id())
@@ -745,3 +744,4 @@ class LevelEditor(LevelEditor) :
         self.link = None
         self.display_level()
         self.edited = True
+        self.SetTitle(base_editor_title + " : *" + self.level_name)
