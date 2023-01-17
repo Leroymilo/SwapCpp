@@ -3,7 +3,7 @@ import os
 import wx
 import pygame as pg
 
-from src.python.gen_level_editor import LevelEditor, SizeDlg, CheckSaveDlg, NameDlg
+from src.python.gen_level_editor import LevelEditor, SizeDlg, CheckSaveDlg, NameDlg, LvlTxtDlg
 from src.python.sprites import *
 from src.python.level import Level, Door
 
@@ -104,6 +104,19 @@ class NameDlg(NameDlg) :
 
         parent: LevelEditor = self.GetParent()
         parent.set_level_name(name)
+        self.EndModal(0)
+
+#=========================================================================================================================================================
+# LvlTxtDlg :
+
+class LvlTxtDlg(LvlTxtDlg) :
+    def __init__(self, parent: LevelEditor, cur_lines: list[str]) :
+        super().__init__(parent)
+        self.txt_ctrl.SetValue("\n".join(cur_lines))
+    
+    def confirm(self, event) :
+        parent: LevelEditor = self.GetParent()
+        parent.level.text = self.txt_ctrl.GetValue().split('\n')
         self.EndModal(0)
 
 #=========================================================================================================================================================
@@ -643,6 +656,7 @@ class LevelEditor(LevelEditor) :
         self.level_name = level_name
         self.SetTitle(base_editor_title + " : " + self.level_name)
         self.update_link_choice()
+        self.allow_swap_item.Check(self.level.flags["can_swap"])
     
     #=========================================================================================================================================================
     # Edit menu :
@@ -674,9 +688,12 @@ class LevelEditor(LevelEditor) :
         self.surf = pg.Surface((new_W * delta, new_H * delta))
 
         self.display_level()
+        self.edited = True
     
     def change_level_text(self, event) :
-        pass
+        res = LvlTxtDlg(self, self.level.text).ShowModal()
+        if res == 0 :
+            self.edited = True
     
     #=========================================================================================================================================================
     # Link tools :

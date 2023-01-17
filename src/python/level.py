@@ -123,7 +123,10 @@ class Level :
 
         self.links = [Link(**link_data) for link_data in data["logic"]["links"]]
 
-        self.text = data["text"]
+        if "text" in data.keys() :
+            self.text = data["text"]
+        else :
+            self.text = []
         self.flags = data["flags"]
     
     def to_dict(self) :
