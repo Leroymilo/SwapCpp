@@ -12,7 +12,7 @@ os = input("OS? (lin/win)")
 if os in {"win", "lin"} :
     if not exists(exec[os]) or exists(bad_exec[os]) :
         cmd[os]("make clear")
-        cmd[os]("make win")
+        cmd[os]("make " + os)
 else :
     print("unknown OS :(")
     exit()
