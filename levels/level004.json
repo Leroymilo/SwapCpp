@@ -18,4 +18,7 @@
         }
     ]
 },
-"text": ["The red thing's an interruptor.", "Put a box (or yourself) on it to weight it down and open the door."]}
+"text": ["The red thing's an interruptor.", "Put a box (or yourself) on it to weight it down and open the door."],
+"flags": {
+    "can_swap": false
+}}

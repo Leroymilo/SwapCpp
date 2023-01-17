@@ -122,6 +122,9 @@ class Level :
         self.doors = [Door(door_data) for door_data in data["logic"]["doors"]]
 
         self.links = [Link(**link_data) for link_data in data["logic"]["links"]]
+
+        self.text = data["text"]
+        self.flags = data["flags"]
     
     def to_dict(self) :
         return {
@@ -154,7 +157,9 @@ class Level :
 
                 "nb_links": len(self.links),
                 "links": [link.to_dict() for link in self.links],
-            }
+            },
+
+            "text": self.text, "flags": self.flags
         }
     
     def get_link_dict(self) :

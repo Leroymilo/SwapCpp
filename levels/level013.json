@@ -1,2 +1,5 @@
 {"bg": {"H": 9, "W": 9, "EndX": 6, "EndY": 2, "BG": [["X", "X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", "X", ".", ".", ".", "X"], ["X", ".", ".", ".", "X", ".", ".", ".", "X"], ["X", ".", ".", ".", "X", ".", ".", ".", "X"], ["X", "x", "x", "x", "X", "X", ".", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 4, "Y": 6, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 0, "Boxes": []}, "logic": {"nb_activators": 1, "activators": [{"X": 2, "Y": 2, "type": "T"}], "nb_gates": 0, "gates": [], "nb_doors": 1, "doors": [{"X": 6, "Y": 4, "nb_tiles": 1, "tiles": [{"X": 6, "Y": 4}]}], "nb_links": 1, "links": [{"type_start": "Activator", "type_end": "Door", "nb_nodes": 4, "nodes": [{"X": 2, "Y": 2}, {"X": 2, "Y": 3}, {"X": 6, "Y": 3}, {"X": 6, "Y": 4}], "offsets": [0, 0, 0]}]},
-"text": ["This is a target, shoot your bullet into it to activate it."]}
+"text": ["This is a target, shoot your bullet into it to activate it."],
+"flags": {
+    "can_swap": true
+}}
