@@ -1,10 +1,20 @@
 from subprocess import run
 from os.path import exists
 from shutil import copytree, copy
+import sys
 
-if not exists("swap.exe") :
-    run("make clear")
-    run("make win")
+os = input("OS? (lin/win)")
+if os == "win" :
+    if not exists("swap.exe") or exists("swap.out") :
+        run("make clear")
+        run("make win")
+elif os == "lin" :
+    if not exists("swap.out") or exists("swap.exe") :
+        run("make clear")
+        run("make lin")
+else :
+    print("unknown OS :(")
+    sys.exit()
 
 if exists("build") :
     run("rm -r build")
@@ -20,4 +30,8 @@ copytree("src/lib", "build/src/lib")
 copytree("assets", "build/assets")
 copytree("levels", "build/levels")
 copytree("objects", "build/objects")
-copy("swap.exe", "build/swap.exe")
+
+if os == "win" :
+    copy("swap.exe", "build/swap.exe")
+else :
+    copy("swap.out", "build/swap.out")
