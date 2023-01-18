@@ -2,7 +2,15 @@
 "logic": {
     "nb_activators": 1, "activators": [{"X": 6, "Y": 6, "type": "I"}],
     "nb_gates": 0, "gates": [],
-    "nb_doors": 1, "doors": [{"X": 4, "Y": 4, "nb_tiles": 1, "tiles": [{"X": 4, "Y": 4}]}],
+    "nb_doors": 1,
+    "doors": [
+        {
+            "X": 4, "Y": 4, "nb_tiles": 1,
+            "tiles": [
+                {"X": 4, "Y": 4, "orient": "H"}
+            ]
+        }
+    ],
     "nb_links": 1,
     "links": [
         {

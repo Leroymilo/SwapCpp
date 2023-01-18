@@ -11,7 +11,7 @@
         ],
         "nb_doors": 1,
         "doors": [
-            {"X": 4, "Y": 3, "nb_tiles": 1, "tiles": [{"X": 4, "Y": 3}]}
+            {"X": 4, "Y": 3, "nb_tiles": 1, "tiles": [{"X": 4, "Y": 3, "orient": "H"}]}
         ],
         "nb_links": 3,
         "links": [

@@ -6,6 +6,7 @@
 #include <iostream>
 
 std::map<char, int> gate_dirs = {{'U', 0}, {'R', 1}, {'D', 2}, {'L', 3}};
+std::map<char, int> door_orients = {{'N', 0}, {'H', 1}, {'V', 2}};
 
 // Methods for Link
 Link::Link(){}
@@ -311,38 +312,34 @@ sf::RectangleShape Gate::anim(int delta, int frame)
     return tile;
 }
 
-// Methods for DoorTile
-DoorTile::DoorTile(){}
-
-DoorTile::DoorTile(sf::Vector2i pos)
-{
-    this->pos = pos;
-    //TODO : add hinges
-}
-
-sf::Vector2i DoorTile::getPos()
-{
-    return pos;
-}
-
 // Methods for Door
 Door::Door(){}
 
-Door::Door(bool arg)
+Door::Door(Json::Value door_data)
 { 
-    for (int i = 0; i < 5; i++)
+    // Reading tiles :
+    nb_tiles = door_data["nb_tiles"].asInt();
+    for (int i = 0; i < nb_tiles; i++)
     {
-        sf::Texture sprite;
-        std::ostringstream oss;
-        oss << "assets/Logic/Door" << i << ".png";
-        sprite.loadFromFile(oss.str());
-        sprites[i] = sprite;
+        Json::Value tile_data = door_data["tiles"][i];
+        sf::Vector2i C(tile_data["X"].asInt(), tile_data["Y"].asInt());
+        tiles[C] = tile_data["orient"].asCString()[0];
     }
-}
 
-void Door::add_tile(DoorTile tile)
-{
-    tiles.push_back(tile);
+    // Loading spritesheet :
+    for (auto &elt : door_orients)
+    {
+        char orient = elt.first;
+        int i = elt.second;
+        sprites[orient].resize(5);
+        for (int j = 0; j < 5; j++)
+        {
+            sprites[orient][j].loadFromFile(
+                "assets/Logic/Door.png",
+                sf::IntRect(j*16, i*16, 16, 16)
+            );
+        }
+    }
 }
 
 void Door::add_input(int id_link)
@@ -353,8 +350,8 @@ void Door::add_input(int id_link)
 std::vector<sf::Vector2i> Door::get_tiles_pos()
 {
     std::vector<sf::Vector2i> tiles_pos;
-    for (auto &tile : tiles)
-        tiles_pos.push_back(tile.getPos());
+    for (auto &tile_elt : tiles)
+        tiles_pos.push_back(tile_elt.first);
     return tiles_pos;
 }
 
@@ -382,27 +379,30 @@ void Door::undo()
 
 void Door::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
-    for (auto &tile : tiles)
+    sf::RectangleShape rectangle(sf::Vector2f(delta, delta));
+    for (auto &tile_elt : tiles)
     {
-        sf::RectangleShape rectangle(sf::Vector2f(delta, delta));
-        rectangle.setTexture(&sprites[state*4]);
-        rectangle.setPosition(tile.getPos().x*delta+C0.x, tile.getPos().y*delta+C0.y);
+        rectangle.setTexture(&sprites[tile_elt.second][4*state]);
+        rectangle.setPosition(C0.x + tile_elt.first.x * delta, C0.y + tile_elt.first.y * delta);
         windowPoint->draw(rectangle);
     }
 }
 
 void Door::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    for (auto &tile : tiles)
+    int sprite_x;
+    if (state && !prev_states.back())
+        sprite_x = frame;
+    else if (prev_states.back() && !state)
+        sprite_x = 4 - frame;
+    else
+        sprite_x = 4 * state;
+    
+    sf::RectangleShape rectangle(sf::Vector2f(delta, delta));
+    for (auto &tile_elt : tiles)
     {
-        sf::RectangleShape rectangle(sf::Vector2f(delta, delta));
-        if (state && !prev_states.back())
-            rectangle.setTexture(&sprites[frame]);
-        else if (prev_states.back() && !state)
-            rectangle.setTexture(&sprites[4-frame]);
-        else 
-            rectangle.setTexture(&sprites[state*4]);
-        rectangle.setPosition(tile.getPos().x*delta+C0.x, tile.getPos().y*delta+C0.y);
+        rectangle.setTexture(&sprites[tile_elt.second][sprite_x]);
+        rectangle.setPosition(C0.x + tile_elt.first.x * delta, C0.y + tile_elt.first.y * delta);
         windowPoint->draw(rectangle);
     }
 }
@@ -435,14 +435,10 @@ Logic::Logic(Json::Value json_logic)
     for (int i = 0; i < nb_doors; i++)
     {
         sf::Vector2i C = sf::Vector2i(json_logic["doors"][i]["X"].asInt(), json_logic["doors"][i]["Y"].asInt());
-        doors[C] = Door(true);
-        int nb_tiles = json_logic["doors"][i]["nb_tiles"].asInt();
-        for (int j = 0; j < nb_tiles; j++)
+        doors[C] = Door(json_logic["doors"][i]);
+        for (sf::Vector2i &tile_pos : doors[C].get_tiles_pos())
         {
-            int X = json_logic["doors"][i]["tiles"][j]["X"].asInt();
-            int Y = json_logic["doors"][i]["tiles"][j]["Y"].asInt();
-            doors[C].add_tile(sf::Vector2i(X, Y));
-            door_tiles[sf::Vector2i(X, Y)] = C;
+            door_tiles[tile_pos] = C;
         }
     }
 
@@ -656,7 +652,6 @@ void Logic::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int 
 
     for (auto &elt : doors)
     {
-        sf::Vector2i C = elt.first;
         elt.second.anim(C0, delta, windowPoint, frame);
     }
 }

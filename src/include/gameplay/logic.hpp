@@ -99,34 +99,35 @@ class Gate
         sf::RectangleShape anim(int delta, int frame);
 };
 
-class DoorTile
-{
-    private :
-        sf::Vector2i pos;
-        bool hinges[4] = {false, false, false, false};
-        //Keeps track of which sides of the door tile are against a wall (Up, Right, Down, Left)
+// class DoorTile
+// {
+//     private :
+//         sf::Vector2i pos;
+//         sf::Texture sprites[5];
     
-    public :
-        DoorTile();
-        DoorTile(sf::Vector2i pos);
-        sf::Vector2i getPos();
-};
+//     public :
+//         DoorTile();
+//         DoorTile(Json::Value tile_data);
+//         sf::Vector2i getPos();
+        
+//         sf::RectangleShape draw(int delta, int sprite_x);
+// };
 
 class Door
 {
     private :
-        sf::Texture sprites[5];
         int input;
-        std::vector<DoorTile> tiles;
+        int nb_tiles;
+        std::map<sf::Vector2i, int, VectorComparator> tiles;  // map of {tile coords, tile orientation}
         bool state=false;   //false is closed, true is open
         std::list<bool> prev_states = {false};
+        std::map<char, std::vector<sf::Texture>> sprites;
     
     public :
         char type='D';
 
         Door();
-        Door(bool);
-        void add_tile(DoorTile tile);
+        Door(Json::Value door_data);
         void add_input(int id_link);
         std::vector<sf::Vector2i> get_tiles_pos();
 

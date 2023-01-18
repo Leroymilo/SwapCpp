@@ -64,7 +64,11 @@ int main()
             {
                 std::cout << "level " << level_id << " won!" << std::endl;
 
-                if (! save.is_solved(level_id))
+                bool already_solved = save.is_solved(level_id);
+                save.solve(level_id, nb_steps);
+                save.write();
+
+                if (! already_solved && ! save.is_solved(level_id + 1))
                 {
                     std::regex exp("^level[0-9]{3}.json$");
                     bool next_level = false;
@@ -82,8 +86,6 @@ int main()
                             }
                         }
                     }
-
-                    save.solve(level_id, nb_steps);
                     
                     if (next_level) level_id ++;
                     else scene = "Select";
