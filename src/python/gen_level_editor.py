@@ -54,6 +54,8 @@ class LevelEditor ( wx.Frame ):
 
 		self.status_bar = self.CreateStatusBar( 2, wx.STB_ELLIPSIZE_END|wx.STB_SHOW_TIPS|wx.STB_SIZEGRIP, wx.ID_ANY )
 		self.tool_bar = self.CreateToolBar( wx.TB_DEFAULT_STYLE, wx.ID_ANY )
+		self.tool_bar.AddSeparator()
+
 		self.tool_bar_text = wx.StaticText( self.tool_bar, wx.ID_ANY, u"Tool : ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.tool_bar_text.Wrap( -1 )
 
@@ -143,6 +145,7 @@ class LevelEditor ( wx.Frame ):
 		self.display.Bind( wx.EVT_LEFT_DOWN, self.left_down )
 		self.display.Bind( wx.EVT_LEFT_UP, self.left_up )
 		self.display.Bind( wx.EVT_MOTION, self.mouse_move )
+		self.display.Bind( wx.EVT_MOUSEWHEEL, self.mwheel )
 		self.display.Bind( wx.EVT_RIGHT_DOWN, self.right_down )
 		self.display.Bind( wx.EVT_RIGHT_UP, self.right_up )
 		self.Bind( wx.EVT_TIMER, self.end_timer, id=wx.ID_ANY )
@@ -195,6 +198,9 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 	def mouse_move( self, event ):
+		event.Skip()
+
+	def mwheel( self, event ):
 		event.Skip()
 
 	def right_down( self, event ):

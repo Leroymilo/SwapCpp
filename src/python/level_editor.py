@@ -568,6 +568,15 @@ class LevelEditor(LevelEditor) :
         self.prev_click = (-1, -1)
         self.process_click(event)
         self.prev_click = (-1, -1)
+    
+    def mwheel(self, event: wx.MouseEvent) :
+        good_pos, pos = self.compute_coords(event)
+        if not good_pos :
+            return
+        
+        scroll = event.GetWheelRotation()//event.GetWheelDelta()
+        if self.tool == "Player" :
+            self.level.change_player_dir(scroll)
 
     #=========================================================================================================================================================
     # Status bar error display :

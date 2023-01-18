@@ -341,3 +341,18 @@ class Level :
                 continue
 
             i_link += 1
+
+    def change_player_dir(self, amount: int) :
+        dirs = ["U", "R", "D", "L"]
+        i_dir = dirs.index(self.player["dir"])
+        i_dir = (i_dir + amount)%4
+        self.player["dir"] = dirs[i_dir]
+    
+    def change_bullet_dir(self, amount: int) :
+        dirs = ["U", "R", "D", "L"]
+        i_dir = dirs.index(self.bullet["dir"])
+        i_dir = (i_dir + amount)%4
+        self.bullet["dir"] = dirs[i_dir]
+    
+    def change_door_orient(self, amount: int) :
+        pass

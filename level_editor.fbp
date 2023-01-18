@@ -266,6 +266,9 @@
                 <property name="window_extra_style"></property>
                 <property name="window_name"></property>
                 <property name="window_style"></property>
+                <object class="toolSeparator" expanded="1">
+                    <property name="permission">protected</property>
+                </object>
                 <object class="wxStaticText" expanded="1">
                     <property name="BottomDockable">1</property>
                     <property name="LeftDockable">1</property>
@@ -987,6 +990,7 @@
                         <event name="OnLeftDown">left_down</event>
                         <event name="OnLeftUp">left_up</event>
                         <event name="OnMotion">mouse_move</event>
+                        <event name="OnMouseWheel">mwheel</event>
                         <event name="OnRightDown">right_down</event>
                         <event name="OnRightUp">right_up</event>
                     </object>
