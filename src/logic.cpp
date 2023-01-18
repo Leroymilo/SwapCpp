@@ -128,17 +128,17 @@ Activator::Activator(char type)
 
     std::string name;
     if (type=='I')
-        name = "Interruptor";
+        name = "Button";
     else if (type=='T')
         name = "Target";
     
+    sprites.resize(5);
     for (int i = 0; i < 5; i++)
     {
-        sf::Texture sprite;
-        std::ostringstream oss;
-        oss << "assets/Logic/" << name << i << ".png";
-        sprite.loadFromFile(oss.str());
-        sprites[i] = sprite;
+        sprites[i].loadFromFile(
+            "assets/Logic/" + name + ".png",
+            sf::IntRect(i*16, 0, 16, 16)
+        );
     }
 }
 

@@ -49,7 +49,7 @@ class Link
 class Activator
 {
     private :
-        sf::Texture sprites[5];
+        std::vector<sf::Texture> sprites;
         std::vector<int> outputs;
         bool state = false;
         std::list<bool> prev_states;
@@ -98,20 +98,6 @@ class Gate
         sf::RectangleShape draw(int delta);
         sf::RectangleShape anim(int delta, int frame);
 };
-
-// class DoorTile
-// {
-//     private :
-//         sf::Vector2i pos;
-//         sf::Texture sprites[5];
-    
-//     public :
-//         DoorTile();
-//         DoorTile(Json::Value tile_data);
-//         sf::Vector2i getPos();
-        
-//         sf::RectangleShape draw(int delta, int sprite_x);
-// };
 
 class Door
 {
