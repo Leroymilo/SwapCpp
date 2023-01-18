@@ -7,7 +7,7 @@ import pygame as pg
 
 from src.python.sprites import door_hub, door_tile, gates
 
-dirs = dirs = ["U", "R", "D", "L"]
+dirs = ["U", "R", "D", "L"]
 
 class Gate :
     def __init__(self, **kwargs) -> None:
