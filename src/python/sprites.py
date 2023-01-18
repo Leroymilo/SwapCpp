@@ -12,13 +12,20 @@ def get_image(path: str, n_w: int = 1, n_h: int = 1) :
     W, H = image.get_size()
     w, h = W//n_w, H//n_h
 
-    if (n_w, n_h) != (1, 1) :
-        image = image.subsurface(0, 0, w, h)
+    if n_w > 1 :
+        image = image.subsurface(0, 0, w, H)
     
     if (w, h) != size :
-        image = pg.transform.scale(image, size)
-
-    return image
+        image = pg.transform.scale(image, (delta, delta*n_h))
+    
+    if n_h == 1 :
+        return image
+    
+    elif n_h == 4 :
+        dict_im = {}
+        for i in range(4) :
+            dict_im[dirs[i]] = image.subsurface(0, i*delta, delta, delta)
+        return dict_im
 
 floor   = get_image("assets/Tiles/Floor.png")
 wall    = get_image("assets/Tiles/Wall.png")
@@ -47,14 +54,14 @@ sprites = {
     "Wall"      : wall,
     "Grate"     : grate,
     "Goal"      : goal,
-    "Player"    : player,
-    "Bullet"    : bullet,
+    "Player"    : player["U"],
+    "Bullet"    : bullet["U"],
     "Box"       : box,
     "Button"    : interruptor,
     "Target"    : target,
-    "AND Gate"  : AND,
-    "OR Gate"   : OR,
-    "NO Gate"   : NO,
+    "AND Gate"  : AND["U"],
+    "OR Gate"   : OR["U"],
+    "NO Gate"   : NO["U"],
     "Door Tile" : door_tile,
     "Door Hub"  : door_hub,
 }

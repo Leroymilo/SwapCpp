@@ -300,11 +300,11 @@ class LevelEditor(LevelEditor) :
         #entities
         player_data = self.level.player
         if player_data["alive"] :
-            self.surf.blit(player, (delta * player_data["X"], delta * player_data["Y"]))
+            self.surf.blit(player[player_data["dir"]], (delta * player_data["X"], delta * player_data["Y"]))
         
         bullet_data = self.level.bullet
         if bullet_data["alive"] :
-            self.surf.blit(bullet, (delta * bullet_data["X"], delta * bullet_data["Y"]))
+            self.surf.blit(bullet[bullet_data["dir"]], (delta * bullet_data["X"], delta * bullet_data["Y"]))
         
         for x, y in self.level.boxes :
             self.surf.blit(box, (delta * x, delta * y))
@@ -571,8 +571,19 @@ class LevelEditor(LevelEditor) :
             return
         
         scroll = event.GetWheelRotation()//event.GetWheelDelta()
-        if self.tool == "Player" :
-            self.level.change_player_dir(scroll)
+        if self.tool in {"Player", "Bullet"} :
+            self.level.change_obj_dir(scroll, self.tool)
+        elif self.tool.endswith("Gate") :
+            self.level.change_obj_dir(scroll, "Gate", pos)
+        else :
+            return
+        
+        self.edited = True
+        if self.level_name is None :
+            self.SetTitle(base_editor_title + " : *unnamed level")
+        else :
+            self.SetTitle(base_editor_title + " : *" + self.level_name)
+        self.display_level()
     
     def process_key(self, event: wx.KeyEvent) :
         if event.GetKeyCode() == wx.WXK_ESCAPE :

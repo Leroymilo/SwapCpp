@@ -7,6 +7,7 @@ import pygame as pg
 
 from src.python.sprites import door_hub, door_tile, gates
 
+dirs = dirs = ["U", "R", "D", "L"]
 
 class Gate :
     def __init__(self, **kwargs) -> None:
@@ -22,7 +23,7 @@ class Gate :
         }
     
     def draw(self, surf: pg.Surface, delta: int) -> None :
-        surf.blit(gates[self.type], (delta * self.pos[0], delta * self.pos[1]))
+        surf.blit(gates[self.type][self.dir], (delta * self.pos[0], delta * self.pos[1]))
 
 
 class Door :
@@ -289,9 +290,7 @@ class Level :
         self.remove_link(coords=(x, y))
             
     def remove_gate(self, x: int, y: int, type_: str) :
-        if (x, y) in self.gates.keys() :
-            if self.gates[(x, y)].type == type_ :
-                self.gates.pop((x, y))
+        self.gates.pop((x, y))
         
         self.remove_link(coords=(x, y))
     
@@ -343,17 +342,24 @@ class Level :
             for link_id in to_remove :
                 self.links.pop(link_id)
 
-    def change_player_dir(self, amount: int) :
-        dirs = ["U", "R", "D", "L"]
-        i_dir = dirs.index(self.player["dir"])
+    def change_obj_dir(self, amount: int, type_: str, pos: tuple[int] = (-1, -1)) :
+        if type_ == "Player" :
+            i_dir = dirs.index(self.player["dir"])
+        elif type_ == "Bullet" :
+            i_dir = dirs.index(self.bullet["dir"])
+        elif type_ == "Gate" and pos in self.gates :
+            i_dir = dirs.index(self.gates[pos].dir)
+        else :
+            return
+        
         i_dir = (i_dir + amount)%4
-        self.player["dir"] = dirs[i_dir]
-    
-    def change_bullet_dir(self, amount: int) :
-        dirs = ["U", "R", "D", "L"]
-        i_dir = dirs.index(self.bullet["dir"])
-        i_dir = (i_dir + amount)%4
-        self.bullet["dir"] = dirs[i_dir]
+        
+        if type_ == "Player" :
+            self.player["dir"] = dirs[i_dir]
+        elif type_ == "Bullet" :
+            self.bullet["dir"] = dirs[i_dir]
+        elif type_ == "Gate" :
+            self.gates[pos].dir = dirs[i_dir]
     
     def change_door_orient(self, amount: int) :
         pass
