@@ -8,6 +8,7 @@ import pygame as pg
 from src.python.sprites import door_hub, door_tile, gates
 
 dirs = ["U", "R", "D", "L"]
+orients = ["N", "H", "V"]
 
 class Gate :
     def __init__(self, **kwargs) -> None:
@@ -365,5 +366,10 @@ class Level :
         elif type_ == "Gate" :
             self.gates[pos].dir = dirs[i_dir]
     
-    def change_door_orient(self, amount: int) :
-        pass
+    def change_door_orient(self, amount: int, pos: tuple[int]) :
+        for door in self.doors.values() :
+            if pos in door.tiles.keys() :
+                i_or = orients.index(door.tiles[pos])
+                i_or = (i_or + amount)%len(orients)
+                door.tiles[pos] = orients[i_or]
+                return

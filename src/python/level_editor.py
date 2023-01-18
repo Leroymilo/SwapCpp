@@ -24,7 +24,7 @@ help_texts = {
     "AND Gate"  : "Right click to place, left click to remove. Scroll to rotate.",
     "OR Gate"   : "Right click to place, left click to remove. Scroll to rotate.",
     "NO Gate"   : "Right click to place, left click to remove. Scroll to rotate.",
-    "Door Tile" : "Hold right click to place the tile, release to place a hud or connect to an existing hud. Left click to remove.",
+    "Door Tile" : "Hold right click to place, release to connect to a hud, left click to remove. Scroll to change orientation.",
     "Door Hub"  : "Right click to place, left click to remove (will remove connected tiles).",
     "Connector" : [
         "Right click to place the start, then left click to place corners, and right click again to place the end",
@@ -577,6 +577,8 @@ class LevelEditor(LevelEditor) :
             self.level.change_obj_dir(scroll, self.tool)
         elif self.tool.endswith("Gate") :
             self.level.change_obj_dir(scroll, "Gate", pos)
+        elif self.tool == "Door Tile" :
+            self.level.change_door_orient(scroll, pos)
         else :
             return
         
