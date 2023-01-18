@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 
+std::map<char, int> gate_dirs = {{'U', 0}, {'R', 1}, {'D', 2}, {'L', 3}};
+
 // Methods for Link
 Link::Link(){}
 
@@ -201,25 +203,16 @@ sf::RectangleShape Activator::anim(int delta, int frame)
 // Methods for Gate
 Gate::Gate(){}
 
-Gate::Gate(char type)
+Gate::Gate(Json::Value gate_data)
 {
-    this->type = type;
-
-    std::string name;
-    if (type=='!')
-        name = "NO";
-    else if (type=='|')
-        name = "OR";
-    else if (type=='&')
-        name = "AND";
-    
+    type = gate_data["type"].asCString();
+    int dir = gate_dirs.find(gate_data["dir"].asCString()[0])->second;
     for (int i = 0; i < 5; i++)
     {
-        sf::Texture sprite;
-        std::ostringstream oss;
-        oss << "assets/Logic/" << name << i << ".png";
-        sprite.loadFromFile(oss.str());
-        sprites[i] = sprite;
+        sprites[i].loadFromFile(
+            "assets/Logic/" + type + ".png",
+            sf::IntRect(i*16, dir*16, 16, 16)
+        );
     }
 }
 
@@ -237,7 +230,7 @@ bool Gate::update_state(std::map<int, Link> * links)
 {
     bool new_state;
 
-    if (type=='&')  //AND gate
+    if (type=="AND")
     {
         new_state = true;
 
@@ -251,7 +244,7 @@ bool Gate::update_state(std::map<int, Link> * links)
         }
     }
 
-    else if (type=='|') //OR gate
+    else if (type=="OR")
     {
         new_state = false;
 
@@ -265,11 +258,12 @@ bool Gate::update_state(std::map<int, Link> * links)
         }
     }
 
-    else if (type=='!') //NOT gate
+    else if (type=="NO")
         new_state = !links[0][inputs[0]].get_state();
 
     bool changed = state != new_state;
     state = new_state;
+
     return changed;
 }
 
@@ -431,9 +425,9 @@ Logic::Logic(Json::Value json_logic)
     for (int i = 0; i < nb_gates; i++)
     {
         sf::Vector2i C = sf::Vector2i(json_logic["gates"][i]["X"].asInt(), json_logic["gates"][i]["Y"].asInt());
-        char type = json_logic["gates"][i]["type"].asCString()[0];
-        gates[C] = Gate(type);
-        if (type == '!')
+        gates[C] = Gate(json_logic["gates"][i]);
+
+        if (gates[C].type == "NO")
             to_update.push_back(C);
     }
 
@@ -463,6 +457,7 @@ Logic::Logic(Json::Value json_logic)
 
         links[i] = link;
 
+        
         if (type_start == "Activator")
             activators[C_start].add_output(i);
         else
@@ -500,27 +495,6 @@ bool Logic::isWallForMost(sf::Vector2i coords)
 bool Logic::isWallForBullet(sf::Vector2i coords)
 {
     return isClosedDoor(coords);
-}
-
-char Logic::get_type(sf::Vector2i coords)
-{
-    for (auto &elt : activators)
-    {
-        if (elt.first == coords)
-            return elt.second.type;
-    }
-    for (auto &elt : gates)
-    {
-        if (elt.first == coords)
-            return elt.second.type;
-    }
-    for (auto &elt : doors)
-    {
-        if (elt.first == coords)
-            return elt.second.type;
-    }
-
-    return '_';
 }
 
 std::vector<sf::Vector2i> Logic::update_activators(
@@ -635,7 +609,6 @@ void Logic::undo()
 
 void Logic::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
-
     for (auto &link_elt : links)
         link_elt.second.draw(C0, delta, windowPoint);
 

@@ -5,12 +5,30 @@ import json
 
 import pygame as pg
 
-from src.python.sprites import door_hub, door_tile
+from src.python.sprites import door_hub, door_tile, gates
+
+
+class Gate :
+    def __init__(self, **kwargs) -> None:
+        self.pos = (kwargs["X"], kwargs["Y"])
+        self.type = kwargs["type"]
+        self.dir = kwargs["dir"]
+
+    def to_dict(self) -> dict :
+        return {
+            "X": self.pos[0], "Y": self.pos[1],
+            "type": self.type,
+            "dir": self.dir
+        }
+    
+    def draw(self, surf: pg.Surface, delta: int) -> None :
+        surf.blit(gates[self.type], (delta * self.pos[0], delta * self.pos[1]))
+
 
 class Door :
-    def __init__(self, data) -> None :
-        self.pos = (data["X"], data["Y"])
-        self.tiles = {(tile["X"], tile["Y"]) for tile in data["tiles"]}
+    def __init__(self, **kwargs) -> None :
+        self.pos = (kwargs["X"], kwargs["Y"])
+        self.tiles = {(tile["X"], tile["Y"]) for tile in kwargs["tiles"]}
     
     def to_dict(self) -> dict :
         return {
@@ -90,6 +108,7 @@ class Link :
             pg.draw.line(surf, color[i == seg], C1, C2, width)
 
 
+# Level representation class ===============================================================================================================================
 class Level :
     def __init__(self, source: str | dict[str, Any]) -> None :
         if source.endswith(".json") :
@@ -113,15 +132,14 @@ class Level :
         self.buttons = {(act["X"], act["Y"]) for act in activators if act["type"] == "I"}
         self.targets = {(act["X"], act["Y"]) for act in activators if act["type"] == "T"}
 
-        gates = data["logic"]["gates"]
-        self.ands = {(gate["X"], gate["Y"]) for gate in gates if gate["type"] == "&"}
-        self.ors = {(gate["X"], gate["Y"]) for gate in gates if gate["type"] == "|"}
-        self.nos = {(gate["X"], gate["Y"]) for gate in gates if gate["type"] == "!"}
-        self.gates = {"AND": self.ands, "OR": self.ors, "NO": self.nos}
+        self.gates = [Gate(**gate_data) for gate_data in data["logic"]["gates"]]
+        self.gates = {gate.pos: gate for gate in self.gates}
 
-        self.doors = [Door(door_data) for door_data in data["logic"]["doors"]]
+        self.doors = [Door(**door_data) for door_data in data["logic"]["doors"]]
+        self.doors = {door.pos: door for door in self.doors}
 
         self.links = [Link(**link_data) for link_data in data["logic"]["links"]]
+        self.links = {link.get_id(): link for link in self.links}
 
         if "text" in data.keys() :
             self.text = data["text"]
@@ -146,30 +164,21 @@ class Level :
                     {"X": target[0], "Y": target[1], "type": 'T'} for target in self.targets
                 ],
 
-                "nb_gates": sum(len(gate_list) for gate_list in self.gates.values()),
-                "gates": [
-                    {"X": AND[0], "Y": AND[1], "type": '&'} for AND in self.ands
-                ] + [
-                    {"X": OR[0], "Y": OR[1], "type": '|'} for OR in self.ors
-                ] + [
-                    {"X": NO[0], "Y": NO[1], "type": '!'} for NO in self.nos
-                ],
+                "nb_gates": len(self.gates),
+                "gates": [gate.to_dict() for gate in self.gates.values()],
 
                 "nb_doors": len(self.doors),
-                "doors": [door.to_dict() for door in self.doors],
+                "doors": [door.to_dict() for door in self.doors.values()],
 
                 "nb_links": len(self.links),
-                "links": [link.to_dict() for link in self.links],
+                "links": [link.to_dict() for link in self.links.values()],
             },
 
             "text": self.text, "flags": self.flags
         }
     
     def get_link_dict(self) :
-        return {
-            link.get_id(): link
-            for link in self.links
-        } | {"": None}
+        return self.links | {"": None}
     
     def save(self, dir_, swap: bool = True) :
         self.flags["can_swap"] = swap
@@ -198,22 +207,15 @@ class Level :
         self.boxes.discard((x, y))
         self.buttons.discard((x, y))
         self.targets.discard((x, y))
-        for L in self.gates.values() :
-            L.discard((x, y))
         
-        i = 0
-        while i < len(self.doors) :
-            if (x, y) == self.doors[i].pos :
-                self.doors.pop(i)
-                continue
-            self.doors[i].tiles.discard((x, y))
-            i += 1
+        for door in self.doors.values() :
+            door.tiles.discard((x, y))
     
     def can_place(self, x: int, y: int, type_: str) :
 
         # Walls and goal check :
 
-        if self.get_tile(x, y) in {'X', 'x'} :
+        if type_ not in {"link", "gate"} and self.get_tile(x, y) in {'X', 'x'} :
             return False
         
         if (x, y) == self.goal :
@@ -227,15 +229,12 @@ class Level :
         if self.bullet["alive"] :
             entities.add((self.bullet["X"], self.bullet["Y"]))
 
-        logics = self.buttons | self.targets
-        for L in self.gates.values() :
-            logics |= L
+        logics = self.buttons | self.targets | set(self.gates.keys())
 
         door_tiles = set()
-        door_hubs = set()
-        for door in self.doors :
-            door_hubs.add(door.pos)
+        for door in self.doors.values() :
             door_tiles |= door.tiles
+        door_hubs = set(self.doors.keys())
         
         # Specific checks :
 
@@ -263,35 +262,44 @@ class Level :
         return True
 
     def add_door_hub(self, x: int, y: int) :
-        if (x, y) not in {door.pos for door in self.doors} :
-            self.doors.append(Door({"X": x, "Y": y, "tiles": []}))
+        if (x, y) not in self.doors.keys() :
+            self.doors[(x, y)] = Door(**{"X": x, "Y": y, "tiles": []})
+    
+    def add_gate(self, x: int, y: int, type_: str) :
+        if (x, y) not in self.gates.keys() :
+            self.gates[(x, y)] = Gate(**{"X": x, "Y": y, "type": type_, "dir": 'U'})
     
     def connect_door(self, tile_pos: tuple[int], hub_pos: tuple[int]) :
-        for door in self.doors :
-            if door.pos == hub_pos :
+        for pos, door in self.doors.items() :
+            if pos == hub_pos :
                 door.tiles.add(tile_pos)
                 return
         
         hx, hy = hub_pos
         tx, ty = tile_pos
-        self.doors.append(Door({"X": hx, "Y": hy, "tiles": [{"X": tx, "Y": ty}]}))
+        self.doors[hub_pos] = Door(**{"X": hx, "Y": hy, "tiles": [{"X": tx, "Y": ty}]})
     
     def remove_door_tile(self, x: int, y: int) :
-        for door in self.doors :
+        for door in self.doors.values() :
             if (x, y) in door.tiles :
                 door.tiles.remove((x, y))
     
     def remove_door_hub(self, x: int, y: int) :
-        for i in range(len(self.doors)) :
-            if self.doors[i].pos == (x, y) :
-                self.doors.pop(i)
-                return
+        self.doors.pop((x, y))
+        self.remove_link(coords=(x, y))
+            
+    def remove_gate(self, x: int, y: int, type_: str) :
+        if (x, y) in self.gates.keys() :
+            if self.gates[(x, y)].type == type_ :
+                self.gates.pop((x, y))
+        
+        self.remove_link(coords=(x, y))
     
     def is_link_start(self, x: int, y: int) :
-        return (x, y) in self.buttons | self.targets | self.ands | self.ors | self.nos
+        return (x, y) in self.buttons | self.targets | set(self.gates.keys())
 
     def is_link_end(self, x: int, y: int) :
-        return (x, y) in {door.pos for door in self.doors} | self.ands | self.ors | self.nos
+        return (x, y) in set(self.doors.keys()) | set(self.gates.keys())
     
     def add_link(self, nodes: list[tuple[int]]) -> bool :
         l = len(nodes)
@@ -304,43 +312,36 @@ class Level :
             "offsets": [0 for _ in range(l-1)]
         }
 
-        gates = (self.ands | self.ors | self.nos)
-
         if nodes[0] in (self.buttons | self.targets) :
             data["type_start"] = "Activator"
-        elif nodes[0] in gates :
+        elif nodes[0] in self.gates.keys() :
             data["type_start"] = "Gate"
         else :
             return False
         
-        if nodes[-1] in gates :
+        if nodes[-1] in self.gates.keys() :
             data["type_end"] = "Gate"
-        elif nodes[-1] in {door.pos for door in self.doors} :
+        elif nodes[-1] in self.doors.keys() :
             data["type_end"] = "Door"
         else :
             return False
         
-        self.links.append(Link(**data))
+        new_link = Link(**data)
+        self.links[new_link.get_id()] = new_link
         return True
     
-    def remove_link(self, link_id: str = None, coord: tuple[int] = None) :
-        if link_id is None and coord is None :
-            return
+    def remove_link(self, link_id: str = None, coords: tuple[int] = None) :        
+        if link_id is not None :
+            self.links.pop(link_id)
         
-        i_link = 0
-        while i_link < len(self.links) :
-            if link_id is not None and \
-                    self.links[i_link].get_id() == link_id :
-                self.links.pop(i_link)
-                return
+        if coords is not None :
+            to_remove = set()
+            for link_id, link in self.links.items() :
+                if coords in link.nodes :
+                    to_remove.add(link_id)
             
-            elif coord is not None and (
-                    self.links[i_link].nodes[0] == coord or \
-                    self.links[i_link].nodes[-1] == coord ) :
-                self.links.pop(i_link)
-                continue
-
-            i_link += 1
+            for link_id in to_remove :
+                self.links.pop(link_id)
 
     def change_player_dir(self, amount: int) :
         dirs = ["U", "R", "D", "L"]

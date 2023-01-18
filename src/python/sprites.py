@@ -32,9 +32,10 @@ bullet  = get_image("assets/Entities/bullet.png", 1, 4)
 interruptor = get_image("assets/Logic/Interruptor0.png")
 target      = get_image("assets/Logic/Target0.png")
 door_tile   = get_image("assets/Logic/Door0.png")
-AND         = get_image("assets/Logic/AND0.png")
-OR          = get_image("assets/Logic/OR0.png")
-NOT         = get_image("assets/Logic/NO0.png")
+AND         = get_image("assets/Logic/AND.png", 5, 4)
+OR          = get_image("assets/Logic/OR.png", 5, 4)
+NO          = get_image("assets/Logic/NO.png", 5, 4)
+gates = {"AND": AND, "OR": OR, "NO": NO}
 
 door_hub    = get_image("assets/door_hub.png")
 
@@ -53,7 +54,7 @@ sprites = {
     "Target"    : target,
     "AND Gate"  : AND,
     "OR Gate"   : OR,
-    "NO Gate"   : NOT,
+    "NO Gate"   : NO,
     "Door Tile" : door_tile,
     "Door Hub"  : door_hub,
 }
