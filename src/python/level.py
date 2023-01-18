@@ -38,10 +38,11 @@ class Door :
             "nb_tiles": len(self.tiles),
             "tiles": [
                 {
-                    "X": tile[0],
-                    "Y": tile[1]
+                    "X": x,
+                    "Y": y,
+                    "orient": orient
                 }
-                for tile in self.tiles
+                for (x, y), orient in self.tiles.items()
             ]
         }
     
@@ -210,7 +211,7 @@ class Level :
         self.targets.discard((x, y))
         
         for door in self.doors.values() :
-            door.tiles.discard((x, y))
+            door.tiles.pop((x, y))
     
     def can_place(self, x: int, y: int, type_: str) :
 
@@ -234,7 +235,7 @@ class Level :
 
         door_tiles = set()
         for door in self.doors.values() :
-            door_tiles |= door.tiles
+            door_tiles |= set(door.tiles.keys())
         door_hubs = set(self.doors.keys())
         
         # Specific checks :
@@ -273,7 +274,7 @@ class Level :
     def connect_door(self, tile_pos: tuple[int], hub_pos: tuple[int]) :
         for pos, door in self.doors.items() :
             if pos == hub_pos :
-                door.tiles.add(tile_pos)
+                door.tiles[tile_pos] = "N"
                 return
         
         hx, hy = hub_pos
@@ -282,8 +283,8 @@ class Level :
     
     def remove_door_tile(self, x: int, y: int) :
         for door in self.doors.values() :
-            if (x, y) in door.tiles :
-                door.tiles.remove((x, y))
+            if (x, y) in door.tiles.keys() :
+                door.tiles.pop((x, y))
     
     def remove_door_hub(self, x: int, y: int) :
         self.doors.pop((x, y))
