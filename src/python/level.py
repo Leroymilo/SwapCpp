@@ -29,7 +29,7 @@ class Gate :
 class Door :
     def __init__(self, **kwargs) -> None :
         self.pos = (kwargs["X"], kwargs["Y"])
-        self.tiles = {(tile["X"], tile["Y"]) for tile in kwargs["tiles"]}
+        self.tiles = {(tile["X"], tile["Y"]): tile["orient"] for tile in kwargs["tiles"]}
     
     def to_dict(self) -> dict :
         return {
@@ -47,13 +47,13 @@ class Door :
     
     def draw_lines(self, surf: pg.Surface, delta: int) -> None :
         hx, hy = self.pos
-        for tx, ty in self.tiles :
+        for tx, ty in self.tiles.keys() :
             sx, sy, ex, ey = delta * (hx+0.5), delta * (hy+0.5), delta * (tx+0.5), delta * (ty+0.5)
             pg.draw.line(surf, (200, 0, 0), (sx, sy), (ex, ey), delta//16)
 
     def draw_tiles(self, surf: pg.Surface, delta: int) -> None :
-        for x, y in self.tiles :
-            surf.blit(door_tile, (delta * x, delta * y))
+        for (x, y), orient in self.tiles.items() :
+            surf.blit(door_tile[orient], (delta * x, delta * y))
 
     def draw_hub(self, surf: pg.Surface, delta: int) -> None :
         surf.blit(door_hub, (delta * self.pos[0], delta * self.pos[1]))
