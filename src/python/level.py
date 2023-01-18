@@ -211,7 +211,8 @@ class Level :
         self.targets.discard((x, y))
         
         for door in self.doors.values() :
-            door.tiles.pop((x, y))
+            if (x, y) in door.tiles :
+                door.tiles.pop((x, y))
     
     def can_place(self, x: int, y: int, type_: str) :
 
@@ -271,7 +272,7 @@ class Level :
         if (x, y) not in self.gates.keys() :
             self.gates[(x, y)] = Gate(**{"X": x, "Y": y, "type": type_, "dir": 'U'})
     
-    def connect_door(self, tile_pos: tuple[int], hub_pos: tuple[int]) :
+    def connect_door(self, tile_pos: tuple[int], tile_orient: str, hub_pos: tuple[int]) :
         for pos, door in self.doors.items() :
             if pos == hub_pos :
                 door.tiles[tile_pos] = "N"
@@ -279,7 +280,7 @@ class Level :
         
         hx, hy = hub_pos
         tx, ty = tile_pos
-        self.doors[hub_pos] = Door(**{"X": hx, "Y": hy, "tiles": [{"X": tx, "Y": ty}]})
+        self.doors[hub_pos] = Door(**{"X": hx, "Y": hy, "tiles": [{"X": tx, "Y": ty, "orient": tile_orient}]})
     
     def remove_door_tile(self, x: int, y: int) :
         for door in self.doors.values() :
@@ -287,11 +288,13 @@ class Level :
                 door.tiles.pop((x, y))
     
     def remove_door_hub(self, x: int, y: int) :
-        self.doors.pop((x, y))
+        if (x, y) in self.doors :
+            self.doors.pop((x, y))
         self.remove_link(coords=(x, y))
             
     def remove_gate(self, x: int, y: int, type_: str) :
-        self.gates.pop((x, y))
+        if (x, y) in self.gates :
+            self.gates.pop((x, y))
         
         self.remove_link(coords=(x, y))
     
@@ -331,7 +334,7 @@ class Level :
         return True
     
     def remove_link(self, link_id: str = None, coords: tuple[int] = None) :        
-        if link_id is not None :
+        if link_id is not None and link_id in self.links :
             self.links.pop(link_id)
         
         if coords is not None :

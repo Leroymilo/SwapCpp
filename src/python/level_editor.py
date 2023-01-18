@@ -178,6 +178,8 @@ class LevelEditor(LevelEditor) :
             )
         else :
             self.status_bar.PushStatusText(help_texts[self.tool], field = 0)
+        
+        self.display_level()
     
     def check_save(self) :
         """Returns 1 if saved or save skipped, 0 if canceled"""
@@ -222,6 +224,8 @@ class LevelEditor(LevelEditor) :
                 self.sel_seg_spin.Disable()
                 self.offset_spin.Disable()
                 self.del_link_button.Disable()
+        else :
+            self.link = None
     
     def update_link_choice(self) :
         self.sel_link_choice.Clear()
@@ -352,19 +356,17 @@ class LevelEditor(LevelEditor) :
             self.update_level((x, y))
         
         if (self.tool == "Door Tile") and (self.door is not None) :
-            tx, ty = self.door.tiles.pop()
-            self.door.tiles.add((tx, ty))
+            (tx, ty), orient = self.door.tiles.popitem()
+            self.door.tiles[(tx, ty)] = orient
             if self.right_c :
                 self.door.pos = (x, y)
             else :
                 if (self.level.can_place(x, y, "door_hub")) :
                     self.level.erase_any(tx, ty)
-                    self.level.connect_door((tx, ty), (x, y))
+                    self.level.connect_door((tx, ty), orient, (x, y))
                 else :
                     self.display_error("Cannot place door hub here !")
                 self.door = None
-        else :
-            self.door = None
         
         self.update_link_end
 
@@ -487,7 +489,7 @@ class LevelEditor(LevelEditor) :
         elif self.tool == "Door Tile" :
             if self.right_c and (self.door is None) :
                 if self.level.can_place(x, y, "door_tile") :
-                    self.door = Door(**{"X": x, "Y": y, "tiles": [{"X": x, "Y": y}]})
+                    self.door = Door(**{"X": x, "Y": y, "tiles": [{"X": x, "Y": y, "orient": "N"}]})
                 else :
                     self.display_error("Cannot place door tile here !")
             elif self.left_c :
