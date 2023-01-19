@@ -16,6 +16,7 @@ class Button
 {
     private:
         sf::Texture sprite_on;
+        sf::Texture sprite_hover;
         sf::Texture sprite_off;
         std::string text;
         Alignment alignment;
@@ -25,7 +26,10 @@ class Button
     
     public:
         bool on = false;
-        bool prev_on = false;
+        bool prev_on;
+
+        bool hover = false;
+        bool prev_hover;
 
         Button();
         Button(std::string texture_name, std::string text, Alignment, sf::RenderWindow*);

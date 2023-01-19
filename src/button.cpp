@@ -29,15 +29,23 @@ Button::Button(std::string texture_name, std::string text, Alignment alignment, 
 {
     defined = true;
 
-    sprite_on.loadFromFile("assets/Menu/" + texture_name + "_on.png");
-    sprite_off.loadFromFile("assets/Menu/" + texture_name + "_off.png");
+    std::string file_name = "assets/Menu/" + texture_name + ".png";
 
-    this->reshape();
+    sf::Texture spritesheet;
+    spritesheet.loadFromFile(file_name);
+    int W = spritesheet.getSize().x, H = spritesheet.getSize().y;
 
-    if (sprite_off.getSize() != sprite_on.getSize())
+    if (H%3 != 0)
     {
-        std::cout << "different on/off sizes for \"" << text << "\" button !" << std::endl;
+        std::cout << "texture not normalized for button " << text << " (filename : " << file_name << ")" << std::endl;
     }
+    H /= 3;
+
+    sprite_off.loadFromFile(file_name, sf::IntRect(0, 0, W, H));
+    sprite_hover.loadFromFile(file_name, sf::IntRect(0, H, W, H));
+    sprite_on.loadFromFile(file_name, sf::IntRect(0, 2*H, W, H));
+
+    reshape();
 }
 
 void Button::reshape()
@@ -63,10 +71,13 @@ bool Button::update()
 
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
     prev_on = on;
+    prev_hover = hover;
 
-    on = (hitbox.contains(mouse_pos) && sf::Mouse::isButtonPressed(sf::Mouse::Left));
+    hover = hitbox.contains(mouse_pos);
 
-    return (on != prev_on);
+    on = (hover && sf::Mouse::isButtonPressed(sf::Mouse::Left));
+
+    return (on != prev_on) || (hover != prev_hover);
 }
 
 void Button::draw(sf::Font font)
@@ -78,14 +89,17 @@ void Button::draw(sf::Font font)
     }
 
     sf::RectangleShape button;
+    button.setSize(sf::Vector2f(sprite_on.getSize()));
     if (on)
     {
-        button.setSize(sf::Vector2f(sprite_on.getSize()));
         button.setTexture(&sprite_on);
+    }
+    else if (hover)
+    {
+        button.setTexture(&sprite_hover);
     }
     else
     {
-        button.setSize(sf::Vector2f(sprite_off.getSize()));
         button.setTexture(&sprite_off);
     }
     button.setPosition(sf::Vector2f(hitbox.left, hitbox.top));
