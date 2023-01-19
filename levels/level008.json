@@ -3,6 +3,8 @@
     "Press SPACE to shoot when there's no bullet, press SPACE again to SWAP! with your bullet.",
     "Your bullet will move as you move and bounce off obstacles, be careful, it can kill you!"
 ],
+"name": "Bullet tutorial 1",
+"perf_steps": 11,
 "flags": {
     "can_swap": true
 }}

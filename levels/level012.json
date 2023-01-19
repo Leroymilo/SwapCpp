@@ -17,6 +17,8 @@
             }
         ]
     },
+    "name": "Where's the Box?",
+    "perf_steps": 11,
     "flags": {
         "can_swap": true
     }

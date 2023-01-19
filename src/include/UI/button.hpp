@@ -26,10 +26,10 @@ class Button
     
     public:
         bool on = false;
-        bool prev_on;
+        bool prev_on = false;
 
         bool hover = false;
-        bool prev_hover;
+        bool prev_hover = false;
 
         Button();
         Button(std::string texture_name, std::string text, Alignment, sf::RenderWindow*);

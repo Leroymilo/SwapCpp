@@ -3,6 +3,8 @@
     "This is a grate, you can't go through it but your bullet can.",
     "Press ENTER to wait for your bullet to move."
 ],
+"name": "Bullet tutorial 2",
+"perf_steps": 5,
 "flags": {
     "can_swap": true
 }}

@@ -33,6 +33,8 @@
         ]
     },
     "text": ["This is an AND logic gate,", "all of its inputs need to be activated for it to activate."],
+    "name": "Logic tutorial 2",
+    "perf_steps": 20,
     "flags": {
         "can_swap": false
     }

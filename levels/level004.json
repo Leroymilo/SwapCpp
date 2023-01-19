@@ -27,6 +27,8 @@
     ]
 },
 "text": ["The red thing's an interruptor.", "Put a box (or yourself) on it to weight it down and open the door."],
+"name": "Logic tutorial 1",
+"perf_steps": 14,
 "flags": {
     "can_swap": false
 }}
