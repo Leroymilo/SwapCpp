@@ -26,6 +26,7 @@ class Level
         bool can_swap = true;
 
         sf::Font font;
+        std::string name;
         int text_lines;
         std::vector<std::string> text;
 

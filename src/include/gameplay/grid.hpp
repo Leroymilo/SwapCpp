@@ -22,7 +22,7 @@ class Grid
         sf::Vector2i readJson(Json::Value json_bg);
 
         char getTile(sf::Vector2i coords);
-        void resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures);
+        void resize(sf::Vector2f win_size, int Y0, std::map<char, sf::Texture> textures);
         void display(sf::RenderWindow* windowPoint, sf::Font font);
         void getDisplay(sf::Vector2i* C0, int* deltaP);
 };

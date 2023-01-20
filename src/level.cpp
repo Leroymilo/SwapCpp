@@ -51,6 +51,9 @@ Level::Level(int number, sf::Font font) : font(font)
     }
     else {text_lines = 0;}
 
+    // Loading level name :
+    name = json_data["name"].asCString();
+
     // Loading flags :
     can_swap = json_data["flags"]["can_swap"].asBool();
     flag_icons["no_swap"].loadFromFile("assets/no_swap.png");
@@ -335,39 +338,45 @@ void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every ti
 {
     sf::Vector2f winSize(windowP->getSize());
 
-    float max_y = winSize.y;
-    sf::FloatRect bounds = sf::Text("Ip", font, 40).getLocalBounds();
-    max_y -= bounds.height + bounds.top;
+    sf::FloatRect bounds = sf::Text(name, font, 30).getLocalBounds();
+    int Y0 = bounds.height + bounds.top;
+    winSize.y -= Y0;
+
+    bounds = sf::Text("Ip", font, 28).getLocalBounds();
+    winSize.y -= bounds.height + bounds.top;
     // A literal string is used because the number of steps changing makes the whole text bump around if used.
     // The font size's bigger than what's actually used for step number display to avoid text cluttering.
     for (int i = text_lines-1; i >= 0; i--)
     {
-        sf::FloatRect bounds = sf::Text(text[i], font, 30).getLocalBounds();
-        max_y -= bounds.height + bounds.top;
+        sf::FloatRect bounds = sf::Text(text[i], font, 24).getLocalBounds();
+        winSize.y -= bounds.height + bounds.top;
     }
 
-    winSize.y = max_y;
-
-    backGround.resize(winSize, bg_tiles);
+    backGround.resize(winSize, Y0, bg_tiles);
 }
 
 void Level::displayBG(sf::RenderWindow * windowP)
 {
     windowP->clear(sf::Color(0, 0, 230));
 
-    backGround.display(windowP, font);
-
     sf::Vector2u winSize = windowP->getSize();
     float max_y = winSize.y;
 
+    // Displaying level name :
+    sf::Text nameDisp(name, font, 30);
+    sf::FloatRect bounds = nameDisp.getLocalBounds();
+    nameDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, 0);
+    windowP->draw(nameDisp);
+
+    // Displaying level background :
+    backGround.display(windowP, font);
+
     // Displaying number of steps :
-    std::stringstream ss;
-    ss << "step : " << nbSteps;
-    sf::Text stepDisp(ss.str(), font, 40);
-    sf::FloatRect bounds = stepDisp.getLocalBounds();
+    sf::Text stepDisp("step : " + std::to_string(nbSteps), font, 28);
+    bounds = stepDisp.getLocalBounds();
     stepDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
     windowP->draw(stepDisp);
-    bounds = sf::Text("Ip", font, 40).getLocalBounds();
+    bounds = sf::Text("Ip", font, 28).getLocalBounds();
     max_y -= bounds.height + bounds.top;
     // This is because stepDisp changes height when the step number changes, so I put something that only depends on the font used.
     // The bigger font size is because the text looked cluttered
@@ -375,7 +384,7 @@ void Level::displayBG(sf::RenderWindow * windowP)
     // Displaying level text :
     for (int i = text_lines-1; i >= 0; i--)
     {
-        sf::Text helpDisp(text[i], font, 30);
+        sf::Text helpDisp(text[i], font, 24);
         bounds = helpDisp.getLocalBounds();
         helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
         windowP->draw(helpDisp);

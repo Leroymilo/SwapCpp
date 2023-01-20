@@ -43,7 +43,7 @@ char Grid::getTile(sf::Vector2i coords)
     return tiles[coords.y][coords.x];
 }
 
-void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
+void Grid::resize(sf::Vector2f win_size, int Y0, std::map<char, sf::Texture> textures)
 {
     if (win_size.y <= 0)
     {
@@ -76,7 +76,7 @@ void Grid::resize(sf::Vector2f win_size, std::map<char, sf::Texture> textures)
         }
     }
 
-    x0 = (win_size.x-pxlW)/2, y0 = (win_size.y-pxlH)/2 + delta/4;
+    x0 = (win_size.x-pxlW)/2, y0 = (win_size.y-pxlH)/2 + delta/4 + Y0;
 }
 
 void Grid::display(sf::RenderWindow* windowPoint, sf::Font font)
