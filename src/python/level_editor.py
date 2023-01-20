@@ -107,7 +107,17 @@ class NameDlg(NameDlg) :
         self.EndModal(0)
 
 #=========================================================================================================================================================
-# LvlTxtDlg :
+# LvlTxtDlg and LvlNmeDlg :
+
+class LvlNmeDlg(LvlTxtDlg) :
+    def __init__(self, parent: LevelEditor, cur_name: str) :
+        super().__init__(parent)
+        self.txt_ctrl.SetValue(cur_name)
+    
+    def confirm(self, event) :
+        parent: LevelEditor = self.GetParent()
+        parent.level.name = self.txt_ctrl.GetValue()
+        self.EndModal(0)
 
 class LvlTxtDlg(LvlTxtDlg) :
     def __init__(self, parent: LevelEditor, cur_lines: list[str]) :
@@ -720,7 +730,15 @@ class LevelEditor(LevelEditor) :
     
     def change_level_text(self, event) :
         res = LvlTxtDlg(self, self.level.text).ShowModal()
-        print(res)
+        if res == 0 :
+            self.edited = True
+            if self.level_name is None :
+                self.SetTitle(base_editor_title + " : *unnamed level")
+            else :
+                self.SetTitle(base_editor_title + " : *" + self.level_name)
+    
+    def change_level_name(self, event) :
+        res = LvlNmeDlg(self, self.level.name).ShowModal()
         if res == 0 :
             self.edited = True
             if self.level_name is None :

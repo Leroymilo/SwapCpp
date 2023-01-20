@@ -41,6 +41,9 @@ class LevelEditor ( wx.Frame ):
 		self.resize_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Resize Level", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.resize_item )
 
+		self.level_name_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Name", wx.EmptyString, wx.ITEM_NORMAL )
+		self.edit_menu.Append( self.level_name_item )
+
 		self.level_text_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Text", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.level_text_item )
 
@@ -137,6 +140,7 @@ class LevelEditor ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.save_level, id = self.save_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.save_level_as, id = self.save_as_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.resize, id = self.resize_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.change_level_name, id = self.level_name_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_level_text, id = self.level_text_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
 		self.sel_link_choice.Bind( wx.EVT_CHOICE, self.change_link )
@@ -175,6 +179,9 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 	def resize( self, event ):
+		event.Skip()
+
+	def change_level_name( self, event ):
 		event.Skip()
 
 	def change_level_text( self, event ):

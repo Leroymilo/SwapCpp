@@ -148,6 +148,8 @@ class Level :
             self.text = data["text"]
         else :
             self.text = []
+        self.name = data["name"]
+        self.perf_steps = data["perf_steps"]
         self.flags = data["flags"]
     
     def to_dict(self) :
@@ -177,7 +179,7 @@ class Level :
                 "links": [link.to_dict() for link in self.links.values()],
             },
 
-            "text": self.text, "flags": self.flags
+            "text": self.text, "name": self.name, "perf_steps": self.perf_steps, "flags": self.flags
         }
     
     def get_link_dict(self) :
