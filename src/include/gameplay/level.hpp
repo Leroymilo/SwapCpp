@@ -12,6 +12,7 @@
 #include "gameplay/logic.hpp"
 #include "UI/button.hpp"
 
+std::string make_level_name(int nb);
 
 class Level
 {
@@ -43,6 +44,7 @@ class Level
         int nbSteps = 0;
 
         Level();
+        Level(std::string file_name, sf::Font font);
         Level(int number, sf::Font font);
         std::string get_pLike_state();  //To record the states of the Player and bullet into the list of steps
 

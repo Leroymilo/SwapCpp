@@ -8,18 +8,21 @@
 #include "gameplay/level.hpp"
 
 
+std::string make_level_name(int nb)
+{
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(3) << nb;
+    return "level" + ss.str();
+}
+
+
 //Constructor and meta
 Level::Level(){}
 
-Level::Level(int number, sf::Font font) : font(font)
+Level::Level(std::string file_name, sf::Font font) : font(font)
 {
-    // Level file name :
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(3) << number;
-    std::string const str = "levels/level" + ss.str() + ".json";
-
     // Reading Json :
-    std::ifstream file(str);
+    std::ifstream file("levels/" + file_name + ".json");
     Json::Reader reader;
     Json::Value json_data;
     reader.parse(file, json_data);
@@ -58,6 +61,8 @@ Level::Level(int number, sf::Font font) : font(font)
     can_swap = json_data["flags"]["can_swap"].asBool();
     flag_icons["no_swap"].loadFromFile("assets/no_swap.png");
 }
+
+Level::Level(int number, sf::Font font) : Level(make_level_name(number), font) {}
 
 std::string Level::get_pLike_state()
 {
