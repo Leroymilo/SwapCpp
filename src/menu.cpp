@@ -94,7 +94,9 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save
             }
 
             std::string texture_name;
-            if (save_p->is_solved(lvl_nb))
+            if (save_p->is_perfected(lvl_nb))
+                texture_name = "perfected";
+            else if (save_p->is_solved(lvl_nb))
                 texture_name = "solved";
             else if (save_p->is_playable(lvl_nb))
                 texture_name = "unlocked";
@@ -187,7 +189,7 @@ bool LevelGrid::update()
     return updated;
 }
 
-void LevelGrid::draw(sf::Font font)
+void LevelGrid::draw(sf::RenderWindow* win_p, sf::Font font)
 {
     for (int y=0; y<H; y++)
     {
@@ -201,6 +203,17 @@ void LevelGrid::draw(sf::Font font)
                 continue;   // The level is not in the list
             
             button->second.draw(font);
+            
+            if (save_p->is_solved(lvl_id))
+            {
+                int steps = save_p->get_steps(lvl_id);
+                sf::Rect<int> but_hb = button->second.hitbox;
+                std::string text = "steps : " + std::to_string(steps);
+                sf::Text step_disp(text, font, 14);
+                sf::FloatRect bounds = step_disp.getLocalBounds();
+                step_disp.setPosition(but_hb.left + (but_hb.width - bounds.width)/2, but_hb.top + but_hb.height);
+                win_p->draw(step_disp);
+            }
         }
     }
 
@@ -263,7 +276,7 @@ void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p, sf::Font font)
 {
     win_p->clear(sf::Color(20, 30, 200));
 
-    lvl_g_p->draw(font);
+    lvl_g_p->draw(win_p, font);
 
     win_p->display();
 }

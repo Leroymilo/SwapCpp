@@ -20,7 +20,6 @@ class Button
         sf::Texture sprite_off;
         std::string text;
         Alignment alignment;
-        sf::Rect<int> hitbox;
         sf::RenderWindow* ref_win_p;
         bool defined = false;
     
@@ -30,6 +29,8 @@ class Button
 
         bool hover = false;
         bool prev_hover = false;
+        
+        sf::Rect<int> hitbox;
 
         Button();
         Button(std::string texture_name, std::string text, Alignment, sf::RenderWindow*);

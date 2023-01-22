@@ -46,17 +46,16 @@ Save::Save(int save_nb) : id(save_nb)
 
     name = actualJson["name"].asCString();
 
-    std::string data = decode(actualJson["data"].asCString());
-
-    reader.parse(data, actualJson);
-    int nb_lvls = actualJson["nb_comp"].asInt();
+    Json::Value levels_data;
+    reader.parse(decode(actualJson["levels"].asCString()), levels_data);
+    int nb_lvls = levels_data.size();
 
     for (int i=0; i < nb_lvls; i++)
     {
-        int lvl_id = actualJson["lvl_ids"][i].asInt();
-        int nb_steps = actualJson["steps"][i].asInt();
-        solved.push_back(lvl_id);
-        steps[lvl_id] = nb_steps;
+        int lvl_id = levels_data[i]["id"].asInt();
+        int nb_steps = levels_data[i]["steps"].asInt();
+        int perf = levels_data[i]["perf"].asBool();
+        levels[lvl_id] = std::make_pair(nb_steps, perf);
     }
 
     refresh_playable();
@@ -64,7 +63,7 @@ Save::Save(int save_nb) : id(save_nb)
 
 void Save::refresh_playable()
 {
-    int nb_unlocked = std::min(4, int(std::round(solved.size()/5)) + 1);
+    int nb_unlocked = std::min(4, int(std::round(levels.size()/5)) + 1);
 
     int i = 1;
     while (nb_unlocked > 0)
@@ -82,7 +81,7 @@ void Save::refresh_playable()
 
 bool Save::is_solved(int lvl_id)
 {
-    return (std::find(solved.begin(), solved.end(), lvl_id) != solved.end());
+    return (levels.find(lvl_id) != levels.end());
 }
 
 bool Save::is_playable(int lvl_id)
@@ -90,43 +89,51 @@ bool Save::is_playable(int lvl_id)
     return (lvl_id <= last_playable || is_solved(lvl_id));
 }
 
-void Save::solve(int lvl_id, int nb_steps)
+bool Save::is_perfected(int lvl_id)
+{
+    auto elt = levels.find(lvl_id);
+    if (elt == levels.end()) return false;
+    return elt->second.second;
+}
+
+int Save::get_steps(int lvl_id)
+{
+    return levels[lvl_id].first;
+}
+
+void Save::solve(int lvl_id, int nb_steps, bool perf)
 {
     if (is_solved(lvl_id))
     {
-        steps[lvl_id] = std::min(steps[lvl_id], nb_steps);
+        levels[lvl_id].first = std::min(levels[lvl_id].first, nb_steps);
+        levels[lvl_id].second = perf;
     }
     else
     {
-        solved.push_back(lvl_id);
-        steps[lvl_id] = nb_steps;
+        levels[lvl_id] = std::make_pair(nb_steps, perf);
+        refresh_playable();
     }
-
-    refresh_playable();
 }
 
 void Save::write()
 {
     Json::Value actualJson;
 
-    actualJson["nb_comp"] = Json::Value(solved.size());
-
-    Json::Value lvl_ids;
-    Json::Value steps;
-    for (auto& elt : this->steps)
+    Json::Value levels_data;
+    for (auto& elt : levels)
     {
-        lvl_ids.append(Json::Value(elt.first));
-        steps.append(Json::Value(elt.second));
+        Json::Value level;
+        level["id"] = elt.first;
+        level["steps"] = elt.second.first;
+        level["perf"] = elt.second.second;
+        levels_data.append(level);
     }
-    actualJson["lvl_ids"] = lvl_ids;
-    actualJson["steps"] = steps;
 
     Json::FastWriter fastWriter;
-    std::string data = fastWriter.write(actualJson);
 
     actualJson.clear();
     actualJson["name"] = Json::Value(name);
-    actualJson["data"] = Json::Value(data);
+    actualJson["levels"] = Json::Value(fastWriter.write(levels_data));
 
     std::ofstream outfile(dir);
     outfile << actualJson;

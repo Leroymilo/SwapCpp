@@ -23,6 +23,7 @@ class Level
         sf::Vector2i win_tile;
         Grid backGround;
         Logic logic;
+        bool solved = false;
         bool won = false;
         bool can_swap = true;
 
@@ -42,10 +43,11 @@ class Level
 
     public:
         int nbSteps = 0;
+        int perf_steps;
 
         Level();
         Level(std::string file_name, sf::Font font);
-        Level(int number, sf::Font font);
+        Level(int number, bool solved, sf::Font font);
         std::string get_pLike_state();  //To record the states of the Player and bullet into the list of steps
 
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
@@ -65,6 +67,6 @@ class Level
 
 void display_pause(sf::RenderWindow*, sf::Font);    // Function to display the pause menu over the level
 int pause(Level*, sf::RenderWindow*, sf::Font);     // Function to handle pause menu interractions
-int run(int, sf::RenderWindow*, sf::Font, int*);          // Function replacing the original main loop of swap.cpp
+int run(int, bool solved, sf::RenderWindow*, sf::Font, int*);          // Function replacing the original main loop of swap.cpp
 
 #endif //LEVEL_H

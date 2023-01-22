@@ -35,7 +35,7 @@ class LevelGrid
         LevelGrid(sf::RenderWindow*, Save*);
         void reshape();
         bool update();
-        void draw(sf::Font);
+        void draw(sf::RenderWindow* win_p, sf::Font);
         int clicked();
 };
 

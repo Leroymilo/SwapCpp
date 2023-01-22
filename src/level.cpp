@@ -54,15 +54,17 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
     }
     else {text_lines = 0;}
 
-    // Loading level name :
+    // Loading stuff :
     name = json_data["name"].asCString();
-
-    // Loading flags :
     can_swap = json_data["flags"]["can_swap"].asBool();
     flag_icons["no_swap"].loadFromFile("assets/no_swap.png");
+    perf_steps = json_data["perf_steps"].asInt();
 }
 
-Level::Level(int number, sf::Font font) : Level(make_level_name(number), font) {}
+Level::Level(int number, bool solved, sf::Font font) : Level(make_level_name(number), font)
+{
+    this->solved = solved;
+}
 
 std::string Level::get_pLike_state()
 {
@@ -377,7 +379,9 @@ void Level::displayBG(sf::RenderWindow * windowP)
     backGround.display(windowP, font);
 
     // Displaying number of steps :
-    sf::Text stepDisp("step : " + std::to_string(nbSteps), font, 28);
+    std::string step_text = "step : " + std::to_string(nbSteps);
+    if (solved) {step_text += "/" + std::to_string(perf_steps);}
+    sf::Text stepDisp(step_text, font, 28);
     bounds = stepDisp.getLocalBounds();
     stepDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
     windowP->draw(stepDisp);
@@ -549,11 +553,11 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
 }
 
 // Main gameplay loop with keyboard input handling
-int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
+int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
 {
     //SFML stuff and level initialization :
     sf::Clock clock;
-    Level level(level_id, font);
+    Level level(level_id, solved, font);
     level.resize_bg(windowP);
 
     //First draw :
@@ -737,7 +741,9 @@ int run(int level_id, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
         if (level.win())
         {
             *nb_steps = level.nbSteps;
-            return 1;
+            if (level.nbSteps > level.perf_steps)
+                return 1;
+            else return 2;
         }
     }
 

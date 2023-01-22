@@ -11,8 +11,7 @@ class Save
         int id;
         std::string dir;
         std::string name;
-        std::vector<int> solved;
-        std::map<int, int> steps;
+        std::map<int, std::pair<int, bool>> levels;
         int last_playable;
 
         std::string decode(std::string);
@@ -22,8 +21,10 @@ class Save
         Save(int);
         void refresh_playable();
         bool is_solved(int);
+        bool is_perfected(int);
         bool is_playable(int);
-        void solve(int lvl_id, int nb_steps);
+        int get_steps(int);
+        void solve(int lvl_id, int nb_steps, bool perf);
         void write();
 };
 

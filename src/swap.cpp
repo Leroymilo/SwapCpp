@@ -58,14 +58,14 @@ int main()
         {
             // Running a level :
             int nb_steps;
-            int won = run(level_id, &window, font, &nb_steps);
+            int won = run(level_id, save.is_solved(level_id), &window, font, &nb_steps);
 
-            if (won == 1)
+            if (won > 0)
             {
                 std::cout << "level " << level_id << " won!" << std::endl;
 
                 bool already_solved = save.is_solved(level_id);
-                save.solve(level_id, nb_steps);
+                save.solve(level_id, nb_steps, (won == 2));
                 save.write();
 
                 if (! already_solved && ! save.is_solved(level_id + 1))
