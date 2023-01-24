@@ -3,7 +3,7 @@ import os
 import wx
 import pygame as pg
 
-from src.python.gen_level_editor import LevelEditor, SizeDlg, CheckSaveDlg, NameDlg, LvlTxtDlg
+from src.python.gen_level_editor import LevelEditor, SizeDlg, PerfDlg, CheckSaveDlg, NameDlg, LvlTxtDlg
 from src.python.sprites import *
 from src.python.level import Level, Door
 
@@ -78,10 +78,10 @@ class CheckSaveDlg(CheckSaveDlg) :
 # NameDlg :
 
 class NameDlg(NameDlg) :
-    def __init__(self, parent: LevelEditor, cur_name = None) :
+    def __init__(self, parent: LevelEditor, cur_name: str = None) :
         super().__init__(parent)
         if cur_name is not None :
-            self.text_ctrl.SetValue(str(cur_name))
+            self.text_ctrl.SetValue(cur_name.removesuffix(".json"))
     
     def confirm(self, event) :
         name: str = self.text_ctrl.GetValue()
@@ -127,6 +127,19 @@ class LvlTxtDlg(LvlTxtDlg) :
     def confirm(self, event) :
         parent: LevelEditor = self.GetParent()
         parent.level.text = self.txt_ctrl.GetValue().split('\n')
+        self.EndModal(0)
+
+#=========================================================================================================================================================
+# PerfDlg :
+
+class PerfDlg(PerfDlg) :
+    def __init__(self, parent: LevelEditor, cur_perf: int):
+        super().__init__(parent)
+        self.perf_spin.SetValue(cur_perf)
+    
+    def confirm(self, event) :
+        parent: LevelEditor = self.GetParent()
+        parent.level.perf_steps = self.perf_spin.GetValue()
         self.EndModal(0)
 
 #=========================================================================================================================================================
@@ -726,6 +739,11 @@ class LevelEditor(LevelEditor) :
 
         self.edit()
         self.display_level()
+    
+    def change_perf(self, event) :
+        res = PerfDlg(self, self.level.perf_steps).ShowModal()
+        if res == 0 :
+            self.edit()
     
     def change_level_text(self, event) :
         res = LvlTxtDlg(self, self.level.text).ShowModal()

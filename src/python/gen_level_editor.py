@@ -41,6 +41,9 @@ class LevelEditor ( wx.Frame ):
 		self.resize_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Resize Level", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.resize_item )
 
+		self.perf_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Perfection Threshold", wx.EmptyString, wx.ITEM_NORMAL )
+		self.edit_menu.Append( self.perf_item )
+
 		self.level_name_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Name", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.level_name_item )
 
@@ -140,6 +143,7 @@ class LevelEditor ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.save_level, id = self.save_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.save_level_as, id = self.save_as_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.resize, id = self.resize_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.change_perf, id = self.perf_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_level_name, id = self.level_name_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_level_text, id = self.level_text_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
@@ -179,6 +183,9 @@ class LevelEditor ( wx.Frame ):
 		event.Skip()
 
 	def resize( self, event ):
+		event.Skip()
+
+	def change_perf( self, event ):
 		event.Skip()
 
 	def change_level_name( self, event ):
@@ -451,5 +458,52 @@ class NameDlg ( wx.Dialog ):
 	def confirm( self, event ):
 		event.Skip()
 
+
+
+###########################################################################
+## Class PerfDlg
+###########################################################################
+
+class PerfDlg ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Change number of steps for perfection", pos = wx.DefaultPosition, size = wx.Size( 280,105 ), style = wx.DEFAULT_DIALOG_STYLE )
+
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+
+		v_sizer = wx.BoxSizer( wx.VERTICAL )
+
+		h_sizer = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.text = wx.StaticText( self, wx.ID_ANY, u"Number of steps :", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text.Wrap( -1 )
+
+		h_sizer.Add( self.text, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+		self.perf_spin = wx.SpinCtrl( self, wx.ID_ANY, u"10", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_RIGHT|wx.SP_ARROW_KEYS, 1, 9999, 10 )
+		h_sizer.Add( self.perf_spin, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+
+		v_sizer.Add( h_sizer, 0, wx.EXPAND, 5 )
+
+		self.confirm_button = wx.Button( self, wx.ID_ANY, u"Confirm", wx.DefaultPosition, wx.DefaultSize, 0 )
+		v_sizer.Add( self.confirm_button, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+
+
+		self.SetSizer( v_sizer )
+		self.Layout()
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.confirm_button.Bind( wx.EVT_BUTTON, self.confirm )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, override them in your derived class
+	def confirm( self, event ):
+		event.Skip()
 
 
