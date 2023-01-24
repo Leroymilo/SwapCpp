@@ -1,10 +1,1 @@
-{"bg": {"H": 7, "W": 7, "EndX": 3, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", "x", "x", "x", "x", "x", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 3, "Y": 5, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 0, "Boxes": []}, "logic": {"nb_activators": 0, "activators": [], "nb_gates": 0, "gates": [], "nb_doors": 0, "doors": [], "nb_links": 0, "links": []},
-"text": [
-    "This is a grate, you can't go through it but your bullet can.",
-    "Press ENTER to wait for your bullet to move."
-],
-"name": "Bullet tutorial 2",
-"perf_steps": 5,
-"flags": {
-    "can_swap": true
-}}
+{"bg": {"H": 7, "W": 7, "EndX": 3, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", "x", "x", "x", "x", "x", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 3, "Y": 5, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 0, "Boxes": []}, "logic": {"nb_activators": 0, "activators": [], "nb_gates": 0, "gates": [], "nb_doors": 0, "doors": [], "nb_links": 0, "links": []}, "text": ["This is a grate, you can't go through it but your bullet can."], "name": "Bullet tutorial 2", "perf_steps": 5, "flags": {"can_swap": true}}
