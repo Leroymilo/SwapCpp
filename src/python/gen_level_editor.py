@@ -231,7 +231,7 @@ class LevelEditor ( wx.Frame ):
 class LvlTxtDlg ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Change level text", pos = wx.DefaultPosition, size = wx.Size( 318,137 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Change level text", pos = wx.DefaultPosition, size = wx.Size( 318,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 

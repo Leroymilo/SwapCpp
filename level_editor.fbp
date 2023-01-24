@@ -1039,7 +1039,7 @@
             <property name="minimum_size"></property>
             <property name="name">LvlTxtDlg</property>
             <property name="pos"></property>
-            <property name="size">318,137</property>
+            <property name="size">318,-1</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass">; ; forward_declare</property>
             <property name="title">Change level text</property>

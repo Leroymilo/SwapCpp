@@ -166,6 +166,15 @@ class LevelEditor(LevelEditor) :
 
         self.show_link_tools(False)
         self.display_level()
+    
+    def edit(self, val=True) :
+        self.edited = val
+        text = base_editor_title + " : " + '*'*val
+        if self.level_name is None :
+            text += "unnamed level"
+        else :
+            text += self.level_name
+        self.SetTitle(text)
 
     def change_tool(self, event: wx.Event) :
         self.tool = self.tools.GetStringSelection()
@@ -539,11 +548,7 @@ class LevelEditor(LevelEditor) :
         else :
             self.display_error("Unknown tool somehow...")
 
-        if self.level_name is None :
-            self.SetTitle(base_editor_title + " : *unnamed level")
-        else :
-            self.SetTitle(base_editor_title + " : *" + self.level_name)
-        self.edited = True
+        self.edit()
         self.clear_error()
 
     #=========================================================================================================================================================
@@ -592,11 +597,7 @@ class LevelEditor(LevelEditor) :
         else :
             return
         
-        self.edited = True
-        if self.level_name is None :
-            self.SetTitle(base_editor_title + " : *unnamed level")
-        else :
-            self.SetTitle(base_editor_title + " : *" + self.level_name)
+        self.edit()
         self.display_level()
     
     def process_key(self, event: wx.KeyEvent) :
@@ -636,8 +637,7 @@ class LevelEditor(LevelEditor) :
             swap=self.allow_swap_item.IsChecked()
         )
         
-        self.edited = False
-        self.SetTitle(base_editor_title + " : " + self.level_name)
+        self.edit(False)
         self.display_error(f"Level saved as \"{self.level_name}\" !")
         return 1
     
@@ -724,27 +724,18 @@ class LevelEditor(LevelEditor) :
         
         self.surf = pg.Surface((new_W * delta, new_H * delta))
 
-        self.edited = True
-        self.SetTitle(base_editor_title + " : *" + self.level_name)
+        self.edit()
         self.display_level()
     
     def change_level_text(self, event) :
         res = LvlTxtDlg(self, self.level.text).ShowModal()
         if res == 0 :
-            self.edited = True
-            if self.level_name is None :
-                self.SetTitle(base_editor_title + " : *unnamed level")
-            else :
-                self.SetTitle(base_editor_title + " : *" + self.level_name)
+            self.edit()
     
     def change_level_name(self, event) :
         res = LvlNmeDlg(self, self.level.name).ShowModal()
         if res == 0 :
-            self.edited = True
-            if self.level_name is None :
-                self.SetTitle(base_editor_title + " : *unnamed level")
-            else :
-                self.SetTitle(base_editor_title + " : *" + self.level_name)
+            self.edit()
     
     #=========================================================================================================================================================
     # Link tools :
@@ -777,13 +768,11 @@ class LevelEditor(LevelEditor) :
     def change_offset(self, event) :
         self.link.offsets[self.seg_nb] = self.offset_spin.GetValue()
         self.display_level()
-        self.edited = True
-        self.SetTitle(base_editor_title + " : *" + self.level_name)
+        self.edit()
     
     def delete_link(self, event) :
         self.level.remove_link(link_id = self.link.get_id())
         self.update_link_choice()
         self.link = None
         self.display_level()
-        self.edited = True
-        self.SetTitle(base_editor_title + " : *" + self.level_name)
+        self.edit()
