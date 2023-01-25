@@ -59,6 +59,8 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
     can_swap = json_data["flags"]["can_swap"].asBool();
     flag_icons["no_swap"].loadFromFile("assets/no_swap.png");
     perf_steps = json_data["perf_steps"].asInt();
+
+    process_logic(false);
 }
 
 Level::Level(int number, bool solved, sf::Font font) : Level(make_level_name(number), font)
@@ -220,19 +222,25 @@ bool Level::wait()
     return false;
 }
 
+void Level::process_logic(bool didSwap)
+{
+    std::vector<sf::Vector2i> heavy_pos = boxes.get_boxes_pos();
+    if (Player.is_alive)
+        heavy_pos.push_back(Player.C);
+
+    std::vector<sf::Vector2i> arrow_pos;
+    if (bullet.is_alive)
+        arrow_pos.push_back(bullet.C);
+
+    
+    std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &bullet.is_alive);
+    logic.update(updated_activators);
+}
+
 void Level::step(bool didSwap)
 {
-    //Checking if player and/or bullet get "killed" :
-    Player.is_alive = !((bullet.is_alive && Player.C == bullet.C) || isWallForMost(Player.C)) && Player.is_alive;
+    //Bullet crushing and movement :
     bullet.is_alive = !isWallForBullet(bullet.C) && bullet.is_alive;
-
-    //Same for boxes :
-    std::vector<bool> to_destroy;
-    for (sf::Vector2i coords : boxes.get_boxes_pos())
-        to_destroy.push_back(isWallForMost(coords));
-    boxes.destroy(to_destroy);
-
-    //Moving bullet :
     if (bullet.is_alive && !didSwap)
     {
         sf::Vector2i newC = bullet.get_next_pos();
@@ -247,27 +255,30 @@ void Level::step(bool didSwap)
             bullet.C = newC;
     }
 
-    //Updating logic :
-    std::vector<sf::Vector2i> heavy_pos = boxes.get_boxes_pos();
-    if (Player.is_alive)
-        heavy_pos.push_back(Player.C);
+    //Checking if player get shot :
+    if (bullet.is_alive && Player.is_alive)
+    {
+        Player.is_alive = Player.C != bullet.C;
+        if (Player.prev_Cs.back() == bullet.C && Player.C == bullet.prev_Cs.back() && !didSwap)
+        {
+            // Player crossed bullet
+            Player.is_alive = false;
+        }
+    }
 
-    std::vector<sf::Vector2i> arrow_pos;
-    if (bullet.is_alive)
-        arrow_pos.push_back(bullet.C);
+    process_logic(didSwap);
 
-    
-    std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &bullet.is_alive);
-    logic.update(updated_activators);
-
-    //Checking if player and/or bullet get "killed" :
-    Player.is_alive = !((bullet.is_alive && Player.C == bullet.C) || isWallForMost(Player.C)) && Player.is_alive;
+    //Checking if player and/or bullet get crushed :
+    Player.is_alive = !isWallForMost(Player.C) && Player.is_alive;
     bullet.is_alive = !isWallForBullet(bullet.C) && bullet.is_alive;
 
     //Same for boxes :
-    to_destroy.clear();
+    std::vector<bool> to_destroy;
     for (sf::Vector2i coords : boxes.get_boxes_pos())
+    {
         to_destroy.push_back(isWallForMost(coords));
+        std::cout << "box at : " << coords.x << ", " << coords.y <<  " : " << isWallForMost(coords) << std::endl;
+    }
     boxes.destroy(to_destroy);
 
     nbSteps++;
@@ -336,7 +347,7 @@ void Level::step_end_logic()
 
 bool Level::win()
 {
-    return Player.C == win_tile;
+    return Player.is_alive && Player.C == win_tile;
 }
 
 

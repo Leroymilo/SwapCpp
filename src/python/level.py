@@ -221,7 +221,7 @@ class Level :
 
         # Walls and goal check :
 
-        if type_ not in {"link", "gate"} and self.get_tile(x, y) in {'X', 'x'} :
+        if type_ not in {"link", "gate", "door_tile", "door_hub"} and self.get_tile(x, y) in {'X', 'x'} :
             return False
         
         if (x, y) == self.goal :

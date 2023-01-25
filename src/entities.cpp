@@ -208,10 +208,17 @@ std::vector<sf::Vector2i> Boxes::get_boxes_pos()
 
 void Boxes::destroy(std::vector<bool> to_destroy)
 {
+    int j = 0;
     for (int i = 0; i < nb_boxes; i++)
     {
-        if (to_destroy[i])
-            list[i].is_alive = false;
+        if (list[i].is_alive)
+        {
+            if (to_destroy[j])
+            {
+                list[i].is_alive = false;
+            }
+            j++;
+        }
     }
 }
 

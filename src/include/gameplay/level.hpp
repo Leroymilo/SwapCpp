@@ -56,6 +56,7 @@ class Level
         bool swap(std::string* act);
         bool wait();
         void undo(std::list<std::string>* steps);
+        void process_logic(bool didSwap);
         void step(bool didSwap);
         void step_end_logic();
         bool win();
