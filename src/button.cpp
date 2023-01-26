@@ -69,13 +69,20 @@ bool Button::update()
         return false;
     }
 
-    sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
     prev_on = on;
     prev_hover = hover;
 
-    hover = hitbox.contains(mouse_pos);
-
-    on = (hover && sf::Mouse::isButtonPressed(sf::Mouse::Left));
+    if (ref_win_p->hasFocus())
+    {
+        sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
+        hover = hitbox.contains(mouse_pos);
+        on = (hover && sf::Mouse::isButtonPressed(sf::Mouse::Left));
+    }
+    else
+    {
+        on = false;
+        hover = false;
+    }
 
     return (on != prev_on) || (hover != prev_hover);
 }
