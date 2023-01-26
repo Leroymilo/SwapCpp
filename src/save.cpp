@@ -106,7 +106,7 @@ void Save::solve(int lvl_id, int nb_steps, bool perf)
     if (is_solved(lvl_id))
     {
         levels[lvl_id].first = std::min(levels[lvl_id].first, nb_steps);
-        levels[lvl_id].second = perf;
+        levels[lvl_id].second |= perf;
     }
     else
     {

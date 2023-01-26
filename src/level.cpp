@@ -61,6 +61,7 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
     perf_steps = json_data["perf_steps"].asInt();
 
     process_logic(false);
+    step_end_logic();
 }
 
 Level::Level(int number, bool solved, sf::Font font) : Level(make_level_name(number), font)
@@ -727,6 +728,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
                 {
                     pre_resets.push_back(level);
                     level = pre_resets.front();
+                    level.process_logic(false);
                     level.resize_bg(windowP);
                     steps.push_back("+");
                 }
