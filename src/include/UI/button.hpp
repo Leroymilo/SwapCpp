@@ -42,4 +42,23 @@ class Button
         void set_alignment(Alignment new_align);
 };
 
+class Toggle
+{
+    private:
+        bool state;
+        Button on_button;
+        Button off_button;
+
+    public:
+        Toggle();
+        Toggle(Alignment, sf::RenderWindow*);
+
+        void reshape();
+        bool update();
+        void draw(sf::Font);
+
+        void set_alignment(Alignment new_align);
+        bool is_on();
+};
+
 #endif //BUTTON_H

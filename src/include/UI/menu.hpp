@@ -42,4 +42,4 @@ class LevelGrid
 void draw_levels(sf::RenderWindow*, LevelGrid*, sf::Font);
 int level_select(sf::RenderWindow*, Save* save_p, sf::Font);
 
-#endif //BUTTON_H
+#endif //MENU_H

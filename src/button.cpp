@@ -140,3 +140,51 @@ void Button::set_alignment(Alignment new_align)
     alignment = new_align;
     reshape();
 }
+
+Toggle::Toggle() {}
+
+Toggle::Toggle(Alignment alignment, sf::RenderWindow* win_p)
+{
+    on_button = Button("on", "ON", alignment, win_p);
+    off_button = Button("off", "OFF", alignment, win_p);
+}
+
+void Toggle::reshape()
+{
+    on_button.reshape();
+    off_button.reshape();
+}
+
+bool Toggle::update()
+{
+    if (state)
+    {
+        if (on_button.clicked())
+        {
+            state = false;
+            return true;
+        }
+        return on_button.update();
+    }
+    else
+    {
+        if (off_button.clicked())
+        {
+            state = true;
+            return true;
+        }
+        return off_button.update();
+    }
+}
+
+void Toggle::draw(sf::Font font)
+{
+    if (state)
+    {
+        on_button.draw(font);
+    }
+    else
+    {
+        off_button.draw(font);
+    }
+}
