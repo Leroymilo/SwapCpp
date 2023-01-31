@@ -9,6 +9,7 @@
 sf::Texture title;
 Button start_;
 Button exit_;
+Button settings;
 
 void draw_title(sf::RenderWindow* win_p, sf::Font font)
 {
@@ -25,6 +26,7 @@ void draw_title(sf::RenderWindow* win_p, sf::Font font)
 
     start_.draw(font);
     exit_.draw(font);
+    settings.draw(font);
 
     win_p->display();
 }
@@ -32,8 +34,9 @@ void draw_title(sf::RenderWindow* win_p, sf::Font font)
 int title_screen(sf::RenderWindow* win_p, sf::Font font)
 {
     title.loadFromFile("assets/Menu/Title.png");
-    start_ = Button("continue", "Start", Alignment(1, 0, 0, 7, 4, 0), win_p);
-    exit_ = Button("exit", "Exit", Alignment(1, 0, 0, 7, 6, 0), win_p);
+    start_ = Button("continue", "Start", Alignment(1, 0, 0, 8, 4, 0), win_p);
+    exit_ = Button("exit", "Exit", Alignment(1, 0, 0, 8, 6, 0), win_p);
+    settings = Button("settings", "Settings", Alignment(1, 0, 0, 8, 8, 0), win_p);
 
     // First draw
     draw_title(win_p, font);
@@ -48,6 +51,11 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
                 win_p->close();
                 return 0;
             }
+
+            else if (evnt.type == sf::Event::GainedFocus)
+            {
+                draw_title(win_p, font);
+            }
             
             else if (evnt.type == sf::Event::Resized)
             {
@@ -55,6 +63,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
                 win_p->setView(sf::View(view));
                 start_.reshape();
                 exit_.reshape();
+                settings.reshape();
                 draw_title(win_p, font);
             }
         }
@@ -63,12 +72,16 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
         {
             return 1;
         }
+        else if (settings.clicked())
+        {
+            return 2;
+        }
         else if (exit_.clicked())
         {
             return 0;
         }
 
-        if (start_.update() || exit_.update())
+        if (start_.update() || exit_.update() || settings.update())
         {
             draw_title(win_p, font);
         }
@@ -297,6 +310,11 @@ int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
             {
                 win_p->close();
                 return 0;
+            }
+
+            else if (evnt.type == sf::Event::GainedFocus)
+            {
+                draw_levels(win_p, &level_grid, font);
             }
             
             else if (evnt.type == sf::Event::Resized)

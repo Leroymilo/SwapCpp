@@ -12,8 +12,8 @@
 int main()
 {
     // SFML initialization stuff :
-    // sf::RenderWindow window(sf::VideoMode(800, 800), "SWAP!");
-    sf::RenderWindow window(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);  // For fullscreen
+    sf::RenderWindow window(sf::VideoMode(800, 800), "SWAP!");
+    // sf::RenderWindow window(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);  // For fullscreen
     window.setVerticalSyncEnabled(true);
     sf::Font font;
     if (!font.loadFromFile("assets/font.ttf"))
@@ -35,25 +35,21 @@ int main()
             {
                 window.close();
             }
-            else
-            {
-                scene = "Select";
-            }
+            std::string map_res[3] = {"Title", "Select", "Settings"};
+            scene = map_res[res];
+        }
+
+        else if (scene == "Settings")
+        {
+            scene = "Title";
         }
 
         else if (scene == "Select")
         {
             // Selecting a level :
             int res = level_select(&window, &save, font);
-            if (res == 0)
-            {
-                scene = "Title";
-            }
-            else
-            {
-                level_id = res;
-                scene = "Play";
-            }
+            std::string map_res[2] = {"Title", "Play"};
+            scene = map_res[res];
         }
 
         else if (scene == "Play")
@@ -72,25 +68,16 @@ int main()
 
                 if (! already_solved && ! save.is_solved(level_id + 1))
                 {
-                    std::regex exp("^level[0-9]{3}.json$");
-                    bool next_level = false;
-                    for (const auto & entry : std::filesystem::directory_iterator("levels"))
+                    std::stringstream ss;
+                    ss << std::setfill('0') << std::setw(3) << level_id+1;
+                    if (std::filesystem::exists("levels/level" + ss.str() + ".json"))
                     {
-                        std::string dir_name = entry.path().string().substr(7);
-                        if (std::regex_match(dir_name, exp))
-                        {
-                            int lvl_nb = std::stoi(dir_name.substr(5));
-                            if (lvl_nb == level_id + 1)
-                            {
-                                next_level = true;
-
-                                break;
-                            }
-                        }
+                        level_id++;
                     }
-                    
-                    if (next_level) level_id ++;
-                    else scene = "Select";
+                    else
+                    {
+                        scene = "Select";
+                    }
                 }
                 else scene = "Select";
             }

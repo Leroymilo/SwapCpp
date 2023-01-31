@@ -11,7 +11,7 @@ lin: $(OBJECTS)
 	g++ -O3 $(OBJECTS) -o swap.out $(LIBS_LIN)
 
 win: $(OBJECTS)
-	g++ -O3 $(OBJECTS) -o swap.exe $(LIBS_WIN) -mwindows
+	g++ -O3 $(OBJECTS) -o swap.exe $(LIBS_WIN) #-mwindows
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)

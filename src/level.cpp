@@ -519,6 +519,14 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
                 windowP->close();
                 return 0;
             }
+
+            else if (evnt.type == sf::Event::GainedFocus)
+            {
+                levelP->display(windowP, false);
+                continue_.draw(font);
+                exit_.draw(font);
+                windowP->display();
+            }
             
             else if (evnt.type == sf::Event::Resized)
             {
@@ -610,6 +618,11 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
             {
                 windowP->close();
                 return 0;
+            }
+
+            else if (evnt.type == sf::Event::GainedFocus)
+            {
+                level.display(windowP);
             }
             
             else if (evnt.type == sf::Event::Resized)
