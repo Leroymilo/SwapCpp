@@ -51,7 +51,7 @@ class Toggle
 
     public:
         Toggle();
-        Toggle(Alignment, sf::RenderWindow*);
+        Toggle(Alignment, sf::RenderWindow*, bool);
 
         void reshape();
         bool update();

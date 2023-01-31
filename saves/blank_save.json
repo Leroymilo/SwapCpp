@@ -1,4 +1,7 @@
 {
     "levels": "[]",
-	"name" : "test"
+	"name" : "test",
+    "flags": [
+        {"key": "fullscreen", "desc": "Toggle Fullscreen", "value": false}
+    ]
 }

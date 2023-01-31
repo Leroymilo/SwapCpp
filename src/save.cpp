@@ -58,6 +58,14 @@ Save::Save(int save_nb) : id(save_nb)
         levels[lvl_id] = std::make_pair(nb_steps, perf);
     }
 
+    for (int i=0; i < actualJson["flags"].size(); i++)
+    {
+        Json::Value flag = actualJson["flags"][i];
+        std::string key = flag["key"].asCString();
+        flags[key] = flag["value"].asBool();
+        flags_descriptions[key] = flag["desc"].asCString();
+    }
+
     refresh_playable();
 }
 

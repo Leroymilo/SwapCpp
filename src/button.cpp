@@ -143,10 +143,11 @@ void Button::set_alignment(Alignment new_align)
 
 Toggle::Toggle() {}
 
-Toggle::Toggle(Alignment alignment, sf::RenderWindow* win_p)
+Toggle::Toggle(Alignment alignment, sf::RenderWindow* win_p, bool state) : state(state)
 {
     on_button = Button("on", "ON", alignment, win_p);
     off_button = Button("off", "OFF", alignment, win_p);
+    reshape();
 }
 
 void Toggle::reshape()
