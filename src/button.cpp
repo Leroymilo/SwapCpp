@@ -112,9 +112,7 @@ void Button::draw(sf::Font font)
     button.setPosition(sf::Vector2f(hitbox.left, hitbox.top));
     ref_win_p->draw(button);
 
-    sf::Text text_disp;
-    text_disp.setFont(font);
-    text_disp.setString(text);
+    sf::Text text_disp(text, font);
     sf::FloatRect bounds = text_disp.getLocalBounds();
     text_disp.setPosition(sf::Vector2f(
         hitbox.left + (hitbox.width - bounds.width - bounds.left)/2,
@@ -155,6 +153,11 @@ Toggle::Toggle(Alignment alignment, sf::RenderWindow* win_p, bool state) : state
     reshape();
 }
 
+bool Toggle::is_on()
+{
+    return state;
+}
+
 void Toggle::reshape()
 {
     if (!defined)
@@ -173,7 +176,7 @@ bool Toggle::update()
     if (!defined)
     {
         std::cout << "Toggle button not defined, cannot update." << std::endl;
-        return;
+        return false;
     }
     
     if (state)

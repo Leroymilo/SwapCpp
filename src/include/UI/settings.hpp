@@ -8,12 +8,15 @@ class Option_Line
 {
     private:
         sf::RenderWindow* ref_win_p;
+        Alignment text_align;
         std::string text;
         Toggle button;
     
     public:
         Option_Line();
         Option_Line(sf::RenderWindow*, std::string, bool, Alignment);
+
+        bool get_button_state();
 
         void reshape();
         bool update();
@@ -35,5 +38,7 @@ class Options
         bool update();
         void draw(sf::Font font);
 };
+
+int settings(sf::RenderWindow*, Save*, sf::Font);
 
 #endif //SETTINGS_H

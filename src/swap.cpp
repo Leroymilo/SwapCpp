@@ -7,6 +7,7 @@
 
 #include "gameplay/level.hpp"
 #include "UI/menu.hpp"
+#include "UI/settings.hpp"
 #include "save.hpp"
 
 int main()
@@ -41,6 +42,8 @@ int main()
 
         else if (scene == "Settings")
         {
+            // Into the settings screen :
+            int res = settings(&window, &save, font);
             scene = "Title";
         }
 

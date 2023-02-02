@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "UI/settings.hpp"
 
 Option_Line::Option_Line() {}
@@ -6,13 +8,37 @@ Option_Line::Option_Line(sf::RenderWindow* win_p, std::string text, bool state, 
 {
     ref_win_p = win_p;
     button = Toggle(alignment, win_p, state);
+    text_align = alignment;
+    text_align.i_h = 0;
+}
+
+bool Option_Line::get_button_state()
+{
+    return button.is_on();
 }
 
 void Option_Line::reshape()
 {
-    
+    button.reshape();
 }
 
+bool Option_Line::update()
+{
+    return button.update();
+}
+
+void Option_Line::draw(sf::Font font)
+{
+    sf::Vector2i button_size(button.hitbox.width, button.hitbox.height);
+    sf::Vector2i top_left = text_align.compute(button_size, ref_win_p->getSize());
+    sf::Text text_disp(text, font, 20);
+    sf::FloatRect bounds = text_disp.getLocalBounds();
+    top_left.y += (top_left.y-bounds.height-bounds.top)/2;
+    text_disp.setPosition(sf::Vector2f(top_left));
+    ref_win_p->draw(text_disp);
+
+    button.draw(font);
+}
 
 
 Options::Options() {}
@@ -46,4 +72,72 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
             align
         );
     }
+
+    std::cout << "nb of options : " << flags.size() << std::endl;
+
+    reshape();
+}
+
+void Options::reshape()
+{
+    for (auto& line_elt : lines)
+    {
+        line_elt.second.reshape();
+    }
+}
+
+bool Options::update()
+{
+    bool updated = false;
+    for (auto& line_elt : lines)
+    {
+        if (line_elt.second.update())
+        {
+            bool new_state = line_elt.second.get_button_state();
+            ref_save_p->set_flag_state(line_elt.first, new_state);
+            updated = true;
+        }
+    }
+
+    return updated;
+}
+
+void Options::draw(sf::Font font)
+{
+    std::cout << "options in drawing..." << std::endl;
+    ref_win_p->clear(sf::Color(20, 30, 200));
+    for (auto& line_elt : lines)
+    {
+        line_elt.second.draw(font);
+    }
+}
+
+int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
+{
+    Options opts(save_p, win_p, font);
+    opts.draw(font);
+    while (win_p->isOpen())
+    {
+        sf::Event evnt;
+        if (win_p->pollEvent(evnt))
+        {
+            if (evnt.type == sf::Event::Closed)
+            {
+                win_p->close();
+                return 0;
+            }
+
+            else if (evnt.type == sf::Event::GainedFocus)
+            {
+                opts.draw(font);
+            }
+            
+            else if (evnt.type == sf::Event::Resized)
+            {
+                opts.reshape();
+                opts.draw(font);
+            }
+        }
+    }
+    return 0; 
 }
