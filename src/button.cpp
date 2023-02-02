@@ -100,7 +100,6 @@ void Button::draw(sf::Font font)
         return;
     }
 
-    std::cout << alignment.print() << std::endl;
     sf::RectangleShape button;
     button.setSize(sf::Vector2f(sprite_on.getSize()));
     if (on)
@@ -190,6 +189,7 @@ bool Toggle::update()
         if (on_button.clicked())
         {
             state = false;
+            on_button.update();
             return true;
         }
         return on_button.update();
@@ -199,6 +199,7 @@ bool Toggle::update()
         if (off_button.clicked())
         {
             state = true;
+            off_button.update();
             return true;
         }
         return off_button.update();

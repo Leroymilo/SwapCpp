@@ -29,12 +29,11 @@ bool Option_Line::update()
 
 void Option_Line::draw(sf::Font font)
 {
-    std::cout << text_align.print() << std::endl;
-    sf::Vector2i button_size(button.hitbox.width, button.hitbox.height);
-    sf::Vector2i top_left = text_align.compute(button_size, ref_win_p->getSize());
+    int button_height = button.hitbox.height;
+    sf::Vector2i top_left = text_align.compute(sf::Vector2i(button_height, button_height), ref_win_p->getSize());
     sf::Text text_disp(text, font, 20);
     sf::FloatRect bounds = text_disp.getLocalBounds();
-    top_left.y += (top_left.y-bounds.height-bounds.top)/2;
+    top_left.y += (button_height-bounds.height-bounds.top)/2;
     text_disp.setPosition(sf::Vector2f(top_left));
     ref_win_p->draw(text_disp);
 
@@ -74,8 +73,6 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
         );
     }
 
-    std::cout << "nb of options : " << flags.size() << std::endl;
-
     reshape();
 }
 
@@ -105,7 +102,6 @@ bool Options::update()
 
 void Options::draw(sf::Font font)
 {
-    std::cout << "options in drawing..." << std::endl;
     ref_win_p->clear(sf::Color(20, 30, 200));
     for (auto& line_elt : lines)
     {
@@ -141,6 +137,19 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
                 opts.reshape();
                 opts.draw(font);
             }
+
+            else if (evnt.type == sf::Event::KeyPressed)
+            {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                {
+                    return 0;
+                }
+            }
+        }
+
+        if (opts.update())
+        {
+            opts.draw(font);
         }
     }
     return 0; 
