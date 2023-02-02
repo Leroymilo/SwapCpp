@@ -10,6 +10,7 @@ struct Alignment
     Alignment();
     Alignment(int nb_h, int i_h, int d_h, int nb_v, int i_v, int d_v);
     sf::Vector2i compute(sf::Vector2i size, sf::Vector2u win_size);
+    std::string print();
 };
 
 class Button

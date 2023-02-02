@@ -21,6 +21,11 @@ sf::Vector2i Alignment::compute(sf::Vector2i size, sf::Vector2u win_size)
     return sf::Vector2i(std::round(left), std::round(top));
 }
 
+std::string Alignment::print()
+{
+    return std::to_string(i_h) + "/" + std::to_string(nb_h) + ", " + std::to_string(i_v) + "/" + std::to_string(nb_v);
+}
+
 
 Button::Button() {}
 
@@ -95,6 +100,7 @@ void Button::draw(sf::Font font)
         return;
     }
 
+    std::cout << alignment.print() << std::endl;
     sf::RectangleShape button;
     button.setSize(sf::Vector2f(sprite_on.getSize()));
     if (on)

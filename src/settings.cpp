@@ -29,6 +29,7 @@ bool Option_Line::update()
 
 void Option_Line::draw(sf::Font font)
 {
+    std::cout << text_align.print() << std::endl;
     sf::Vector2i button_size(button.hitbox.width, button.hitbox.height);
     sf::Vector2i top_left = text_align.compute(button_size, ref_win_p->getSize());
     sf::Text text_disp(text, font, 20);
@@ -110,6 +111,7 @@ void Options::draw(sf::Font font)
     {
         line_elt.second.draw(font);
     }
+    ref_win_p->display();
 }
 
 int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
@@ -134,6 +136,8 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
             
             else if (evnt.type == sf::Event::Resized)
             {
+                sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
+                win_p->setView(sf::View(view));
                 opts.reshape();
                 opts.draw(font);
             }
