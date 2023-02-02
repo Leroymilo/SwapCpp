@@ -123,6 +123,49 @@ void Save::solve(int lvl_id, int nb_steps, bool perf)
     }
 }
 
+
+std::vector<std::string> Save::get_flags()
+{
+    std::vector<std::string> keys;
+    for (auto& elt : flags)
+    {
+        keys.push_back(elt.first);
+    }
+    return keys;
+}
+
+bool Save::get_flag_state(std::string key)
+{
+    if (flags.find(key) != flags.end())
+    {
+        return flags[key];
+    }
+    std::cout << "flag \"" << key << "\" not found in options" << std::endl;
+    return false;
+}
+
+void Save::set_flag_state(std::string key, bool value)
+{
+    if (flags.find(key) != flags.end())
+    {
+        flags[key] = value;
+        return;
+    }
+    std::cout << "flag \"" << key << "\" not found in options" << std::endl;
+}
+
+
+std::string Save::get_flag_desc(std::string key)
+{
+    if (flags_descriptions.find(key) != flags_descriptions.end())
+    {
+        return flags_descriptions[key];
+    }
+    std::cout << "flag \"" << key << "\" not found in options" << std::endl;
+    return "";
+}
+
+
 void Save::write()
 {
     Json::Value actualJson;
