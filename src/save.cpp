@@ -180,11 +180,22 @@ void Save::write()
         levels_data.append(level);
     }
 
+    Json::Value flags_data;
+    for (auto& elt : flags)
+    {
+        Json::Value flag;
+        flag["key"] = elt.first;
+        flag["value"] = elt.second;
+        flag["desc"] = flags_descriptions[elt.first];
+        flags_data.append(flag);
+    }
+
     Json::FastWriter fastWriter;
 
     actualJson.clear();
     actualJson["name"] = Json::Value(name);
     actualJson["levels"] = Json::Value(fastWriter.write(levels_data));
+    actualJson["flags"] = flags_data;
 
     std::ofstream outfile(dir);
     outfile << actualJson;
