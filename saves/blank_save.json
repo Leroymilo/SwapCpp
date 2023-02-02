@@ -2,6 +2,7 @@
     "levels": "[]",
 	"name" : "test",
     "flags": [
-        {"key": "fullscreen", "desc": "Toggle Fullscreen", "value": false}
+        {"key": "fullscreen", "desc": "Toggle Fullscreen", "value": false},
+        {"key": "vsync", "desc": "Toggle VSync", "value": true}
     ]
 }

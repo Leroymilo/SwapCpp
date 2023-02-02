@@ -194,6 +194,8 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
                 opts.reshape();
                 opts.draw(font);
             }
+
+            win_p->setVerticalSyncEnabled(save_p->get_flag_state("vsync"));
         }
 
         if (opts.exit_.clicked()) return 0;

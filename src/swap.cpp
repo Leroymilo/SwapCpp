@@ -24,7 +24,9 @@ int main()
     {
         window.create(sf::VideoMode(800, 800), "SWAP!");
     }
-    window.setVerticalSyncEnabled(true);
+
+    window.setVerticalSyncEnabled(save.get_flag_state("vsync"));
+
     sf::Font font;
     if (!font.loadFromFile("assets/font.ttf"))
         std::cout << "Could not load font" << std::endl;
