@@ -147,17 +147,35 @@ Toggle::Toggle(Alignment alignment, sf::RenderWindow* win_p, bool state) : state
 {
     on_button = Button("on", "ON", alignment, win_p);
     off_button = Button("off", "OFF", alignment, win_p);
+    if (on_button.hitbox != off_button.hitbox)
+    {
+        std::cout << "Toggle button on/off textures are not the same size!" << std::endl;
+    }
+    else {defined = true;}
     reshape();
 }
 
 void Toggle::reshape()
 {
+    if (!defined)
+    {
+        std::cout << "Toggle button not defined, cannot reshape." << std::endl;
+        return;
+    }
+
     on_button.reshape();
     off_button.reshape();
+    hitbox = on_button.hitbox;
 }
 
 bool Toggle::update()
 {
+    if (!defined)
+    {
+        std::cout << "Toggle button not defined, cannot update." << std::endl;
+        return;
+    }
+    
     if (state)
     {
         if (on_button.clicked())
@@ -180,6 +198,12 @@ bool Toggle::update()
 
 void Toggle::draw(sf::Font font)
 {
+    if (!defined)
+    {
+        std::cout << "Toggle button not defined, cannot draw." << std::endl;
+        return;
+    }
+    
     if (state)
     {
         on_button.draw(font);

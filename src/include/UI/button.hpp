@@ -22,14 +22,13 @@ class Button
         Alignment alignment;
         sf::RenderWindow* ref_win_p;
         bool defined = false;
-    
-    public:
+        
         bool on = false;
         bool prev_on = false;
-
         bool hover = false;
         bool prev_hover = false;
-        
+    
+    public:
         sf::Rect<int> hitbox;
 
         Button();
@@ -48,8 +47,11 @@ class Toggle
         bool state;
         Button on_button;
         Button off_button;
+        bool defined = false;
 
     public:
+        sf::Rect<int> hitbox;
+
         Toggle();
         Toggle(Alignment, sf::RenderWindow*, bool);
 

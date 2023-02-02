@@ -29,7 +29,7 @@ class Options
 
     public:
         Options();
-        Options(Save*, sf::RenderWindow*);
+        Options(Save*, sf::RenderWindow*, sf::Font);
 
         void reshape();
         bool update();
