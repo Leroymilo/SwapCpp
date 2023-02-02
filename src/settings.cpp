@@ -31,7 +31,7 @@ void Option_Line::draw(sf::Font font)
 {
     int button_height = button.hitbox.height;
     sf::Vector2i top_left = text_align.compute(sf::Vector2i(button_height, button_height), ref_win_p->getSize());
-    sf::Text text_disp(text, font, 20);
+    sf::Text text_disp(text, font, 30);
     sf::FloatRect bounds = text_disp.getLocalBounds();
     top_left.y += (button_height-bounds.height-bounds.top)/2;
     text_disp.setPosition(sf::Vector2f(top_left));
@@ -53,7 +53,7 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
     float max_text_W = 0;
     for (std::string key : flags)
     {
-        sf::Text desc(save_p->get_flag_desc(key), font, 20);
+        sf::Text desc(save_p->get_flag_desc(key), font, 30);
         float width = desc.getLocalBounds().width;
         if (width > max_text_W)
         {
@@ -147,8 +147,26 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
             }
         }
 
+        bool prev_fs = save_p->get_flag_state("fullscreen");
+
         if (opts.update())
         {
+            opts.draw(font);
+        }
+
+        if (save_p->get_flag_state("fullscreen") != prev_fs)
+        {
+            if (save_p->get_flag_state("fullscreen"))
+            {
+                win_p->close();
+                win_p->create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
+            }
+            else
+            {
+                win_p->close();
+                win_p->create(sf::VideoMode(800, 800), "SWAP!");
+            }
+            opts.reshape();
             opts.draw(font);
         }
     }

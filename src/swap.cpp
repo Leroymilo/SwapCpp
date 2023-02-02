@@ -12,15 +12,22 @@
 
 int main()
 {
+    Save save(1);
+
     // SFML initialization stuff :
-    sf::RenderWindow window(sf::VideoMode(800, 800), "SWAP!");
-    // sf::RenderWindow window(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);  // For fullscreen
+    sf::RenderWindow window;
+    if (save.get_flag_state("fullscreen"))
+    {
+        window.create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
+    }
+    else
+    {
+        window.create(sf::VideoMode(800, 800), "SWAP!");
+    }
     window.setVerticalSyncEnabled(true);
     sf::Font font;
     if (!font.loadFromFile("assets/font.ttf"))
         std::cout << "Could not load font" << std::endl;
-    
-    Save save(1);
     
     std::string scene = "Title";
     int level_id = 1;
