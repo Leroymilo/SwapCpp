@@ -31,6 +31,9 @@ class Options
         std::map<std::string, Option_Line> lines;
 
     public:
+        Button apply;
+        Button exit_;
+
         Options();
         Options(Save*, sf::RenderWindow*, sf::Font);
 

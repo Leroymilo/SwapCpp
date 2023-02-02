@@ -2,6 +2,7 @@
 
 #include "UI/settings.hpp"
 
+
 Option_Line::Option_Line() {}
 
 Option_Line::Option_Line(sf::RenderWindow* win_p, std::string text, bool state, Alignment alignment) : text(text)
@@ -73,6 +74,17 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
         );
     }
 
+    exit_ = Button(
+        "exit", "Exit",
+        Alignment(2, 0, 32, flags.size()+2, flags.size()+1, 16),
+        ref_win_p
+    );
+    apply = Button(
+        "continue", "Apply",
+        Alignment(2, 1, 32, flags.size()+2, flags.size()+1, 16),
+        ref_win_p
+    );
+
     reshape();
 }
 
@@ -82,6 +94,9 @@ void Options::reshape()
     {
         line_elt.second.reshape();
     }
+
+    apply.reshape();
+    exit_.reshape();
 }
 
 bool Options::update()
@@ -97,6 +112,9 @@ bool Options::update()
         }
     }
 
+    updated |= exit_.update();
+    updated |= apply.update();
+
     return updated;
 }
 
@@ -107,13 +125,19 @@ void Options::draw(sf::Font font)
     {
         line_elt.second.draw(font);
     }
+
+    exit_.draw(font);
+    apply.draw(font);
+
     ref_win_p->display();
 }
 
 int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
 {
+    bool prev_fs = save_p->get_flag_state("fullscreen");
     Options opts(save_p, win_p, font);
     opts.draw(font);
+
     while (win_p->isOpen())
     {
         sf::Event evnt;
@@ -147,28 +171,32 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
             }
         }
 
-        bool prev_fs = save_p->get_flag_state("fullscreen");
-
         if (opts.update())
         {
             opts.draw(font);
         }
 
-        if (save_p->get_flag_state("fullscreen") != prev_fs)
+        if (opts.apply.clicked())
         {
-            if (save_p->get_flag_state("fullscreen"))
+            if (save_p->get_flag_state("fullscreen") != prev_fs)
             {
-                win_p->close();
-                win_p->create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
+                if (save_p->get_flag_state("fullscreen"))
+                {
+                    win_p->close();
+                    win_p->create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
+                }
+                else
+                {
+                    win_p->close();
+                    win_p->create(sf::VideoMode(800, 800), "SWAP!");
+                }
+                prev_fs = save_p->get_flag_state("fullscreen");
+                opts.reshape();
+                opts.draw(font);
             }
-            else
-            {
-                win_p->close();
-                win_p->create(sf::VideoMode(800, 800), "SWAP!");
-            }
-            opts.reshape();
-            opts.draw(font);
         }
+
+        if (opts.exit_.clicked()) return 0;
     }
     return 0; 
 }
