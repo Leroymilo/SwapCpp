@@ -18,7 +18,7 @@ int main()
     sf::RenderWindow window;
     if (save.get_flag_state("fullscreen"))
     {
-        window.create(sf::VideoMode::getFullscreenModes()[2], "SWAP!", sf::Style::Fullscreen);
+        window.create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
         // The fullscreenMode index must be 2 on fedora linux to avoid weird mouse locking.
     }
     else
