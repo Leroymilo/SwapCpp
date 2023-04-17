@@ -30,7 +30,7 @@ class Entity    //Generic class describing entities
 class PlayerLike : public Entity   //Everything that can wove on its own (Player, Bullet, Monsters)
 {
     private:
-        std::map<char, sf::Texture> sprites;
+        std::map<char, std::vector<sf::Texture>> sprites;
         sf::Texture death_sprites [4];
 
     public:
@@ -42,7 +42,6 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
         sf::Vector2i get_next_pos(char direction = '_');
         sf::Vector2i get_prev_pos(char direction = '_');
         void revert();
-        void reset_dir();
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
         void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
         void destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);

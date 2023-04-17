@@ -5,17 +5,17 @@
 
 Option_Line::Option_Line() {}
 
-Option_Line::Option_Line(sf::RenderWindow* win_p, std::string text, bool state, Alignment alignment) : text(text)
+Option_Line::Option_Line(sf::RenderWindow* win_p, std::string key_word, std::string text, bool state, Alignment alignment) : text(text)
 {
     ref_win_p = win_p;
-    button = Toggle(alignment, win_p, state);
+    button = CycleButton(key_word, alignment, win_p, state);
     text_align = alignment;
     text_align.i_h = 0;
 }
 
 bool Option_Line::get_button_state()
 {
-    return button.is_on();
+    return button.get_state();
 }
 
 void Option_Line::reshape()
@@ -68,6 +68,7 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
         Alignment align(2, 1, max_text_W, flags.size(), i, 16);
         lines[flags[i]] = Option_Line(
             win_p,
+            flags[i],
             save_p->get_flag_desc(flags[i]),
             save_p->get_flag_state(flags[i]),
             align
@@ -109,7 +110,10 @@ bool Options::update()
             bool new_state = line_elt.second.get_button_state();
             ref_save_p->set_flag_state(line_elt.first, new_state);
             updated = true;
+            
+            // std::cout << line_elt.first << " : " << ref_save_p->get_flag_state(line_elt.first) << std::endl;
         }
+
     }
 
     updated |= exit_.update();
@@ -134,8 +138,10 @@ void Options::draw(sf::Font font)
 
 int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
 {
-    bool prev_fs = save_p->get_flag_state("fullscreen");
-    Options opts(save_p, win_p, font);
+    Save save_copy = save_p->copy();
+
+    bool prev_fs = save_copy.get_flag_state("fullscreen");
+    Options opts(&save_copy, win_p, font);
     opts.draw(font);
 
     while (win_p->isOpen())
@@ -178,9 +184,9 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
 
         if (opts.apply.clicked())
         {
-            if (save_p->get_flag_state("fullscreen") != prev_fs)
+            if (save_copy.get_flag_state("fullscreen") != prev_fs)
             {
-                if (save_p->get_flag_state("fullscreen"))
+                if (save_copy.get_flag_state("fullscreen"))
                 {
                     win_p->close();
                     win_p->create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
@@ -190,12 +196,16 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
                     win_p->close();
                     win_p->create(sf::VideoMode(800, 800), "SWAP!");
                 }
-                prev_fs = save_p->get_flag_state("fullscreen");
+                prev_fs = save_copy.get_flag_state("fullscreen");
                 opts.reshape();
                 opts.draw(font);
             }
 
-            win_p->setVerticalSyncEnabled(save_p->get_flag_state("vsync"));
+            win_p->setVerticalSyncEnabled(save_copy.get_flag_state("vsync"));
+
+            save_p = &save_copy;
+            save_p->write();
+            save_copy = save_p->copy();
         }
 
         if (opts.exit_.clicked()) return 0;

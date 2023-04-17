@@ -21,6 +21,7 @@ class Save
     
     public:
         Save(int);
+        Save copy();
 
         void refresh_playable();
         bool is_solved(int);

@@ -69,6 +69,11 @@ Save::Save(int save_nb) : id(save_nb)
     refresh_playable();
 }
 
+Save Save::copy()
+{
+    return Save(id);
+}
+
 void Save::refresh_playable()
 {
     int nb_unlocked = std::min(4, int(std::round(levels.size()/5)) + 1);

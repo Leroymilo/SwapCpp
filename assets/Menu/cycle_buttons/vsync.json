@@ -1,0 +1,13 @@
+{
+    "nb_states": 2,
+    "states": [
+        {
+            "text": "OFF",
+            "file": "off"
+        },
+        {
+            "text": "ON",
+            "file": "on"
+        }
+    ]
+}

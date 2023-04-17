@@ -73,16 +73,22 @@ PlayerLike::PlayerLike(Json::Value json_entity, std::string name)
     char directions [] = {'U', 'R', 'D', 'L'};
     for (int i=0; i<4; i++)
     {
-        sprite.loadFromFile(
-            "assets/Entities/" + name + ".png",
-            sf::IntRect(0, i*16, 16, 16)
-        );
-        sprites[directions[i]] = sprite;
+        sprites[directions[i]].resize(4);
+
+        for (int j=0; j<4; j++)
+        {
+            sprite.loadFromFile(
+                "assets/Entities/" + name + ".png",
+                sf::IntRect(j*16, i*16, 16, 16)
+            );
+            sprites[directions[i]][j] = sprite;
+        }
 
         sprite.loadFromFile(
             "assets/Entities/" + name + "_death.png",
             sf::IntRect(i*16, 0, 16, 16)
         );
+
         death_sprites[i] = sprite;
     }
     
@@ -137,7 +143,7 @@ void PlayerLike::revert()
 void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    tile.setTexture(&sprites[dir]);
+    tile.setTexture(&sprites[dir][0]);
     tile.setPosition(C0.x+delta*C.x, C0.y+delta*C.y);
     windowPoint->draw(tile);
 }
@@ -147,7 +153,7 @@ void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint,
     float deltaX = ((float)C.x-(float)prev_Cs.back().x)/4, deltaY = ((float)C.y-(float)prev_Cs.back().y)/4;
     float pxlX = C0.x + delta*(prev_Cs.back().x+deltaX*frame), pxlY = C0.y + delta*(prev_Cs.back().y+deltaY*frame);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    tile.setTexture(&sprites[dir]);
+    tile.setTexture(&sprites[dir][frame]);
     tile.setPosition(pxlX, pxlY);
     windowPoint->draw(tile);
 }

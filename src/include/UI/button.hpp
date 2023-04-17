@@ -42,26 +42,26 @@ class Button
         void set_alignment(Alignment new_align);
 };
 
-class Toggle
+class CycleButton
 {
     private:
-        bool state;
-        Button on_button;
-        Button off_button;
+        int state;
+        int nb_buttons;
+        std::vector<Button> buttons;
         bool defined = false;
 
     public:
         sf::Rect<int> hitbox;
 
-        Toggle();
-        Toggle(Alignment, sf::RenderWindow*, bool);
+        CycleButton();
+        CycleButton(std::string key_word, Alignment, sf::RenderWindow*, int);
 
         void reshape();
         bool update();
         void draw(sf::Font);
 
         void set_alignment(Alignment new_align);
-        bool is_on();
+        int get_state();
 };
 
 #endif //BUTTON_H

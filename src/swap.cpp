@@ -18,7 +18,7 @@ int main()
     sf::RenderWindow window;
     if (save.get_flag_state("fullscreen"))
     {
-        window.create(sf::VideoMode::getFullscreenModes()[2], "SWAP!", sf::Style::Fullscreen);
+        window.create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
         // The fullscreenMode index must be 2 on fedora linux to avoid weird mouse locking.
     }
     else
@@ -48,7 +48,6 @@ int main()
             }
             std::vector<std::string> map_res = {"Title", "Select", "Settings"};
             scene = map_res[res];
-            std::cout << "new scene : " << scene << std::endl;
         }
 
         else if (scene == "Settings")
@@ -56,7 +55,6 @@ int main()
             // Into the settings screen :
             int res = settings(&window, &save, font);
             scene = "Title";
-            std::cout << "new scene : " << scene << std::endl;
         }
 
         else if (scene == "Select")
@@ -70,7 +68,6 @@ int main()
                 scene = "Play";
                 level_id = res;
             }
-            std::cout << "new scene : " << scene << std::endl;
         }
 
         else if (scene == "Play")
@@ -107,10 +104,10 @@ int main()
                 std::cout << "level exited" << std::endl;
                 scene = "Select";
             }
-            std::cout << "new scene : " << scene << std::endl;
-
         }
     }
+
+    // std::cout << "new scene : " << scene << std::endl;
     
     save.write();
     return 0;

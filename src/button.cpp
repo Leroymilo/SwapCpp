@@ -1,5 +1,10 @@
 #include <cmath>
 #include <iostream>
+#include <fstream>
+#include <iomanip>
+
+#include <json/value.h>
+#include <json/json.h>
 
 #include "UI/button.hpp"
 
@@ -144,82 +149,85 @@ void Button::set_alignment(Alignment new_align)
     reshape();
 }
 
-Toggle::Toggle() {}
+CycleButton::CycleButton() {}
 
-Toggle::Toggle(Alignment alignment, sf::RenderWindow* win_p, bool state) : state(state)
+CycleButton::CycleButton(std::string key_word, Alignment alignment, sf::RenderWindow* win_p, int state) : state(state)
 {
-    on_button = Button("on", "ON", alignment, win_p);
-    off_button = Button("off", "OFF", alignment, win_p);
-    if (on_button.hitbox != off_button.hitbox)
+    // Reading Json :
+    std::ifstream file("assets/Menu/cycle_buttons/" + key_word + ".json");
+    Json::Reader reader;
+    Json::Value json_data;
+    reader.parse(file, json_data);
+
+    nb_buttons = json_data["nb_states"].asInt();
+    buttons.resize(nb_buttons);
+
+    for (int i=0; i < nb_buttons; i++)
     {
-        std::cout << "Toggle button on/off textures are not the same size!" << std::endl;
+        Json::Value state_data = json_data["states"][i];
+        std::string file_name = state_data["file"].asCString();
+        buttons[i] = Button("cycle_buttons/" + file_name, state_data["text"].asCString(), alignment, win_p);
     }
-    else {defined = true;}
+
+    hitbox = buttons[0].hitbox;
+    defined = true;
+
+    for (int i=1; i < nb_buttons; i++)
+    {
+        if (buttons[i].hitbox != hitbox)
+        {
+            std::cout << "CycleButton " << key_word << " state " << i << " does not have the same size as state 0!" << std::endl;
+            defined = false;
+        }
+    }
+    
     reshape();
 }
 
-bool Toggle::is_on()
+int CycleButton::get_state()
 {
     return state;
 }
 
-void Toggle::reshape()
+void CycleButton::reshape()
 {
     if (!defined)
     {
-        std::cout << "Toggle button not defined, cannot reshape." << std::endl;
+        std::cout << "CycleButton button not defined, cannot reshape." << std::endl;
         return;
     }
 
-    on_button.reshape();
-    off_button.reshape();
-    hitbox = on_button.hitbox;
+    for (int i=0; i < nb_buttons; i++)
+    {
+        buttons[i].reshape();
+    }
+    hitbox = buttons[0].hitbox;
 }
 
-bool Toggle::update()
+bool CycleButton::update()
 {
     if (!defined)
     {
-        std::cout << "Toggle button not defined, cannot update." << std::endl;
+        std::cout << "CycleButton button not defined, cannot update." << std::endl;
         return false;
     }
-    
-    if (state)
+
+    if (buttons[state].clicked())
     {
-        if (on_button.clicked())
-        {
-            state = false;
-            on_button.update();
-            return true;
-        }
-        return on_button.update();
+        state = (state + 1)%nb_buttons;
+        buttons[state].update();
+        return 1;
     }
-    else
-    {
-        if (off_button.clicked())
-        {
-            state = true;
-            off_button.update();
-            return true;
-        }
-        return off_button.update();
-    }
+    return buttons[state].update();
 }
 
-void Toggle::draw(sf::Font font)
+void CycleButton::draw(sf::Font font)
 {
     if (!defined)
     {
-        std::cout << "Toggle button not defined, cannot draw." << std::endl;
+        std::cout << "CycleButton button not defined, cannot draw." << std::endl;
         return;
     }
     
-    if (state)
-    {
-        on_button.draw(font);
-    }
-    else
-    {
-        off_button.draw(font);
-    }
+    buttons[state].draw(font);
 }

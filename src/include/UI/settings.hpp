@@ -10,11 +10,11 @@ class Option_Line
         sf::RenderWindow* ref_win_p;
         Alignment text_align;
         std::string text;
-        Toggle button;
+        CycleButton button;
     
     public:
         Option_Line();
-        Option_Line(sf::RenderWindow*, std::string, bool, Alignment);
+        Option_Line(sf::RenderWindow*, std::string key_word, std::string text, bool, Alignment);
 
         bool get_button_state();
 
