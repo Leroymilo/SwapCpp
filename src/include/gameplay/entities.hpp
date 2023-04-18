@@ -35,6 +35,7 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
 
     public:
         char dir;
+        int step = 0;
         std::list<sf::Vector2i> prev_Cs;
 
         PlayerLike();

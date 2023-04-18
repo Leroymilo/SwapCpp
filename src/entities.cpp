@@ -153,7 +153,7 @@ void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint,
     float deltaX = ((float)C.x-(float)prev_Cs.back().x)/4, deltaY = ((float)C.y-(float)prev_Cs.back().y)/4;
     float pxlX = C0.x + delta*(prev_Cs.back().x+deltaX*frame), pxlY = C0.y + delta*(prev_Cs.back().y+deltaY*frame);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    tile.setTexture(&sprites[dir][frame]);
+    tile.setTexture(&sprites[dir][step]);
     tile.setPosition(pxlX, pxlY);
     windowPoint->draw(tile);
 }

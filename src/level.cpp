@@ -493,6 +493,7 @@ void Level::animate(sf::RenderWindow * windowP)
         windowP->display();
         while (clock.getElapsedTime().asMilliseconds()-t1 < 20) {}
     }
+    Player.step = (Player.step + 1)%4;
     display(windowP);
 }
 
