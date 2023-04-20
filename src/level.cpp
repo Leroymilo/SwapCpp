@@ -376,7 +376,7 @@ void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every ti
 
 void Level::displayBG(sf::RenderWindow * windowP)
 {
-    windowP->clear(sf::Color(0, 0, 230));
+    windowP->clear(sf::Color(20, 20, 25));
 
     sf::Vector2u winSize = windowP->getSize();
     float max_y = winSize.y;
@@ -588,7 +588,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
     //Input handling :
     int time = clock.getElapsedTime().asMilliseconds();
     int long_deltaT = 200;
-    int short_deltaT = 100;
+    int short_deltaT = 160;
     bool long_press = false;
     bool process_input = false;
     int nbKeys = 8;
