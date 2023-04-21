@@ -64,15 +64,9 @@ int Link::get_offset(int i)
     return offsets[i];
 }
 
-void Link::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
+void Link::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, sf::Texture *texture_p)
 {
-    int thick = delta/16;
-
-    sf::Color color;
-    if (state)
-        color = sf::Color(255, 127, 39);
-    else 
-        color = sf::Color(61, 176, 254);
+    int thick = delta/8;
     
     for (int i = 0; i < nb_nodes - 1; i++)
     {
@@ -80,41 +74,45 @@ void Link::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
         float W, H;
         float X = C0.x, Y = C0.y;
 
+        int prev_i, next_i;
         if (n1.x == n2.x)
         {
-            X += delta * n1.x + thick * (7 + get_offset(i));
+            X += delta * n1.x + thick * (3.5 + get_offset(i));
             W = thick;
-            if (n1.y < n2.y)
-            {
-                Y += delta * n1.y + thick * (7 + get_offset(i-1));
-                H = delta * (n2.y - n1.y) + thick * (1 - get_offset(i-1) + get_offset(i+1));
-            }
-            else
-            {
-                Y += delta * n2.y + thick * (7 + get_offset(i+1));
-                H = delta * (n1.y - n2.y) + thick * (1 - get_offset(i+1) + get_offset(i-1));
-            }
+
+            if (n1.y < n2.y) {prev_i = i-1; next_i = i+1;}
+            else {prev_i = i+1; next_i = i-1;}
+
+            Y += delta * __min(n1.y, n2.y) + thick * (3.5 + get_offset(prev_i));
+            H = delta * abs(n2.y - n1.y) + thick * (1 - get_offset(prev_i) + get_offset(next_i));
         }
         else if (n1.y == n2.y)
         {
-            Y += delta * n1.y + thick * (7 + get_offset(i));
+            Y += delta * n1.y + thick * (3.5 + get_offset(i));
             H = thick;
-            if (n1.x < n2.x)
-            {
-                X += delta * n1.x + thick * (7 + get_offset(i-1));
-                W = delta * (n2.x - n1.x) + thick * (1 - get_offset(i-1) + get_offset(i+1));
-            }
-            else
-            {
-                X += delta * n2.x + thick * (7 + get_offset(i+1));
-                W = delta * (n1.x - n2.x) + thick * (1 - get_offset(i+1) + get_offset(i-1));
-            }
+            
+            if (n1.x < n2.x) {prev_i = i-1; next_i = i+1;}
+            else {prev_i = i+1; next_i = i-1;}
+
+            X += delta * __min(n1.x, n2.x) + thick * (3.5 + get_offset(prev_i));
+            W = delta * abs(n2.x - n1.x) + thick * (1 - get_offset(prev_i) + get_offset(next_i));
         }
         else continue;  //I'm not drawing a diagonal rectangle, fuck you.
 
-        sf::RectangleShape line(sf::Vector2f(W, H));
-        line.setPosition(sf::Vector2f(X, Y));
-        line.setFillColor(color);
+        // Enlarging the link tile for each pixel to be delta x delta pixels
+        sf::RectangleShape link_tile(sf::Vector2f(thick, thick));
+        link_tile.setTexture(texture_p);
+
+        // Drawing the link tile into a repeatable RenderTexture
+        sf::RenderTexture r_texture;
+        r_texture.create(thick, thick);
+        r_texture.draw(link_tile);
+        r_texture.setRepeated(true);
+
+        // Drawing a sprite with the repeated RenderTexture
+        sf::Sprite line(r_texture.getTexture());
+        line.setTextureRect(sf::IntRect(0, 0, W, H));
+        line.setPosition(X, Y);
         windowPoint->draw(line);
     }
 }
@@ -465,6 +463,17 @@ Logic::Logic(Json::Value json_logic)
             doors[C_end].add_input(i);
     }
 
+    //Fetching link textures :
+    link_textures.resize(2);
+    for (int i=0; i < 2; i++)   // Only 2 states, might add animations
+    {
+        link_textures[i].loadFromFile(
+            "assets/Logic/connector.png",
+            sf::IntRect(2 * i, 0, 2, 2)
+        );
+        // link_textures[i].setRepeated(true);
+    }
+
     //Updating logic because of no gates :
 
     update(to_update);
@@ -606,7 +615,10 @@ void Logic::undo()
 void Logic::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     for (auto &link_elt : links)
-        link_elt.second.draw(C0, delta, windowPoint);
+    {
+        sf::Texture *texture_p = &(link_textures[link_elt.second.get_state()]);
+        link_elt.second.draw(C0, delta, windowPoint, texture_p);
+    }
 
     for (auto &elt : activators)
     {
@@ -632,7 +644,10 @@ void Logic::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int 
 {
     
     for (auto &link_elt : links)
-        link_elt.second.draw(C0, delta, windowPoint);
+    {
+        sf::Texture *texture_p = &(link_textures[link_elt.second.get_state()]);
+        link_elt.second.draw(C0, delta, windowPoint, texture_p);
+    }
 
     for (auto &elt : activators)
     {

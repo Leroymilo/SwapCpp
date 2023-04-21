@@ -89,26 +89,43 @@ class Link :
         return self.get_id() == __o.get_id()
     
     def draw(self, surf: pg.Surface, delta: int, seg: int = -1) :
-        width = delta//16
+        thick = delta//8
 
-        color = [(61, 176, 254), (255, 127, 39)]
+        colors = [(61, 176, 254), (255, 127, 39)]
 
         for i in range(len(self.nodes) - 1) :
             x1, y1 = self.nodes[i]
             x2, y2 = self.nodes[i+1]
-            x1, y1, x2, y2 = delta * (x1+0.5), delta * (y1+0.5), delta * (x2+0.5), delta * (y2+0.5)
+
+            color = colors[i == seg]
 
             if x1 == x2 :
-                C1 = (x1 + width * self.get_offset(i), y1 + width * self.get_offset(i-1))
-                C2 = (x2 + width * self.get_offset(i), y2 + width * self.get_offset(i+1))
-            elif y1 == y2 :
-                C1 = (x1 + width * self.get_offset(i-1), y1 + width * self.get_offset(i))
-                C2 = (x2 + width * self.get_offset(i+1), y2 + width * self.get_offset(i))
-            else :
-                C1 = (x1, y1)
-                C2 = (x2, y2)
+                X = delta * x1 + thick * (4.5 + self.get_offset(i))
+                W = thick
 
-            pg.draw.line(surf, color[i == seg], C1, C2, width)
+                if y1 < y2 :
+                    Y = delta * y1 + thick * (4.5 + self.get_offset(i-1))
+                    H = delta * (y2 - y1) + thick * (1 - self.get_offset(i-1) + self.get_offset(i+1))
+                else :
+                    Y = delta * y2 + thick * (4.5 + self.get_offset(i+1))
+                    H = delta * (y1 - y2) + thick * (1 - self.get_offset(i+1) + self.get_offset(i-1))
+
+            elif y1 == y2 :
+                Y = delta * y1 + thick * (4.5 + self.get_offset(i))
+                H = thick
+
+                if x1 < x2 :
+                    X = delta * x1 + thick * (4.5 + self.get_offset(i-1))
+                    W = delta * (x2 - x1) + thick * (1 - self.get_offset(i-1) + self.get_offset(i+1))
+                else :
+                    X = delta * x2 + thick * (4.5 + self.get_offset(i+1))
+                    W = delta * (x1 - x2) + thick * (1 - self.get_offset(i+1) + self.get_offset(i-1))
+            else :
+                C1 = (delta * (x1 + 0.5), delta * (y1 + 0.5))
+                C2 = (delta * (x2 + 0.5), delta * (y2 + 0.5))
+                pg.draw.line(surface=surf, color=color, start_pos=C1, end_pos=C2, width=thick)
+
+            pg.draw.rect(surface=surf, color=color, rect=pg.Rect(X, Y, W, H))
 
 
 # Level representation class ===============================================================================================================================

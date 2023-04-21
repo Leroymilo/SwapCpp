@@ -43,7 +43,7 @@ class Link
         void step_end_logic();
         void undo();
 
-        void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
+        void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, sf::Texture *texture);
 };
 
 class Activator
@@ -134,6 +134,8 @@ class Logic
         std::map<sf::Vector2i, Gate, VectorComparator> gates;
         std::map<sf::Vector2i, Door, VectorComparator> doors;
         std::map<sf::Vector2i, sf::Vector2i, VectorComparator> door_tiles; //Used to search for the state of a doortile faster for collisions
+
+        std::vector<sf::Texture> link_textures;
     
     public :
         Logic();

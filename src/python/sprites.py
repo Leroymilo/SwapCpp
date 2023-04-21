@@ -5,7 +5,7 @@ pg.init()
 dirs = ['U', 'R', 'D', 'L']
 orients = ['N', 'H', 'V']
 
-delta = 32
+delta = 64
 size = (delta, delta)
 
 def get_image(path: str, n_w: int = 1, n_h: int = 1) :
@@ -44,8 +44,8 @@ grate   = get_image("assets/Tiles/Grate.png")
 goal    = get_image("assets/Tiles/Win.png")
 
 box     = get_image("assets/Entities/Box.png")
-player  = get_image("assets/Entities/player.png", 1, 4)
-bullet  = get_image("assets/Entities/bullet.png", 1, 4)
+player  = get_image("assets/Entities/player.png", 4, 4)
+bullet  = get_image("assets/Entities/bullet.png", 4, 4)
 
 interruptor = get_image("assets/Logic/Button.png", 5, 1)
 target      = get_image("assets/Logic/Target.png", 5, 1)
