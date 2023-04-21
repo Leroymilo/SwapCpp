@@ -278,7 +278,6 @@ void Level::step(bool didSwap)
     for (sf::Vector2i coords : boxes.get_boxes_pos())
     {
         to_destroy.push_back(isWallForMost(coords));
-        std::cout << "box at : " << coords.x << ", " << coords.y <<  " : " << isWallForMost(coords) << std::endl;
     }
     boxes.destroy(to_destroy);
 

@@ -106,8 +106,6 @@ int main()
             }
         }
     }
-
-    // std::cout << "new scene : " << scene << std::endl;
     
     save.write();
     return 0;

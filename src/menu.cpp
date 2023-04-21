@@ -150,9 +150,6 @@ void LevelGrid::reshape()
     {
         page = nb_pages - 1;
     }
-
-    std::cout << "page " << page+1 << "/" << nb_pages << std::endl;
-    std::cout << "grid dimentions : " << W << ", " << H << std::endl;
     
     for (int y=0; y<H; y++)
     {

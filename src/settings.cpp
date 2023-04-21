@@ -110,8 +110,6 @@ bool Options::update()
             bool new_state = line_elt.second.get_button_state();
             ref_save_p->set_flag_state(line_elt.first, new_state);
             updated = true;
-            
-            // std::cout << line_elt.first << " : " << ref_save_p->get_flag_state(line_elt.first) << std::endl;
         }
 
     }
