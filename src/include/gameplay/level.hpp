@@ -18,7 +18,7 @@ class Level
 {
     private:
         PlayerLike Player;
-        PlayerLike bullet;
+        PlayerLike ghost;
         Boxes boxes;
         sf::Vector2i win_tile;
         Grid backGround;
@@ -48,17 +48,17 @@ class Level
         Level();
         Level(std::string file_name, sf::Font font);
         Level(int number, bool solved, sf::Font font);
-        std::string get_pLike_state();  //To record the states of the Player and bullet into the list of steps
+        std::string get_pLike_state();  //To record the states of the Player and ghost into the list of steps
 
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
-        bool isWallForBullet(sf::Vector2i coords);
+        bool isWallForGhost(sf::Vector2i coords);
         bool push(char direction, std::string* act);  //First call of the pushing recursive function (the player pushes)
         bool swap(std::string* act);
         bool wait();
         void undo(std::list<std::string>* steps);
         void process_logic(bool didSwap);
         void step(bool didSwap);
-        void step_end_logic();
+        void validate_step();
         bool win();
 
         void resize_bg(sf::RenderWindow* windowP);

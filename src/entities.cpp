@@ -11,50 +11,54 @@
 Entity::Entity(){}
 
 
-Entity::Entity(sf::Vector2i C, sf::Texture sprite) : C(C), prev_C(C), sprite(sprite)
+Entity::Entity(sf::Vector2i pos, sf::Texture sprite) : alive(true), pos(pos), sprite(sprite)
 {
-    is_alive = true;
-    prev_is_alive = true;
+    hist_pos.push_back(pos);
+    hist_alive.push_back(true);
 }
 
 sf::Vector2i Entity::get_next_pos(char direction)
 {
     if (direction == 'U')
-        return sf::Vector2i(C.x, C.y-1);
+        return sf::Vector2i(pos.x, pos.y-1);
     else if (direction == 'R')
-        return sf::Vector2i(C.x+1, C.y);
+        return sf::Vector2i(pos.x+1, pos.y);
     else if (direction == 'D')
-        return sf::Vector2i(C.x, C.y+1);
+        return sf::Vector2i(pos.x, pos.y+1);
     else if (direction == 'L')
-        return sf::Vector2i(C.x-1, C.y);
-    return C;
+        return sf::Vector2i(pos.x-1, pos.y);
+    return pos;
 }
 
-sf::Vector2i Entity::get_prev_pos(char direction)
-{    
-    if (direction == 'U')
-        return sf::Vector2i(C.x, C.y+1);
-    else if (direction == 'R')
-        return sf::Vector2i(C.x-1, C.y);
-    else if (direction == 'D')
-        return sf::Vector2i(C.x, C.y-1);
-    else if (direction == 'L')
-        return sf::Vector2i(C.x+1, C.y);
-    return C;
+void Entity::validate_step()
+{
+    hist_pos.push_back(pos);
+    hist_alive.push_back(alive);
+}
+
+void Entity::undo()
+{
+    hist_pos.pop_back();
+    hist_alive.pop_back();
+    pos = hist_pos.back();
+    alive = hist_alive.back();
 }
 
 void Entity::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprite);
-    tile.setPosition(C0.x+delta*C.x, C0.y+delta*C.y);
+    tile.setPosition(C0.x+delta*pos.x, C0.y+delta*pos.y);
     windowPoint->draw(tile);
 }
 
 void Entity::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    float deltaX = ((float)C.x-(float)prev_C.x)/4, deltaY = ((float)C.y-(float)prev_C.y)/4;
-    float pxlX = C0.x + delta*(prev_C.x+deltaX*frame), pxlY = C0.y + delta*(prev_C.y+deltaY*frame);
+    if (!alive) return;
+
+    sf::Vector2i prev_pos = hist_pos.end()[-2];
+    float deltaX = ((float)pos.x-(float)prev_pos.x)/4, deltaY = ((float)pos.y-(float)prev_pos.y)/4;
+    float pxlX = C0.x + delta*(prev_pos.x+deltaX*frame), pxlY = C0.y + delta*(prev_pos.y+deltaY*frame);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprite);
     tile.setPosition(pxlX, pxlY);
@@ -66,9 +70,12 @@ PlayerLike::PlayerLike(){}
 
 PlayerLike::PlayerLike(Json::Value json_entity, std::string name)
 {
-    C = sf::Vector2i(json_entity["X"].asInt(), json_entity["Y"].asInt());
-    prev_Cs.push_back(C);
+    pos = sf::Vector2i(json_entity["X"].asInt(), json_entity["Y"].asInt());
+    hist_pos.push_back(pos);
     dir = json_entity["dir"].asCString()[0];
+    hist_dir.push_back(dir);
+    alive = json_entity["alive"].asBool();
+    hist_alive.push_back(alive);
 
     char directions [] = {'U', 'R', 'D', 'L'};
     for (int i=0; i<4; i++)
@@ -91,9 +98,6 @@ PlayerLike::PlayerLike(Json::Value json_entity, std::string name)
 
         death_sprites[i] = sprite;
     }
-    
-    is_alive = json_entity["alive"].asBool();
-    prev_is_alive = is_alive;
 }
 
 sf::Vector2i PlayerLike::get_next_pos(char direction)
@@ -101,31 +105,12 @@ sf::Vector2i PlayerLike::get_next_pos(char direction)
     if (direction == '_')
         direction = dir;
     
-    if (direction == 'U')
-        return sf::Vector2i(C.x, C.y-1);
-    else if (direction == 'R')
-        return sf::Vector2i(C.x+1, C.y);
-    else if (direction == 'D')
-        return sf::Vector2i(C.x, C.y+1);
-    else if (direction == 'L')
-        return sf::Vector2i(C.x-1, C.y);
-    return C;
+    return Entity::get_next_pos(direction);
 }
 
-sf::Vector2i PlayerLike::get_prev_pos(char direction)
+sf::Vector2i PlayerLike::get_prev_pos()
 {
-    if (direction == '_')
-        direction = dir;
-    
-    if (direction == 'U')
-        return sf::Vector2i(C.x, C.y+1);
-    else if (direction == 'R')
-        return sf::Vector2i(C.x-1, C.y);
-    else if (direction == 'D')
-        return sf::Vector2i(C.x, C.y-1);
-    else if (direction == 'L')
-        return sf::Vector2i(C.x+1, C.y);
-    return C;
+    return hist_pos.back();
 }
 
 void PlayerLike::revert()
@@ -140,18 +125,32 @@ void PlayerLike::revert()
         dir = 'R';
 }
 
+void PlayerLike::validate_step()
+{
+    Entity::validate_step();
+    hist_dir.push_back(dir);
+}
+
+void PlayerLike::undo()
+{
+    Entity::undo();
+    hist_dir.pop_back();
+    dir = hist_dir.back();
+}
+
 void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprites[dir][0]);
-    tile.setPosition(C0.x+delta*C.x, C0.y+delta*C.y);
+    tile.setPosition(C0.x+delta*pos.x, C0.y+delta*pos.y);
     windowPoint->draw(tile);
 }
 
 void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    float deltaX = ((float)C.x-(float)prev_Cs.back().x)/4, deltaY = ((float)C.y-(float)prev_Cs.back().y)/4;
-    float pxlX = C0.x + delta*(prev_Cs.back().x+deltaX*frame), pxlY = C0.y + delta*(prev_Cs.back().y+deltaY*frame);
+    sf::Vector2i prev_pos = hist_pos.end()[-2];
+    float deltaX = ((float)pos.x-(float)prev_pos.x)/4, deltaY = ((float)pos.y-(float)prev_pos.y)/4;
+    float pxlX = C0.x + delta*(prev_pos.x+deltaX*frame), pxlY = C0.y + delta*(prev_pos.y+deltaY*frame);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&sprites[dir][step]);
     tile.setPosition(pxlX, pxlY);
@@ -160,8 +159,9 @@ void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint,
 
 void PlayerLike::destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    float pxlX = C0.x + delta * ((float)C.x + (float)prev_Cs.back().x) / 2;
-    float pxlY = C0.y + delta * ((float)C.y + (float)prev_Cs.back().y) / 2;
+    sf::Vector2i prev_pos = hist_pos.end()[-2];
+    float pxlX = C0.x + delta * ((float)pos.x + (float)prev_pos.x) / 2;
+    float pxlY = C0.y + delta * ((float)pos.y + (float)prev_pos.y) / 2;
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
     tile.setTexture(&death_sprites[frame]);
     tile.setPosition(pxlX, pxlY);
@@ -180,8 +180,8 @@ Boxes::Boxes(int nb_boxes, Json::Value boxes) : nb_boxes(nb_boxes)
 
     for (int i=0; i<nb_boxes; i++)
     {
-        sf::Vector2i C(boxes[i]["X"].asInt(), boxes[i]["Y"].asInt());
-        list[i] = Entity(C, sprite);
+        sf::Vector2i pos(boxes[i]["X"].asInt(), boxes[i]["Y"].asInt());
+        list[i] = Entity(pos, sprite);
     }
 }
 
@@ -189,7 +189,7 @@ Entity* Boxes::get_box(sf::Vector2i coords, bool* hasBox)
 {
     for (auto &box : list)
     {
-        if (box.is_alive && box.C == coords)
+        if (box.alive && box.pos == coords)
         {
             *hasBox = true;
             return &box;
@@ -205,8 +205,8 @@ std::vector<sf::Vector2i> Boxes::get_boxes_pos()
 
     for (auto &box : list)
     {
-        if (box.is_alive)
-            boxes_pos.push_back(box.C);
+        if (box.alive)
+            boxes_pos.push_back(box.pos);
     }
 
     return boxes_pos;
@@ -217,25 +217,22 @@ void Boxes::destroy(std::vector<bool> to_destroy)
     int j = 0;
     for (int i = 0; i < nb_boxes; i++)
     {
-        if (list[i].is_alive)
+        if (list[i].alive)
         {
             if (to_destroy[j])
             {
-                list[i].is_alive = false;
+                list[i].alive = false;
             }
             j++;
         }
     }
 }
 
-void Boxes::step_end_logic()
+void Boxes::validate_step()
 {
     for (auto &box : list)
     {
-        box.prev_is_alive = box.is_alive;
-        box.prev_C = box.C;
-        if (!box.is_alive)
-            box.step_since_destroy++;
+        box.validate_step();
     } 
 }
 
@@ -243,14 +240,7 @@ void Boxes::undo()
 {
     for (auto &box : list)
     {
-        if (!box.is_alive)
-        {
-            box.step_since_destroy--;
-            if (box.step_since_destroy == 0)
-                box.is_alive = true;
-            else
-                box.step_since_destroy--;
-        }
+        box.undo();
     }
 }
 
@@ -258,7 +248,7 @@ void Boxes::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 {
     for (auto &box : list)
     {
-        if (box.is_alive)
+        if (box.alive)
             box.draw(C0, delta, windowPoint);
     }
 }
@@ -267,10 +257,6 @@ void Boxes::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int 
 {
     for (auto &box : list)
     {
-        if (box.is_alive && box.prev_is_alive)
-            box.anim(C0, delta, windowPoint, frame);
-        else if (box.is_alive)
-            box.draw(C0, delta, windowPoint);
-        
+        box.anim(C0, delta, windowPoint, frame);
     }
 }

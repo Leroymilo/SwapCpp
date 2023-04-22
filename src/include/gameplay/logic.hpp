@@ -29,7 +29,7 @@ class Link
         std::string output_type;
         // Types are "Activator", "Gate" or "Door". "Activator" cannot be output and "Door" cannot be input.
         bool state = false;
-        std::list<bool> prev_states = {false};
+        std::list<bool> hist_states = {false};
 
         int get_offset(int i);
     
@@ -40,7 +40,7 @@ class Link
         sf::Vector2i get_output();
         void set_state(bool new_state);
         bool get_state();
-        void step_end_logic();
+        void validate_step();
         void undo();
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, sf::Texture *texture);
@@ -52,7 +52,7 @@ class Activator
         std::vector<sf::Texture> sprites;
         std::vector<int> outputs;
         bool state = false;
-        std::list<bool> prev_states;
+        std::list<bool> hist_states = {false};
     
     public :
         char type;
@@ -64,7 +64,7 @@ class Activator
         void get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links);
         void set_state(bool new_state);
         bool get_state();
-        void step_end_logic();
+        void validate_step();
         void undo();
 
         sf::RectangleShape draw(int delta);
@@ -77,8 +77,8 @@ class Gate
         sf::Texture sprites[5];
         std::vector<int> inputs;
         std::vector<int> outputs;
-        bool state=false;
-        std::list<bool> prev_states = {false};
+        bool state = false;
+        std::list<bool> hist_states = {false};
     
     public :
         std::string type;
@@ -92,7 +92,7 @@ class Gate
         //Returns true if output changed, does not update states of the output links.
         void get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links);
         //Updates states of the output links and add positions of outputs's end points to to_update.
-        void step_end_logic();
+        void validate_step();
         void undo();
 
         sf::RectangleShape draw(int delta);
@@ -104,13 +104,13 @@ class Door
     private :
         int input;
         int nb_tiles;
-        std::map<sf::Vector2i, int, VectorComparator> tiles;  // map of {tile coords, tile orientation}
-        bool state=false;   //false is closed, true is open
-        std::list<bool> prev_states = {false};
+        std::map<sf::Vector2i, int, VectorComparator> tiles;    // map of {tile coords, tile orientation}
+        bool state = false;                                     //false is closed, true is open
+        std::list<bool> hist_states = {false};
         std::map<char, std::vector<sf::Texture>> sprites;
     
     public :
-        char type='D';
+        char type = 'D';
 
         Door();
         Door(Json::Value door_data);
@@ -119,7 +119,7 @@ class Door
 
         void update_state(std::map<int, Link> * links);
         bool get_state();
-        void step_end_logic();
+        void validate_step();
         void undo();
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
@@ -142,12 +142,16 @@ class Logic
         Logic(Json::Value json_logic);
         bool isClosedDoor(sf::Vector2i coords);
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
-        bool isWallForBullet(sf::Vector2i coords);
+        bool isWallForGhost(sf::Vector2i coords);
 
-        std::vector<sf::Vector2i> update_activators(std::vector<sf::Vector2i> heavy_coords, std::vector<sf::Vector2i> arrow_coords, bool didSwap, bool * balive);
+        std::vector<sf::Vector2i> update_activators(
+            std::vector<sf::Vector2i> heavy_coords,
+            std::vector<sf::Vector2i> ghost_coords,
+            bool didSwap, bool * balive
+        );
         //Returns the position of the outputs of every activator that chenged state
         void update(std::vector<sf::Vector2i> changed_elts);
-        void step_end_logic();
+        void validate_step();
         void undo();
 
         void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);

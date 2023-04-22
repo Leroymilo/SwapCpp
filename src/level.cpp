@@ -30,9 +30,7 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
     // Making objects :
     win_tile = backGround.readJson(json_data["bg"]);
     Player = PlayerLike(json_data["entities"]["player"], "player");
-    Player.is_alive = json_data["entities"]["player"]["alive"].asBool();
-    bullet = PlayerLike(json_data["entities"]["bullet"], "bullet");
-    bullet.is_alive = json_data["entities"]["bullet"]["alive"].asBool();
+    ghost = PlayerLike(json_data["entities"]["bullet"], "bullet");
     boxes = Boxes(json_data["entities"]["nbBoxes"].asInt(), json_data["entities"]["Boxes"]);
     logic = Logic(json_data["logic"]);
 
@@ -61,7 +59,7 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
     perf_steps = json_data["perf_steps"].asInt();
 
     process_logic(false);
-    step_end_logic();
+    validate_step();
 }
 
 Level::Level(int number, bool solved, sf::Font font) : Level(make_level_name(number), font)
@@ -72,10 +70,10 @@ Level::Level(int number, bool solved, sf::Font font) : Level(make_level_name(num
 std::string Level::get_pLike_state()
 {
     std::string res = "";
-    res.append(std::to_string(int(Player.is_alive)));
+    res.append(std::to_string(int(Player.alive)));
     res.push_back(Player.dir);
-    res.append(std::to_string(int(bullet.is_alive)));
-    res.push_back(bullet.dir);
+    res.append(std::to_string(int(ghost.alive)));
+    res.push_back(ghost.dir);
     return res;
 }
 
@@ -88,18 +86,18 @@ bool Level::isWallForMost(sf::Vector2i coords)
     return logic.isWallForMost(coords);
 }
 
-bool Level::isWallForBullet(sf::Vector2i coords)
+bool Level::isWallForGhost(sf::Vector2i coords)
 {
     if (backGround.getTile(coords) == 'X')
         return true;
     bool hasBox;
     boxes.get_box(coords, &hasBox);
-    return hasBox || logic.isWallForBullet(coords);
+    return hasBox || logic.isWallForGhost(coords);
 }
 
 bool Level::push(char direction, std::string* act)
 {
-    if (!Player.is_alive)
+    if (!Player.alive)
         return false;
 
     bool STEP = !(Player.dir == direction);
@@ -126,7 +124,7 @@ bool Level::push(char direction, std::string* act)
     //Updating the coords if nothing is blocking:
     if (!isBlocked)
     {
-        Player.C = newCoords;
+        Player.pos = newCoords;
         return true;
     }
     return STEP;
@@ -150,14 +148,14 @@ bool Level::boxPush(Entity* pusher, char direction, int* nb_pushed)
     //Updating the coords if nothing is blocking:
     if (!isBlocked)
     {
-        pusher->C = newCoords;
+        pusher->pos = newCoords;
         (*nb_pushed)++;
     }
 
     //Pushing a PlayerLike if it's in front :
-    if (bullet.is_alive && bullet.C == newCoords)
+    if (ghost.alive && ghost.pos == newCoords)
     {
-        pLikePush(&bullet, direction);
+        pLikePush(&ghost, direction);
         (*nb_pushed)++;
     }
     return isBlocked;
@@ -166,8 +164,8 @@ bool Level::boxPush(Entity* pusher, char direction, int* nb_pushed)
 void Level::pLikePush(PlayerLike* pushed, char direction)
 {
     sf::Vector2i newCoords = pushed->get_next_pos(direction);
-    pushed->C = newCoords;
-    if (!isWallForBullet(newCoords))
+    pushed->pos = newCoords;
+    if (!isWallForGhost(newCoords))
         pushed->dir = direction;
     //It's pushed anyway.
 }
@@ -176,36 +174,36 @@ bool Level::swap(std::string* act)
 {
     if (!can_swap) {return false;}
 
-    if (Player.is_alive && !bullet.is_alive)
+    if (Player.alive && !ghost.alive)
     {
-        if (isWallForBullet(Player.get_next_pos()))
+        if (isWallForGhost(Player.get_next_pos()))
             return false;
-        bullet.is_alive = true;
-        bullet.C = Player.get_next_pos();
-        bullet.dir = Player.dir;
+        ghost.alive = true;
+        ghost.pos = Player.get_next_pos();
+        ghost.dir = Player.dir;
         act->push_back('H');
     }
-    else if (Player.is_alive && bullet.is_alive)
+    else if (Player.alive && ghost.alive)
     {
-        if (isWallForMost(bullet.C))
+        if (isWallForMost(ghost.pos))
             return false;
-        sf::Vector2i tempC = Player.C;
+        sf::Vector2i tempC = Player.pos;
         char tempdir = Player.dir;
-        Player.C = bullet.C;
-        bullet.C = tempC;
-        Player.dir = bullet.dir;
-        bullet.dir = tempdir;
+        Player.pos = ghost.pos;
+        ghost.pos = tempC;
+        Player.dir = ghost.dir;
+        ghost.dir = tempdir;
         act->push_back('P');
         act->push_back(Player.dir);
     }
-    else if (!Player.is_alive && bullet.is_alive)
+    else if (!Player.alive && ghost.alive)
     {
-        if (isWallForMost(bullet.C))
+        if (isWallForMost(ghost.pos))
             return false;
-        Player.is_alive = true;
-        bullet.is_alive = false;
-        Player.C = bullet.C;
-        Player.dir = bullet.dir;
+        Player.alive = true;
+        ghost.alive = false;
+        Player.pos = ghost.pos;
+        Player.dir = ghost.dir;
         act->push_back('P');
         act->push_back(Player.dir);
     }
@@ -216,7 +214,7 @@ bool Level::swap(std::string* act)
 
 bool Level::wait()
 {
-    if (bullet.is_alive)
+    if (ghost.alive)
     {
         return true;
     }
@@ -226,52 +224,52 @@ bool Level::wait()
 void Level::process_logic(bool didSwap)
 {
     std::vector<sf::Vector2i> heavy_pos = boxes.get_boxes_pos();
-    if (Player.is_alive)
-        heavy_pos.push_back(Player.C);
+    if (Player.alive)
+        heavy_pos.push_back(Player.pos);
 
     std::vector<sf::Vector2i> arrow_pos;
-    if (bullet.is_alive)
-        arrow_pos.push_back(bullet.C);
+    if (ghost.alive)
+        arrow_pos.push_back(ghost.pos);
 
     
-    std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &bullet.is_alive);
+    std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &ghost.alive);
     logic.update(updated_activators);
 }
 
 void Level::step(bool didSwap)
 {
-    //Bullet crushing and movement :
-    bullet.is_alive = !isWallForBullet(bullet.C) && bullet.is_alive;
-    if (bullet.is_alive && !didSwap)
+    //Ghost crushing and movement :
+    ghost.alive = !isWallForGhost(ghost.pos) && ghost.alive;
+    if (ghost.alive && !didSwap)
     {
-        sf::Vector2i newC = bullet.get_next_pos();
+        sf::Vector2i newC = ghost.get_next_pos();
 
-        if (isWallForBullet(newC))
+        if (isWallForGhost(newC))
         {
-            bullet.revert();
-            newC = bullet.get_next_pos();
+            ghost.revert();
+            newC = ghost.get_next_pos();
         }
 
-        if (!isWallForBullet(newC))
-            bullet.C = newC;
+        if (!isWallForGhost(newC))
+            ghost.pos = newC;
     }
 
     //Checking if player get shot :
-    if (bullet.is_alive && Player.is_alive)
+    if (ghost.alive && Player.alive)
     {
-        Player.is_alive = Player.C != bullet.C;
-        if (Player.prev_Cs.back() == bullet.C && Player.C == bullet.prev_Cs.back() && !didSwap)
+        Player.alive = Player.pos != ghost.pos;
+        if (Player.get_prev_pos() == ghost.pos && Player.pos == ghost.get_prev_pos() && !didSwap)
         {
-            // Player crossed bullet
-            Player.is_alive = false;
+            // Player crossed ghost
+            Player.alive = false;
         }
     }
 
     process_logic(didSwap);
 
-    //Checking if player and/or bullet get crushed :
-    Player.is_alive = !isWallForMost(Player.C) && Player.is_alive;
-    bullet.is_alive = !isWallForBullet(bullet.C) && bullet.is_alive;
+    //Checking if player and/or ghost get crushed :
+    Player.alive = !isWallForMost(Player.pos) && Player.alive;
+    ghost.alive = !isWallForGhost(ghost.pos) && ghost.alive;
 
     //Same for boxes :
     std::vector<bool> to_destroy;
@@ -291,8 +289,8 @@ void Level::undo(std::list<std::string>* steps)
     std::string last_move = steps->back();
     steps->pop_back();
 
-    Player.is_alive = last_move[0]=='1';
-    bullet.is_alive = last_move[2]=='1';
+    Player.undo();
+    ghost.undo();
     boxes.undo();
 
     if (last_move[4] == 'H'){}
@@ -301,53 +299,22 @@ void Level::undo(std::list<std::string>* steps)
 
     else if (last_move[4] == 'W'){}
 
-    else
-    {
-        int nb_pushed = std::stoi(last_move.substr(std::size_t(5), last_move.size()));
-        
-        //Pulling boxes and PlayerLikes :
-        for (int i = 0; i < nb_pushed; i++)
-        {
-            sf::Vector2i box_pos = Player.get_next_pos();
-            bool has_box;
-            Entity* box = boxes.get_box(box_pos, &has_box);
-            if (has_box && !(i == nb_pushed-1 && bullet.C == box_pos))
-                box->C = Player.C;
-            Player.C = box_pos;
-        }
-    }
-
     logic.undo();
-    
-    Player.prev_Cs.pop_back();
-    Player.C = Player.prev_Cs.back();
-    Player.prev_Cs.pop_back();
 
-    bullet.prev_Cs.pop_back();
-    bullet.C = bullet.prev_Cs.back();
-    bullet.prev_Cs.pop_back();
-
-    Player.dir = last_move[1];
-    bullet.dir = last_move[3];
-
-    step_end_logic();
     nbSteps--;
 }
 
-void Level::step_end_logic()
+void Level::validate_step()
 {
-    Player.prev_Cs.push_back(Player.C);
-    Player.prev_is_alive = Player.is_alive;
-    bullet.prev_Cs.push_back(bullet.C);
-    bullet.prev_is_alive = bullet.is_alive;
-
-    boxes.step_end_logic();
-    logic.step_end_logic();
+    Player.validate_step();
+    ghost.validate_step();
+    boxes.validate_step();
+    logic.validate_step();
 }
 
 bool Level::win()
 {
-    return Player.is_alive && Player.C == win_tile;
+    return Player.alive && Player.pos == win_tile;
 }
 
 
@@ -439,11 +406,11 @@ void Level::display(sf::RenderWindow * windowP, bool disp)
 
     logic.draw(C0, delta, windowP);
 
-    if (Player.is_alive)
+    if (Player.alive)
         Player.draw(C0, delta, windowP);
 
-    if (bullet.is_alive)
-        bullet.draw(C0, delta, windowP);
+    if (ghost.alive)
+        ghost.draw(C0, delta, windowP);
     
     boxes.draw(C0, delta, windowP);
 
@@ -471,20 +438,10 @@ void Level::animate(sf::RenderWindow * windowP)
         logic.anim(C0, delta, windowP, i);
 
         //Animation of the player
-        if (Player.prev_is_alive && Player.is_alive)
-            Player.anim(C0, delta, windowP, i);
-        else if (Player.prev_is_alive)
-            Player.destroy(C0, delta, windowP, i);
-        else if (Player.is_alive)
-            Player.draw(C0, delta, windowP);
+        Player.anim(C0, delta, windowP, i);
 
-        //Animation of the bullet
-        if (bullet.prev_is_alive && bullet.is_alive)
-            bullet.anim(C0, delta, windowP, i);
-        else if (bullet.prev_is_alive)
-            bullet.destroy(C0, delta, windowP, i);
-        else if (bullet.is_alive)
-            bullet.draw(C0, delta, windowP);
+        //Animation of the ghost
+        ghost.anim(C0, delta, windowP, i);
 
         //Animation of the boxes
         boxes.anim(C0, delta, windowP, i);
@@ -755,11 +712,13 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
                 }
                 level.step(didSwap);
                 t0 = clock.getElapsedTime().asMilliseconds();
+                level.validate_step();
                 level.animate(windowP);
-                level.step_end_logic();
             }
             else
                 level.display(windowP);
+            
+            // std::cout << steps.back() << std::endl;
 
             std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }

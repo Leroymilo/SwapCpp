@@ -48,16 +48,15 @@ bool Link::get_state()
     return state;
 }
 
-void Link::step_end_logic()
+void Link::validate_step()
 {
-    prev_states.push_back(state);
+    hist_states.push_back(state);
 }
 
 void Link::undo()
 {
-    prev_states.pop_back();
-    state = prev_states.back();
-    prev_states.pop_back();
+    hist_states.pop_back();
+    state = hist_states.back();
 }
 
 int Link::get_offset(int i)
@@ -170,16 +169,15 @@ bool Activator::get_state()
     return state;
 }
 
-void Activator::step_end_logic()
+void Activator::validate_step()
 {
-    prev_states.push_back(state);
+    hist_states.push_back(state);
 }
 
 void Activator::undo()
 {
-    prev_states.pop_back();
-    state = prev_states.back();
-    prev_states.pop_back();
+    hist_states.pop_back();
+    state = hist_states.back();
 }
 
 sf::RectangleShape Activator::draw(int delta)
@@ -192,9 +190,10 @@ sf::RectangleShape Activator::draw(int delta)
 sf::RectangleShape Activator::anim(int delta, int frame)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    if (state && !(prev_states.back()))
+    bool prev_state = *(std::next(hist_states.rbegin()));
+    if (state && !prev_state)
         tile.setTexture(&sprites[frame]);
-    else if (!state && (prev_states.back()))
+    else if (!state && prev_state)
         tile.setTexture(&sprites[4-frame]);
     else
         tile.setTexture(&sprites[state*4]);
@@ -281,16 +280,15 @@ void Gate::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link
     }
 }
 
-void Gate::step_end_logic()
+void Gate::validate_step()
 {
-    prev_states.push_back(state);
+    hist_states.push_back(state);
 }
 
 void Gate::undo()
 {
-    prev_states.pop_back();
-    state = prev_states.back();
-    prev_states.pop_back();
+    hist_states.pop_back();
+    state = hist_states.back();
 }
 
 sf::RectangleShape Gate::draw(int delta)
@@ -303,9 +301,10 @@ sf::RectangleShape Gate::draw(int delta)
 sf::RectangleShape Gate::anim(int delta, int frame)
 {
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
-    if (state && !prev_states.back())
+    bool prev_state = *(std::next(hist_states.rbegin()));
+    if (state && !prev_state)
         tile.setTexture(&sprites[frame]);
-    else if (!state && prev_states.back())
+    else if (!state && prev_state)
         tile.setTexture(&sprites[4-frame]);
     else
         tile.setTexture(&sprites[state*4]);
@@ -365,16 +364,15 @@ bool Door::get_state()
     return state;
 }
 
-void Door::step_end_logic()
+void Door::validate_step()
 {
-    prev_states.push_back(state);
+    hist_states.push_back(state);
 }
 
 void Door::undo()
 {
-    prev_states.pop_back();
-    state = prev_states.back();
-    prev_states.pop_back();
+    hist_states.pop_back();
+    state = hist_states.back();
 }
 
 void Door::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
@@ -391,9 +389,10 @@ void Door::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 void Door::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
     int sprite_x;
-    if (state && !prev_states.back())
+    bool prev_state = *(std::next(hist_states.rbegin()));
+    if (state && !prev_state)
         sprite_x = frame;
-    else if (prev_states.back() && !state)
+    else if (!state && prev_state)
         sprite_x = 4 - frame;
     else
         sprite_x = 4 * state;
@@ -479,7 +478,7 @@ Logic::Logic(Json::Value json_logic)
     //Updating logic because of no gates :
 
     update(to_update);
-    step_end_logic();
+    validate_step();
 }
 
 bool Logic::isClosedDoor(sf::Vector2i coords)
@@ -499,18 +498,18 @@ bool Logic::isWallForMost(sf::Vector2i coords)
     return isClosedDoor(coords);
 }
 
-bool Logic::isWallForBullet(sf::Vector2i coords)
+bool Logic::isWallForGhost(sf::Vector2i coords)
 {
     return isClosedDoor(coords);
 }
 
 std::vector<sf::Vector2i> Logic::update_activators(
     std::vector<sf::Vector2i> heavy_coords,
-    std::vector<sf::Vector2i> arrow_coords,
+    std::vector<sf::Vector2i> ghost_coords,
     bool didSwap, bool * balive)
 {
     //heavy_coords has the coordinates of "heavy objects" (alive boxes and the player if it's alive)
-    //arrow_coords has the coordinates of "arrow objects" (just the bullet if it's alive)
+    //ghost_coords has the coordinates of "ghost objects" (just the ghost if it's alive)
 
     std::vector<sf::Vector2i> changed;
 
@@ -536,9 +535,9 @@ std::vector<sf::Vector2i> Logic::update_activators(
 
         else if (act_elt_p.second.type == 'T')
         {
-            auto elt_act = std::find(arrow_coords.begin(), arrow_coords.end(), act_elt_p.first);
+            auto elt_act = std::find(ghost_coords.begin(), ghost_coords.end(), act_elt_p.first);
 
-            if (elt_act != arrow_coords.end())
+            if (elt_act != ghost_coords.end())
             {
                 if (!act_elt_p.second.get_state())
                 {
@@ -590,16 +589,16 @@ void Logic::update(std::vector<sf::Vector2i> changed_elts)
     update(new_elts);
 }
 
-void Logic::step_end_logic()
+void Logic::validate_step()
 {
     for (auto &link_elt : links)
-        link_elt.second.step_end_logic();
+        link_elt.second.validate_step();
     for (auto &act_elt : activators)
-        act_elt.second.step_end_logic();
+        act_elt.second.validate_step();
     for (auto &gate_elt : gates)
-        gate_elt.second.step_end_logic();
+        gate_elt.second.validate_step();
     for (auto &door_elt : doors)
-        door_elt.second.step_end_logic();
+        door_elt.second.validate_step();
 }
 
 void Logic::undo()
