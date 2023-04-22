@@ -56,7 +56,7 @@ void Entity::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int
 {
     if (!alive) return;
 
-    sf::Vector2i prev_pos = hist_pos.end()[-2];
+    sf::Vector2i prev_pos = *(std::next(hist_pos.rbegin()));
     float deltaX = ((float)pos.x-(float)prev_pos.x)/4, deltaY = ((float)pos.y-(float)prev_pos.y)/4;
     float pxlX = C0.x + delta*(prev_pos.x+deltaX*frame), pxlY = C0.y + delta*(prev_pos.y+deltaY*frame);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
@@ -148,7 +148,7 @@ void PlayerLike::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint)
 
 void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    sf::Vector2i prev_pos = hist_pos.end()[-2];
+    sf::Vector2i prev_pos = *(std::next(hist_pos.rbegin()));
     float deltaX = ((float)pos.x-(float)prev_pos.x)/4, deltaY = ((float)pos.y-(float)prev_pos.y)/4;
     float pxlX = C0.x + delta*(prev_pos.x+deltaX*frame), pxlY = C0.y + delta*(prev_pos.y+deltaY*frame);
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
@@ -159,7 +159,7 @@ void PlayerLike::anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint,
 
 void PlayerLike::destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame)
 {
-    sf::Vector2i prev_pos = hist_pos.end()[-2];
+    sf::Vector2i prev_pos = *(std::next(hist_pos.rbegin()));
     float pxlX = C0.x + delta * ((float)pos.x + (float)prev_pos.x) / 2;
     float pxlY = C0.y + delta * ((float)pos.y + (float)prev_pos.y) / 2;
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
@@ -199,9 +199,9 @@ Entity* Boxes::get_box(sf::Vector2i coords, bool* hasBox)
     return &list[0];
 }
 
-std::vector<sf::Vector2i> Boxes::get_boxes_pos()
+std::list<sf::Vector2i> Boxes::get_boxes_pos()
 {
-    std::vector<sf::Vector2i> boxes_pos;
+    std::list<sf::Vector2i> boxes_pos;
 
     for (auto &box : list)
     {

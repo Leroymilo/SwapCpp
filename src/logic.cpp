@@ -146,7 +146,7 @@ void Activator::add_output(int id_link)
     outputs.push_back(id_link);
 }
 
-void Activator::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links)
+void Activator::get_outputs(std::list<sf::Vector2i> * to_update, std::map<int, Link> * links)
 {
     for (auto &id_link : outputs)
     {
@@ -259,7 +259,7 @@ bool Gate::update_state(std::map<int, Link> * links)
     }
 
     else if (type=="NO")
-        new_state = !links[0][inputs[0]].get_state();
+        new_state = !links[0][inputs.front()].get_state();
 
     bool changed = state != new_state;
     state = new_state;
@@ -267,7 +267,7 @@ bool Gate::update_state(std::map<int, Link> * links)
     return changed;
 }
 
-void Gate::get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links)
+void Gate::get_outputs(std::list<sf::Vector2i> * to_update, std::map<int, Link> * links)
 {
     for (auto &id_link : outputs)
     {
@@ -346,9 +346,9 @@ void Door::add_input(int id_link)
     input = id_link;
 }
 
-std::vector<sf::Vector2i> Door::get_tiles_pos()
+std::list<sf::Vector2i> Door::get_tiles_pos()
 {
-    std::vector<sf::Vector2i> tiles_pos;
+    std::list<sf::Vector2i> tiles_pos;
     for (auto &tile_elt : tiles)
         tiles_pos.push_back(tile_elt.first);
     return tiles_pos;
@@ -411,7 +411,7 @@ Logic::Logic(){}
 
 Logic::Logic(Json::Value json_logic)
 {
-    std::vector<sf::Vector2i> to_update;
+    std::list<sf::Vector2i> to_update;
 
     int nb_activators = json_logic["nb_activators"].asInt();
     for (int i = 0; i < nb_activators; i++)
@@ -503,15 +503,15 @@ bool Logic::isWallForGhost(sf::Vector2i coords)
     return isClosedDoor(coords);
 }
 
-std::vector<sf::Vector2i> Logic::update_activators(
-    std::vector<sf::Vector2i> heavy_coords,
-    std::vector<sf::Vector2i> ghost_coords,
+std::list<sf::Vector2i> Logic::update_activators(
+    std::list<sf::Vector2i> heavy_coords,
+    std::list<sf::Vector2i> ghost_coords,
     bool didSwap, bool * balive)
 {
     //heavy_coords has the coordinates of "heavy objects" (alive boxes and the player if it's alive)
     //ghost_coords has the coordinates of "ghost objects" (just the ghost if it's alive)
 
-    std::vector<sf::Vector2i> changed;
+    std::list<sf::Vector2i> changed;
 
     for (auto &act_elt_p : activators)
     {
@@ -558,14 +558,14 @@ std::vector<sf::Vector2i> Logic::update_activators(
     return changed;
 }
 
-void Logic::update(std::vector<sf::Vector2i> changed_elts)
+void Logic::update(std::list<sf::Vector2i> changed_elts)
 {
     //This method will call itself until stability is reached.
     //It is therefore required to be careful with gates.
     if (changed_elts.size() == 0)
         return;
 
-    std::vector<sf::Vector2i> new_elts;
+    std::list<sf::Vector2i> new_elts;
 
     for (auto &coords : changed_elts)
     {

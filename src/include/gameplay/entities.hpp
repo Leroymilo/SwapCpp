@@ -10,8 +10,8 @@ class Entity    //Generic class describing entities
 {
     protected:
         sf::Texture sprite;
-        std::vector<bool> hist_alive;
-        std::vector<sf::Vector2i> hist_pos;
+        std::list<bool> hist_alive;
+        std::list<sf::Vector2i> hist_pos;
         
     public:
         bool alive;
@@ -32,7 +32,7 @@ class PlayerLike : public Entity   //Everything that can wove on its own (Player
     private:
         std::map<char, std::vector<sf::Texture>> sprites;
         sf::Texture death_sprites [4];
-        std::vector<char> hist_dir;
+        std::list<char> hist_dir;
 
     public:
         char dir;
@@ -61,7 +61,7 @@ class Boxes     //list of boxes (simple entities)
         Boxes(int nb_boxes, Json::Value boxes);
 
         Entity* get_box(sf::Vector2i coords, bool* hasBox);
-        std::vector<sf::Vector2i> get_boxes_pos();
+        std::list<sf::Vector2i> get_boxes_pos();
         void destroy(std::vector<bool> to_destroy);
         void validate_step();
         void undo();

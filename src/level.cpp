@@ -223,16 +223,16 @@ bool Level::wait()
 
 void Level::process_logic(bool didSwap)
 {
-    std::vector<sf::Vector2i> heavy_pos = boxes.get_boxes_pos();
+    std::list<sf::Vector2i> heavy_pos = boxes.get_boxes_pos();
     if (Player.alive)
         heavy_pos.push_back(Player.pos);
 
-    std::vector<sf::Vector2i> arrow_pos;
+    std::list<sf::Vector2i> ghost_pos;
     if (ghost.alive)
-        arrow_pos.push_back(ghost.pos);
+        ghost_pos.push_back(ghost.pos);
 
     
-    std::vector<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, arrow_pos, didSwap, &ghost.alive);
+    std::list<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, ghost_pos, didSwap, &ghost.alive);
     logic.update(updated_activators);
 }
 

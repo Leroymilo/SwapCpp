@@ -50,7 +50,7 @@ class Activator
 {
     private :
         std::vector<sf::Texture> sprites;
-        std::vector<int> outputs;
+        std::list<int> outputs;
         bool state = false;
         std::list<bool> hist_states = {false};
     
@@ -61,7 +61,7 @@ class Activator
         Activator(char type);
 
         void add_output(int id_link);
-        void get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links);
+        void get_outputs(std::list<sf::Vector2i> * to_update, std::map<int, Link> * links);
         void set_state(bool new_state);
         bool get_state();
         void validate_step();
@@ -75,8 +75,8 @@ class Gate
 {
     private :
         sf::Texture sprites[5];
-        std::vector<int> inputs;
-        std::vector<int> outputs;
+        std::list<int> inputs;
+        std::list<int> outputs;
         bool state = false;
         std::list<bool> hist_states = {false};
     
@@ -90,7 +90,7 @@ class Gate
         void add_input(int id_link);
         bool update_state(std::map<int, Link> * links);
         //Returns true if output changed, does not update states of the output links.
-        void get_outputs(std::vector<sf::Vector2i> * to_update, std::map<int, Link> * links);
+        void get_outputs(std::list<sf::Vector2i> * to_update, std::map<int, Link> * links);
         //Updates states of the output links and add positions of outputs's end points to to_update.
         void validate_step();
         void undo();
@@ -115,7 +115,7 @@ class Door
         Door();
         Door(Json::Value door_data);
         void add_input(int id_link);
-        std::vector<sf::Vector2i> get_tiles_pos();
+        std::list<sf::Vector2i> get_tiles_pos();
 
         void update_state(std::map<int, Link> * links);
         bool get_state();
@@ -144,13 +144,13 @@ class Logic
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
         bool isWallForGhost(sf::Vector2i coords);
 
-        std::vector<sf::Vector2i> update_activators(
-            std::vector<sf::Vector2i> heavy_coords,
-            std::vector<sf::Vector2i> ghost_coords,
+        std::list<sf::Vector2i> update_activators(
+            std::list<sf::Vector2i> heavy_coords,
+            std::list<sf::Vector2i> ghost_coords,
             bool didSwap, bool * balive
         );
         //Returns the position of the outputs of every activator that chenged state
-        void update(std::vector<sf::Vector2i> changed_elts);
+        void update(std::list<sf::Vector2i> changed_elts);
         void validate_step();
         void undo();
 
