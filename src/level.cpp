@@ -310,11 +310,10 @@ void Level::validate_step()
     ghost.validate_step();
     boxes.validate_step();
     logic.validate_step();
-}
 
-bool Level::win()
-{
-    return Player.alive && Player.pos == win_tile;
+    if (Player.alive && Player.pos == win_tile)
+        won = true;
+
 }
 
 
@@ -395,24 +394,21 @@ void Level::displayBG(sf::RenderWindow * windowP)
     }
 }
 
-void Level::display(sf::RenderWindow * windowP, bool disp)
+void Level::display(sf::RenderWindow * windowP, bool disp, int frame)
 {
-    windowP->clear(sf::Color(0, 0, 230));
     displayBG(windowP);
 
     sf::Vector2i C0;
     int delta;
     backGround.getDisplay(&C0, &delta);
 
-    logic.draw(C0, delta, windowP);
+    logic.anim(C0, delta, windowP, frame);
 
-    if (Player.alive)
-        Player.draw(C0, delta, windowP);
+    Player.anim(C0, delta, windowP, frame);
 
-    if (ghost.alive)
-        ghost.draw(C0, delta, windowP);
+    ghost.anim(C0, delta, windowP, frame);
     
-    boxes.draw(C0, delta, windowP);
+    boxes.anim(C0, delta, windowP, frame);
 
     if (disp)
         windowP->display();
@@ -422,8 +418,6 @@ void Level::animate(sf::RenderWindow * windowP)
 {
     sf::Clock clock;
     int t1;
-
-    sf::Vector2f windowSize = sf::Vector2f(windowP->getSize());
 
     sf::Vector2i C0;
     int delta;
@@ -563,8 +557,11 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
     std::list<Level> pre_resets;
     pre_resets.push_back(level);
 
-    //Debug :
-    int t0;
+    //Animation handling :
+    bool animating = false;
+    int anim_deltaT = 30;
+    int anim_start = 0;
+    int frame = 0;
 
     while (windowP->isOpen())
     {
@@ -657,7 +654,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
         }
         
     //Apply inputs :
-        if (pkey!=nbKeys && process_input)
+        if (pkey!=nbKeys && process_input && !level.won)
         {
             int t = clock.getElapsedTime().asMilliseconds();
             step = false;
@@ -711,19 +708,31 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
                     steps.push_back(act);
                 }
                 level.step(didSwap);
-                t0 = clock.getElapsedTime().asMilliseconds();
                 level.validate_step();
-                level.animate(windowP);
+
+                animating = true;
+                anim_start = clock.getElapsedTime().asMilliseconds();
+                frame = 0;
             }
             else
                 level.display(windowP);
-            
-            // std::cout << steps.back() << std::endl;
 
             std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }
 
-        if (level.win())
+        int cur_time = clock.getElapsedTime().asMilliseconds();
+        if (animating && cur_time >= anim_start + frame * anim_deltaT)
+        {
+            frame++;
+            level.display(windowP, true, frame);
+            if (frame == 4)
+            {
+                frame = 0;
+                animating = false;
+            }
+        }
+
+        if (frame == 0 && level.won)
         {
             *nb_steps = level.nbSteps;
             if (level.nbSteps > level.perf_steps)

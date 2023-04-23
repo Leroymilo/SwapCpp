@@ -24,7 +24,6 @@ class Level
         Grid backGround;
         Logic logic;
         bool solved = false;
-        bool won = false;
         bool can_swap = true;
 
         sf::Font font;
@@ -44,6 +43,7 @@ class Level
     public:
         int nbSteps = 0;
         int perf_steps;
+        bool won = false;
 
         Level();
         Level(std::string file_name, sf::Font font);
@@ -59,10 +59,9 @@ class Level
         void process_logic(bool didSwap);
         void step(bool didSwap);
         void validate_step();
-        bool win();
 
         void resize_bg(sf::RenderWindow* windowP);
-        void display(sf::RenderWindow* windowP, bool disp = true);
+        void display(sf::RenderWindow* windowP, bool disp = true, int frame = 4);
         void animate(sf::RenderWindow* windowP);
 };
 
