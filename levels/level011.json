@@ -1,9 +1,9 @@
 {
   "bg": {
-    "H": 7,
-    "W": 7,
-    "EndX": 3,
-    "EndY": 1,
+    "H": 9,
+    "W": 9,
+    "EndX": 6,
+    "EndY": 2,
     "BG": [
       [
         "X",
@@ -12,15 +12,8 @@
         "X",
         "X",
         "X",
-        "X"
-      ],
-      [
         "X",
-        ".",
         "X",
-        ".",
-        ".",
-        ".",
         "X"
       ],
       [
@@ -28,17 +21,65 @@
         ".",
         ".",
         ".",
+        "X",
+        ".",
         ".",
         ".",
         "X"
       ],
       [
         "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        "X",
+        "X",
+        "X",
+        "X",
+        ".",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
         "x",
-        "x",
+        "."
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X",
         ".",
         "X",
-        "X",
+        ".",
+        ".",
         "X"
       ],
       [
@@ -48,18 +89,13 @@
         ".",
         ".",
         ".",
+        ".",
+        ".",
         "X"
       ],
       [
         "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
+        "X",
         "X",
         "X",
         "X",
@@ -72,43 +108,134 @@
   },
   "entities": {
     "player": {
-      "X": 3,
-      "Y": 5,
+      "X": 2,
+      "Y": 2,
       "dir": "U",
       "alive": true
     },
     "bullet": {
-      "X": 0,
-      "Y": 0,
-      "dir": "U",
-      "alive": false
+      "X": 2,
+      "Y": 5,
+      "dir": "R",
+      "alive": true
     },
-    "nbBoxes": 1,
-    "Boxes": [
+    "nbBoxes": 0,
+    "Boxes": []
+  },
+  "logic": {
+    "nb_activators": 2,
+    "activators": [
       {
-        "X": 3,
-        "Y": 3
+        "X": 2,
+        "Y": 1,
+        "type": "I"
+      },
+      {
+        "X": 8,
+        "Y": 5,
+        "type": "T"
+      }
+    ],
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 2,
+    "doors": [
+      {
+        "X": 5,
+        "Y": 5,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 5,
+            "Y": 5,
+            "orient": "V"
+          }
+        ]
+      },
+      {
+        "X": 6,
+        "Y": 4,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 6,
+            "Y": 4,
+            "orient": "H"
+          }
+        ]
+      }
+    ],
+    "nb_links": 2,
+    "links": [
+      {
+        "type_start": "Activator",
+        "type_end": "Door",
+        "nb_nodes": 5,
+        "nodes": [
+          {
+            "X": 2,
+            "Y": 1
+          },
+          {
+            "X": 4,
+            "Y": 1
+          },
+          {
+            "X": 4,
+            "Y": 4
+          },
+          {
+            "X": 5,
+            "Y": 4
+          },
+          {
+            "X": 5,
+            "Y": 5
+          }
+        ],
+        "offsets": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Door",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 8,
+            "Y": 5
+          },
+          {
+            "X": 8,
+            "Y": 4
+          },
+          {
+            "X": 6,
+            "Y": 4
+          }
+        ],
+        "offsets": [
+          0,
+          0
+        ]
       }
     ]
   },
-  "logic": {
-    "nb_activators": 0,
-    "activators": [],
-    "nb_gates": 0,
-    "gates": [],
-    "nb_doors": 0,
-    "doors": [],
-    "nb_links": 0,
-    "links": []
-  },
   "hint": [
-    "Remember that you can undo your moves with BACKSPACE,",
-    "and reset the level with PLUS."
+    ""
   ],
-  "dialogue": [],
+  "dialogue": [
+    "It's in the way again!",
+    "Maybe I can trap it in this ominous symbol...",
+    "This might even be my only way out."
+  ],
   "name": "The Trap",
   "perf_steps": 7,
   "flags": {
-    "can_swap": true
+    "can_swap": false
   }
 }

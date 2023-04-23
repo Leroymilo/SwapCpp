@@ -36,7 +36,7 @@ class Level
         std::map<char, sf::Texture> bg_tiles;
         std::map<std::string, sf::Texture> flag_icons;
 
-        bool boxPush(Entity* pusher, char direction, int* nb_pushed);//Recursive calls of the pushing function
+        bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
         void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy
         //(or the player but it's not currently possible)
 
@@ -54,10 +54,10 @@ class Level
 
         bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
         bool isWallForGhost(sf::Vector2i coords);
-        bool push(char direction, std::string* act);  //First call of the pushing recursive function (the player pushes)
-        bool swap(std::string* act);
+        bool push(char direction);  //First call of the pushing recursive function (the player pushes)
+        bool swap();
         bool wait();
-        void undo(std::list<std::string>* steps);
+        void undo(std::list<char>* steps);
         void process_logic(bool didSwap);
         void step(bool didSwap);
         void validate_step();

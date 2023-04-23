@@ -103,7 +103,7 @@ bool Level::isWallForGhost(sf::Vector2i coords)
     return hasBox || logic.isWallForGhost(coords);
 }
 
-bool Level::push(char direction, std::string* act)
+bool Level::push(char direction)
 {
     if (!Player.alive)
         return false;
@@ -117,17 +117,15 @@ bool Level::push(char direction, std::string* act)
     bool isBlocked = isWallForMost(newCoords);
 
     //Checking if there's a box blocking :
-    int nb_pushed = 0;
     if (!isBlocked)
     {
         bool boxBlocked;
         Entity* boxP = boxes.get_box(newCoords, &boxBlocked);
         if (boxBlocked)
         {
-            isBlocked = boxPush(boxP, direction, &nb_pushed);
+            isBlocked = boxPush(boxP, direction);
         }
     }
-    act->append(std::to_string(nb_pushed));
 
     //Updating the coords if nothing is blocking:
     if (!isBlocked)
@@ -138,7 +136,7 @@ bool Level::push(char direction, std::string* act)
     return STEP;
 }
 
-bool Level::boxPush(Entity* pusher, char direction, int* nb_pushed)
+bool Level::boxPush(Entity* pusher, char direction)
 {
     sf::Vector2i newCoords = pusher->get_next_pos(direction);
     //Checking if there's a wall blocking :
@@ -150,22 +148,17 @@ bool Level::boxPush(Entity* pusher, char direction, int* nb_pushed)
         bool boxBlocked;
         Entity* boxP = boxes.get_box(newCoords, &boxBlocked);
         if (boxBlocked)
-            isBlocked = boxPush(boxP, direction, nb_pushed);
+            isBlocked = boxPush(boxP, direction);
     }
 
     //Updating the coords if nothing is blocking:
     if (!isBlocked)
-    {
         pusher->pos = newCoords;
-        (*nb_pushed)++;
-    }
 
     //Pushing a PlayerLike if it's in front :
     if (ghost.alive && ghost.pos == newCoords)
-    {
         pLikePush(&ghost, direction);
-        (*nb_pushed)++;
-    }
+    
     return isBlocked;
 }
 
@@ -178,9 +171,9 @@ void Level::pLikePush(PlayerLike* pushed, char direction)
     //It's pushed anyway.
 }
 
-bool Level::swap(std::string* act)
+bool Level::swap()
 {
-    if (!can_swap) {return false;}
+    if (!can_swap) return false;
 
     if (Player.alive && !ghost.alive)
     {
@@ -189,8 +182,8 @@ bool Level::swap(std::string* act)
         ghost.alive = true;
         ghost.pos = Player.get_next_pos();
         ghost.dir = Player.dir;
-        act->push_back('H');
     }
+
     else if (Player.alive && ghost.alive)
     {
         if (isWallForMost(ghost.pos))
@@ -201,9 +194,8 @@ bool Level::swap(std::string* act)
         ghost.pos = tempC;
         Player.dir = ghost.dir;
         ghost.dir = tempdir;
-        act->push_back('P');
-        act->push_back(Player.dir);
     }
+
     else if (!Player.alive && ghost.alive)
     {
         if (isWallForMost(ghost.pos))
@@ -212,11 +204,11 @@ bool Level::swap(std::string* act)
         ghost.alive = false;
         Player.pos = ghost.pos;
         Player.dir = ghost.dir;
-        act->push_back('P');
-        act->push_back(Player.dir);
     }
+
     else 
         return false;
+    
     return true;
 }
 
@@ -258,7 +250,9 @@ void Level::step(bool didSwap)
             newC = ghost.get_next_pos();
         }
 
-        if (!isWallForGhost(newC))
+        if (isWallForGhost(newC))
+            ghost.revert();
+        else
             ghost.pos = newC;
     }
 
@@ -290,23 +284,13 @@ void Level::step(bool didSwap)
     nbSteps++;
 }
 
-void Level::undo(std::list<std::string>* steps)
+void Level::undo(std::list<char>* steps)
 {
-    std::string directions = "URDL";
-
-    std::string last_move = steps->back();
     steps->pop_back();
 
     Player.undo();
     ghost.undo();
     boxes.undo();
-
-    if (last_move[4] == 'H'){}
-
-    else if (last_move[4] == 'P'){}
-
-    else if (last_move[4] == 'W'){}
-
     logic.undo();
 
     nbSteps--;
@@ -321,7 +305,6 @@ void Level::validate_step()
 
     if (Player.alive && Player.pos == win_tile)
         won = true;
-
 }
 
 
@@ -574,7 +557,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
     bool step = false;
     bool didSwap = false;
     std::string directions = "URDL";
-    std::list<std::string> steps;
+    std::list<char> steps;
     //A step can be : U, R, D, L, H (shot), P (swap), W or + (reset)
     std::list<Level> pre_resets;
     pre_resets.push_back(level);
@@ -681,22 +664,28 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
             int t = clock.getElapsedTime().asMilliseconds();
             step = false;
             didSwap = false;
-            std::string act = level.get_pLike_state();
+
             if (pkey < 4)
             {
-                act.push_back(directions[pkey]);
-                step = level.push(directions[pkey], &act);
+                step = level.push(directions[pkey]);
+                if (step) steps.push_back(directions[pkey]);
             }
+
             else if (pkey == 4)
             {
-                step = level.swap(&act);
-                didSwap = true;
+                step = level.swap();
+                if (step)
+                {
+                    steps.push_back('P');
+                    didSwap = true;
+                }
             }
+
             else if (pkey == 5)
             {
                 if (steps.size() > 0)
                 {
-                    if (steps.back() == "+")
+                    if (steps.back() == '+')
                     {
                         level = pre_resets.back();
                         pre_resets.pop_back();
@@ -706,29 +695,28 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
                         level.undo(&steps);
                 }
             }
+
             else if (pkey == 6)
             {
                 step = level.wait();
-                act.push_back('W');
+                steps.push_back('W');
             }
+
             else if (pkey == 7)
             {
-                if (steps.size() > 0 && steps.back() != "+")
+                if (steps.size() > 0 && steps.back() != '+')
                 {
                     pre_resets.push_back(level);
                     level = pre_resets.front();
                     level.process_logic(false);
                     level.resize_bg(windowP);
-                    steps.push_back("+");
+                    steps.push_back('+');
                 }
             }
 
+
             if (step)
             {
-                if (act != "")
-                {
-                    steps.push_back(act);
-                }
                 level.step(didSwap);
                 level.validate_step();
 
@@ -738,10 +726,9 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
             }
             else
                 level.display(windowP);
-
-            // std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }
 
+        // handling of animation between steps :
         int cur_time = clock.getElapsedTime().asMilliseconds();
         if (animating && cur_time >= anim_start + frame * anim_deltaT)
         {

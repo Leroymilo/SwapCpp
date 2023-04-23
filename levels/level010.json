@@ -1,9 +1,9 @@
 {
   "bg": {
-    "H": 9,
+    "H": 6,
     "W": 9,
     "EndX": 6,
-    "EndY": 6,
+    "EndY": 2,
     "BG": [
       [
         "X",
@@ -21,50 +21,6 @@
         ".",
         ".",
         ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        "x",
-        "x",
-        "x",
-        "X",
-        "x",
-        "x",
-        "x",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
         "X",
         ".",
         ".",
@@ -89,8 +45,19 @@
         ".",
         "X",
         ".",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
         ".",
         ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "x",
         "X"
       ],
       [
@@ -109,18 +76,23 @@
   "entities": {
     "player": {
       "X": 2,
-      "Y": 6,
-      "dir": "U",
+      "Y": 3,
+      "dir": "D",
       "alive": true
     },
     "bullet": {
-      "X": 0,
-      "Y": 0,
-      "dir": "U",
-      "alive": false
+      "X": 4,
+      "Y": 4,
+      "dir": "D",
+      "alive": true
     },
-    "nbBoxes": 0,
-    "Boxes": []
+    "nbBoxes": 1,
+    "Boxes": [
+      {
+        "X": 2,
+        "Y": 2
+      }
+    ]
   },
   "logic": {
     "nb_activators": 0,
@@ -133,13 +105,15 @@
     "links": []
   },
   "hint": [
-    "You can SWAP! as many times as you want.",
-    "It also swaps your orientation with your bullet's."
+    ""
   ],
-  "dialogue": [],
+  "dialogue": [
+    "It's completely blocking the way!",
+    "I need to find a way to push it out of here."
+  ],
   "name": "Bullet tutorial 3",
   "perf_steps": 14,
   "flags": {
-    "can_swap": true
+    "can_swap": false
   }
 }

@@ -1,9 +1,9 @@
 {
   "bg": {
     "H": 7,
-    "W": 9,
-    "EndX": 6,
-    "EndY": 4,
+    "W": 7,
+    "EndX": 3,
+    "EndY": 1,
     "BG": [
       [
         "X",
@@ -12,36 +12,10 @@
         "X",
         "X",
         "X",
-        "X",
-        "X",
         "X"
       ],
       [
         "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        "X",
-        ".",
-        "X",
-        "X",
-        "X",
-        "X",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
         ".",
         "X",
         ".",
@@ -54,7 +28,23 @@
         ".",
         ".",
         ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
         "X",
+        "x",
+        "x",
+        ".",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
         ".",
         ".",
         ".",
@@ -65,15 +55,11 @@
         ".",
         ".",
         ".",
-        "X",
-        ".",
         ".",
         ".",
         "X"
       ],
       [
-        "X",
-        "X",
         "X",
         "X",
         "X",
@@ -86,19 +72,24 @@
   },
   "entities": {
     "player": {
-      "X": 2,
-      "Y": 4,
-      "dir": "D",
+      "X": 3,
+      "Y": 5,
+      "dir": "U",
       "alive": true
     },
     "bullet": {
-      "X": 4,
-      "Y": 1,
-      "dir": "L",
-      "alive": true
+      "X": 0,
+      "Y": 0,
+      "dir": "U",
+      "alive": false
     },
-    "nbBoxes": 0,
-    "Boxes": []
+    "nbBoxes": 1,
+    "Boxes": [
+      {
+        "X": 3,
+        "Y": 3
+      }
+    ]
   },
   "logic": {
     "nb_activators": 0,
@@ -111,15 +102,13 @@
     "links": []
   },
   "hint": [
-    "Remember that you can undo with BACKSPACE.",
-    "Press ENTER to wait."
+    "Remember that you can undo your moves with BACKSPACE,",
+    "and reset the level with PLUS."
   ],
-  "dialogue": [
-    "Is this... myself? I don't think I should touch this thing..."
-  ],
-  "name": "Bullet tutorial 1",
-  "perf_steps": 11,
+  "dialogue": [],
+  "name": "The Trap",
+  "perf_steps": 7,
   "flags": {
-    "can_swap": false
+    "can_swap": true
   }
 }
