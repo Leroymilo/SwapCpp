@@ -107,6 +107,7 @@ void Link::draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, sf::T
         // Drawing the link tile into a repeatable RenderTexture
         sf::RenderTexture r_texture;
         r_texture.create(thick, thick);
+        r_texture.clear(sf::Color::Transparent);
         r_texture.draw(link_tile);
         r_texture.setRepeated(true);
 
