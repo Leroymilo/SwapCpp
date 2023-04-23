@@ -27,30 +27,38 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
     Json::Value json_data;
     reader.parse(file, json_data);
 
-    // Making objects :
-    win_tile = backGround.readJson(json_data["bg"]);
-    Player = PlayerLike(json_data["entities"]["player"], "player");
-    ghost = PlayerLike(json_data["entities"]["bullet"], "bullet");
-    boxes = Boxes(json_data["entities"]["nbBoxes"].asInt(), json_data["entities"]["Boxes"]);
-    logic = Logic(json_data["logic"]);
-
     // Loading tiles sprites :
     bg_tiles['X'].loadFromFile("assets/Tiles/Wall.png");
     bg_tiles['x'].loadFromFile("assets/Tiles/Grate.png");
     bg_tiles['.'].loadFromFile("assets/Tiles/Floor.png");
     bg_tiles['W'].loadFromFile("assets/Tiles/Win.png");
 
+    // Making objects :
+    win_tile = backGround.create(json_data["bg"], bg_tiles);
+    Player = PlayerLike(json_data["entities"]["player"], "player");
+    ghost = PlayerLike(json_data["entities"]["bullet"], "bullet");
+    boxes = Boxes(json_data["entities"]["nbBoxes"].asInt(), json_data["entities"]["Boxes"]);
+    logic = Logic(json_data["logic"]);
+
     // Loading text :
-    if (json_data.isMember("text"))
+    if (json_data.isMember("hint"))
     {
-        text_lines = json_data["text"].size();
-        text.resize(text_lines);
-        for (int i = 0; i < text_lines; i++)
+        hint_lines = json_data["hint"].size();
+        hint.resize(hint_lines);
+        for (int i = 0; i < hint_lines; i++)
         {
-            text[i] = json_data["text"][i].asCString();
+            hint[i] = json_data["hint"][i].asCString();
         }
     }
-    else {text_lines = 0;}
+    if (json_data.isMember("dialogue"))
+    {
+        dlg_lines = json_data["dialogue"].size();
+        dlg.resize(dlg_lines);
+        for (int i = 0; i < dlg_lines; i++)
+        {
+            dlg[i] = json_data["dialogue"][i].asCString();
+        }
+    }
 
     // Loading stuff :
     name = json_data["name"].asCString();
@@ -329,14 +337,19 @@ void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every ti
     bounds = sf::Text("Ip", font, 28).getLocalBounds();
     winSize.y -= bounds.height + bounds.top;
     // A literal string is used because the number of steps changing makes the whole text bump around if used.
-    // The font size's bigger than what's actually used for step number display to avoid text cluttering.
-    for (int i = text_lines-1; i >= 0; i--)
+
+    for (int i = hint_lines-1; i >= 0; i--)
     {
-        sf::FloatRect bounds = sf::Text(text[i], font, 24).getLocalBounds();
+        sf::FloatRect bounds = sf::Text(hint[i], font, 24).getLocalBounds();
+        winSize.y -= bounds.height + bounds.top;
+    }
+    for (int i = dlg_lines-1; i >= 0; i--)
+    {
+        sf::FloatRect bounds = sf::Text(dlg[i], font, 24).getLocalBounds();
         winSize.y -= bounds.height + bounds.top;
     }
 
-    backGround.resize(winSize, Y0, bg_tiles);
+    backGround.resize(winSize, Y0);
 }
 
 void Level::displayBG(sf::RenderWindow * windowP)
@@ -365,12 +378,21 @@ void Level::displayBG(sf::RenderWindow * windowP)
     bounds = sf::Text("Ip", font, 28).getLocalBounds();
     max_y -= bounds.height + bounds.top;
     // This is because stepDisp changes height when the step number changes, so I put something that only depends on the font used.
-    // The bigger font size is because the text looked cluttered
 
     // Displaying level text :
-    for (int i = text_lines-1; i >= 0; i--)
+    for (int i = hint_lines-1; i >= 0; i--)
     {
-        sf::Text helpDisp(text[i], font, 24);
+        sf::Text helpDisp(hint[i], font, 24);
+        helpDisp.setStyle(sf::Text::Italic);
+        bounds = helpDisp.getLocalBounds();
+        helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
+        windowP->draw(helpDisp);
+        max_y -= bounds.height + bounds.top;
+    }
+    for (int i = dlg_lines-1; i >= 0; i--)
+    {
+        sf::Text helpDisp(dlg[i], font, 24);
+        helpDisp.setStyle(sf::Text::Bold);
         bounds = helpDisp.getLocalBounds();
         helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
         windowP->draw(helpDisp);
@@ -717,7 +739,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
             else
                 level.display(windowP);
 
-            std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
+            // std::cout << "full step process time : " << clock.getElapsedTime().asMilliseconds()-t << "ms" << std::endl;
         }
 
         int cur_time = clock.getElapsedTime().asMilliseconds();

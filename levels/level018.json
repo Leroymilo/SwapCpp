@@ -1,1 +1,345 @@
-{"bg": {"H": 10, "W": 11, "EndX": 9, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", "X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", "X", ".", "X", ".", ".", ".", "X"], ["X", ".", ".", ".", "X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", "X", ".", "X", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", ".", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 8, "Y": 6, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 1, "Boxes": [{"X": 5, "Y": 6}]}, "logic": {"nb_activators": 2, "activators": [{"X": 5, "Y": 5, "type": "I"}, {"X": 5, "Y": 9, "type": "T"}], "nb_gates": 2, "gates": [{"X": 2, "Y": 3, "type": "NO", "dir": "U"}, {"X": 2, "Y": 5, "type": "AND", "dir": "U"}], "nb_doors": 2, "doors": [{"X": 7, "Y": 1, "nb_tiles": 1, "tiles": [{"X": 7, "Y": 1, "orient": "N"}]}, {"X": 3, "Y": 1, "nb_tiles": 1, "tiles": [{"X": 3, "Y": 1, "orient": "N"}]}], "nb_links": 5, "links": [{"type_start": "Gate", "type_end": "Gate", "nb_nodes": 2, "nodes": [{"X": 2, "Y": 5}, {"X": 2, "Y": 3}], "offsets": [0]}, {"type_start": "Gate", "type_end": "Door", "nb_nodes": 4, "nodes": [{"X": 2, "Y": 5}, {"X": 2, "Y": 4}, {"X": 7, "Y": 4}, {"X": 7, "Y": 1}], "offsets": [0, 0, 0]}, {"type_start": "Activator", "type_end": "Gate", "nb_nodes": 3, "nodes": [{"X": 5, "Y": 9}, {"X": 2, "Y": 9}, {"X": 2, "Y": 5}], "offsets": [0, -1]}, {"type_start": "Gate", "type_end": "Door", "nb_nodes": 4, "nodes": [{"X": 2, "Y": 3}, {"X": 2, "Y": 2}, {"X": 3, "Y": 2}, {"X": 3, "Y": 1}], "offsets": [0, 0, 0]}, {"type_start": "Activator", "type_end": "Gate", "nb_nodes": 2, "nodes": [{"X": 5, "Y": 5}, {"X": 2, "Y": 5}], "offsets": [2]}]}, "text": [""], "name": "2 Doors", "perf_steps": 23, "flags": {"can_swap": true}}
+{
+  "bg": {
+    "H": 10,
+    "W": 11,
+    "EndX": 9,
+    "EndY": 1,
+    "BG": [
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        ".",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ]
+    ]
+  },
+  "entities": {
+    "player": {
+      "X": 8,
+      "Y": 6,
+      "dir": "U",
+      "alive": true
+    },
+    "bullet": {
+      "X": 0,
+      "Y": 0,
+      "dir": "U",
+      "alive": false
+    },
+    "nbBoxes": 1,
+    "Boxes": [
+      {
+        "X": 5,
+        "Y": 6
+      }
+    ]
+  },
+  "logic": {
+    "nb_activators": 2,
+    "activators": [
+      {
+        "X": 5,
+        "Y": 5,
+        "type": "I"
+      },
+      {
+        "X": 5,
+        "Y": 9,
+        "type": "T"
+      }
+    ],
+    "nb_gates": 2,
+    "gates": [
+      {
+        "X": 2,
+        "Y": 3,
+        "type": "NO",
+        "dir": "U"
+      },
+      {
+        "X": 2,
+        "Y": 5,
+        "type": "AND",
+        "dir": "U"
+      }
+    ],
+    "nb_doors": 2,
+    "doors": [
+      {
+        "X": 7,
+        "Y": 1,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 7,
+            "Y": 1,
+            "orient": "N"
+          }
+        ]
+      },
+      {
+        "X": 3,
+        "Y": 1,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 3,
+            "Y": 1,
+            "orient": "N"
+          }
+        ]
+      }
+    ],
+    "nb_links": 5,
+    "links": [
+      {
+        "type_start": "Gate",
+        "type_end": "Gate",
+        "nb_nodes": 2,
+        "nodes": [
+          {
+            "X": 2,
+            "Y": 5
+          },
+          {
+            "X": 2,
+            "Y": 3
+          }
+        ],
+        "offsets": [
+          0
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Door",
+        "nb_nodes": 4,
+        "nodes": [
+          {
+            "X": 2,
+            "Y": 5
+          },
+          {
+            "X": 2,
+            "Y": 4
+          },
+          {
+            "X": 7,
+            "Y": 4
+          },
+          {
+            "X": 7,
+            "Y": 1
+          }
+        ],
+        "offsets": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 5,
+            "Y": 9
+          },
+          {
+            "X": 2,
+            "Y": 9
+          },
+          {
+            "X": 2,
+            "Y": 5
+          }
+        ],
+        "offsets": [
+          0,
+          -1
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Door",
+        "nb_nodes": 4,
+        "nodes": [
+          {
+            "X": 2,
+            "Y": 3
+          },
+          {
+            "X": 2,
+            "Y": 2
+          },
+          {
+            "X": 3,
+            "Y": 2
+          },
+          {
+            "X": 3,
+            "Y": 1
+          }
+        ],
+        "offsets": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 2,
+        "nodes": [
+          {
+            "X": 5,
+            "Y": 5
+          },
+          {
+            "X": 2,
+            "Y": 5
+          }
+        ],
+        "offsets": [
+          2
+        ]
+      }
+    ]
+  },
+  "hint": [
+    ""
+  ],
+  "dialogue": [],
+  "name": "2 Doors",
+  "perf_steps": 23,
+  "flags": {
+    "can_swap": true
+  }
+}

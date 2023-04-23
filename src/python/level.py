@@ -161,10 +161,9 @@ class Level :
         self.links = [Link(**link_data) for link_data in data["logic"]["links"]]
         self.links = {link.get_id(): link for link in self.links}
 
-        if "text" in data.keys() :
-            self.text = data["text"]
-        else :
-            self.text = []
+        self.hint = data["hint"]
+        self.dlg = data["dialogue"]
+        
         self.name = data["name"]
         self.perf_steps = data["perf_steps"]
         self.flags = data["flags"]
@@ -196,7 +195,7 @@ class Level :
                 "links": [link.to_dict() for link in self.links.values()],
             },
 
-            "text": self.text, "name": self.name, "perf_steps": self.perf_steps, "flags": self.flags
+            "hint": self.hint, "dialogue": self.dlg, "name": self.name, "perf_steps": self.perf_steps, "flags": self.flags
         }
     
     def get_link_dict(self) :
@@ -204,7 +203,7 @@ class Level :
     
     def save(self, dir_, swap: bool = True) :
         self.flags["can_swap"] = swap
-        json.dump(self.to_dict(), open(dir_, 'w'))
+        json.dump(self.to_dict(), open(dir_, 'w'), indent=2)
 
     def get_surface(self, delta: int) :
         return (self.size[0] * delta, self.size[1] * delta)

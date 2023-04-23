@@ -120,13 +120,21 @@ class LvlNmeDlg(LvlTxtDlg) :
         self.EndModal(0)
 
 class LvlTxtDlg(LvlTxtDlg) :
-    def __init__(self, parent: LevelEditor, cur_lines: list[str]) :
+    def __init__(self, parent: LevelEditor, cur_lines: list[str], type_: str) :
         super().__init__(parent)
+
+        self.type_source = type_
+        self.SetTitle(self.GetTitle() + type_)
+        self.txt.SetLabel(f"Type the {type_} that will be displayed in game here :")
+
         self.txt_ctrl.SetValue("\n".join(cur_lines))
     
     def confirm(self, event) :
         parent: LevelEditor = self.GetParent()
-        parent.level.text = self.txt_ctrl.GetValue().split('\n')
+        if self.type_source == "hint" :
+            parent.level.hint = self.txt_ctrl.GetValue().split('\n')
+        elif self.type_source == "dialogue" :
+            parent.level.dlg = self.txt_ctrl.GetValue().split('\n')
         self.EndModal(0)
 
 #=========================================================================================================================================================
@@ -745,8 +753,13 @@ class LevelEditor(LevelEditor) :
         if res == 0 :
             self.edit()
     
-    def change_level_text(self, event) :
-        res = LvlTxtDlg(self, self.level.text).ShowModal()
+    def change_level_hint(self, event) :
+        res = LvlTxtDlg(self, self.level.hint, "hint").ShowModal()
+        if res == 0 :
+            self.edit()
+    
+    def change_level_dlg(self, event) :
+        res = LvlTxtDlg(self, self.level.dlg, "dialogue").ShowModal()
         if res == 0 :
             self.edit()
     

@@ -1,1 +1,196 @@
-{"bg": {"H": 3, "W": 8, "EndX": 6, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", "x", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 0, "Y": 0, "dir": "R", "alive": false}, "bullet": {"X": 4, "Y": 1, "dir": "R", "alive": true}, "nbBoxes": 0, "Boxes": []}, "logic": {"nb_activators": 2, "activators": [{"X": 4, "Y": 1, "type": "I"}, {"X": 1, "Y": 1, "type": "T"}], "nb_gates": 1, "gates": [{"X": 3, "Y": 0, "type": "NO", "dir": "L"}], "nb_doors": 2, "doors": [{"X": 5, "Y": 1, "nb_tiles": 1, "tiles": [{"X": 5, "Y": 1, "orient": "V"}]}, {"X": 3, "Y": 1, "nb_tiles": 1, "tiles": [{"X": 3, "Y": 1, "orient": "V"}]}], "nb_links": 3, "links": [{"type_start": "Activator", "type_end": "Door", "nb_nodes": 4, "nodes": [{"X": 1, "Y": 1}, {"X": 1, "Y": 2}, {"X": 5, "Y": 2}, {"X": 5, "Y": 1}], "offsets": [0, 0, 0]}, {"type_start": "Activator", "type_end": "Gate", "nb_nodes": 3, "nodes": [{"X": 4, "Y": 1}, {"X": 4, "Y": 0}, {"X": 3, "Y": 0}], "offsets": [0, 0]}, {"type_start": "Gate", "type_end": "Door", "nb_nodes": 4, "nodes": [{"X": 3, "Y": 0}, {"X": 2, "Y": 0}, {"X": 2, "Y": 1}, {"X": 3, "Y": 1}], "offsets": [0, 0, 0]}]}, "text": [], "name": "Minimalism", "perf_steps": 10, "flags": {"can_swap": true}}
+{
+  "bg": {
+    "H": 3,
+    "W": 8,
+    "EndX": 6,
+    "EndY": 1,
+    "BG": [
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        "x",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ]
+    ]
+  },
+  "entities": {
+    "player": {
+      "X": 0,
+      "Y": 0,
+      "dir": "R",
+      "alive": false
+    },
+    "bullet": {
+      "X": 4,
+      "Y": 1,
+      "dir": "R",
+      "alive": true
+    },
+    "nbBoxes": 0,
+    "Boxes": []
+  },
+  "logic": {
+    "nb_activators": 2,
+    "activators": [
+      {
+        "X": 4,
+        "Y": 1,
+        "type": "I"
+      },
+      {
+        "X": 1,
+        "Y": 1,
+        "type": "T"
+      }
+    ],
+    "nb_gates": 1,
+    "gates": [
+      {
+        "X": 3,
+        "Y": 0,
+        "type": "NO",
+        "dir": "L"
+      }
+    ],
+    "nb_doors": 2,
+    "doors": [
+      {
+        "X": 5,
+        "Y": 1,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 5,
+            "Y": 1,
+            "orient": "V"
+          }
+        ]
+      },
+      {
+        "X": 3,
+        "Y": 1,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 3,
+            "Y": 1,
+            "orient": "V"
+          }
+        ]
+      }
+    ],
+    "nb_links": 3,
+    "links": [
+      {
+        "type_start": "Activator",
+        "type_end": "Door",
+        "nb_nodes": 4,
+        "nodes": [
+          {
+            "X": 1,
+            "Y": 1
+          },
+          {
+            "X": 1,
+            "Y": 2
+          },
+          {
+            "X": 5,
+            "Y": 2
+          },
+          {
+            "X": 5,
+            "Y": 1
+          }
+        ],
+        "offsets": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 4,
+            "Y": 1
+          },
+          {
+            "X": 4,
+            "Y": 0
+          },
+          {
+            "X": 3,
+            "Y": 0
+          }
+        ],
+        "offsets": [
+          0,
+          0
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Door",
+        "nb_nodes": 4,
+        "nodes": [
+          {
+            "X": 3,
+            "Y": 0
+          },
+          {
+            "X": 2,
+            "Y": 0
+          },
+          {
+            "X": 2,
+            "Y": 1
+          },
+          {
+            "X": 3,
+            "Y": 1
+          }
+        ],
+        "offsets": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "hint": [],
+  "dialogue": [],
+  "name": "Minimalism",
+  "perf_steps": 10,
+  "flags": {
+    "can_swap": true
+  }
+}

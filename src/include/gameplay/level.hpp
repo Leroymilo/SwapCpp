@@ -28,8 +28,10 @@ class Level
 
         sf::Font font;
         std::string name;
-        int text_lines;
-        std::vector<std::string> text;
+        int hint_lines = 0;
+        std::vector<std::string> hint = {};
+        int dlg_lines = 0;
+        std::vector<std::string> dlg = {};
 
         std::map<char, sf::Texture> bg_tiles;
         std::map<std::string, sf::Texture> flag_icons;

@@ -1,1 +1,145 @@
-{"bg": {"H": 9, "W": 9, "EndX": 6, "EndY": 6, "BG": [["X", "X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", "x", "x", "x", "X", "x", "x", "x", "X"], ["X", ".", ".", ".", "X", ".", ".", ".", "X"], ["X", ".", ".", ".", "X", ".", ".", ".", "X"], ["X", ".", ".", ".", "X", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 2, "Y": 6, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 0, "Boxes": []}, "logic": {"nb_activators": 0, "activators": [], "nb_gates": 0, "gates": [], "nb_doors": 0, "doors": [], "nb_links": 0, "links": []}, "text": ["You can SWAP! as many times as you want.", "It also swaps your orientation with your bullet's."], "name": "Bullet tutorial 3", "perf_steps": 14, "flags": {"can_swap": true}}
+{
+  "bg": {
+    "H": 9,
+    "W": 9,
+    "EndX": 6,
+    "EndY": 6,
+    "BG": [
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "x",
+        "x",
+        "x",
+        "X",
+        "x",
+        "x",
+        "x",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ]
+    ]
+  },
+  "entities": {
+    "player": {
+      "X": 2,
+      "Y": 6,
+      "dir": "U",
+      "alive": true
+    },
+    "bullet": {
+      "X": 0,
+      "Y": 0,
+      "dir": "U",
+      "alive": false
+    },
+    "nbBoxes": 0,
+    "Boxes": []
+  },
+  "logic": {
+    "nb_activators": 0,
+    "activators": [],
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 0,
+    "doors": [],
+    "nb_links": 0,
+    "links": []
+  },
+  "hint": [
+    "You can SWAP! as many times as you want.",
+    "It also swaps your orientation with your bullet's."
+  ],
+  "dialogue": [],
+  "name": "Bullet tutorial 3",
+  "perf_steps": 14,
+  "flags": {
+    "can_swap": true
+  }
+}

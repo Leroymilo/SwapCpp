@@ -47,8 +47,11 @@ class LevelEditor ( wx.Frame ):
 		self.level_name_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Name", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.level_name_item )
 
-		self.level_text_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Text", wx.EmptyString, wx.ITEM_NORMAL )
-		self.edit_menu.Append( self.level_text_item )
+		self.level_hint_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Hint Text", wx.EmptyString, wx.ITEM_NORMAL )
+		self.edit_menu.Append( self.level_hint_item )
+
+		self.level_dlg_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Dialogue", wx.EmptyString, wx.ITEM_NORMAL )
+		self.edit_menu.Append( self.level_dlg_item )
 
 		self.allow_swap_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Allow Swaps", wx.EmptyString, wx.ITEM_CHECK )
 		self.edit_menu.Append( self.allow_swap_item )
@@ -145,7 +148,8 @@ class LevelEditor ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.resize, id = self.resize_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_perf, id = self.perf_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_level_name, id = self.level_name_item.GetId() )
-		self.Bind( wx.EVT_MENU, self.change_level_text, id = self.level_text_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.change_level_hint, id = self.level_hint_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.change_level_dlg, id = self.level_dlg_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
 		self.sel_link_choice.Bind( wx.EVT_CHOICE, self.change_link )
 		self.sel_seg_spin.Bind( wx.EVT_SPINCTRL, self.change_segment )
@@ -191,7 +195,10 @@ class LevelEditor ( wx.Frame ):
 	def change_level_name( self, event ):
 		event.Skip()
 
-	def change_level_text( self, event ):
+	def change_level_hint( self, event ):
+		event.Skip()
+
+	def change_level_dlg( self, event ):
 		event.Skip()
 
 	def change_tool( self, event ):
@@ -238,7 +245,7 @@ class LevelEditor ( wx.Frame ):
 class LvlTxtDlg ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Change level text", pos = wx.DefaultPosition, size = wx.Size( 318,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Change level ", pos = wx.DefaultPosition, size = wx.Size( 318,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 

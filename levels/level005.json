@@ -1,1 +1,257 @@
-{"bg": {"H": 9, "W": 9, "EndX": 4, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", ".", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 4, "Y": 7, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 2, "Boxes": [{"X": 2, "Y": 6}, {"X": 6, "Y": 4}]}, "logic": {"nb_activators": 2, "activators": [{"X": 6, "Y": 6, "type": "I"}, {"X": 2, "Y": 4, "type": "I"}], "nb_gates": 1, "gates": [{"X": 4, "Y": 5, "type": "AND", "dir": "U"}], "nb_doors": 1, "doors": [{"X": 4, "Y": 3, "nb_tiles": 1, "tiles": [{"X": 4, "Y": 3, "orient": "H"}]}], "nb_links": 3, "links": [{"type_start": "Activator", "type_end": "Gate", "nb_nodes": 3, "nodes": [{"X": 6, "Y": 6}, {"X": 4, "Y": 6}, {"X": 4, "Y": 5}], "offsets": [2, 1]}, {"type_start": "Activator", "type_end": "Gate", "nb_nodes": 4, "nodes": [{"X": 2, "Y": 4}, {"X": 2, "Y": 6}, {"X": 4, "Y": 6}, {"X": 4, "Y": 5}], "offsets": [0, 2, -1]}, {"type_start": "Gate", "type_end": "Door", "nb_nodes": 2, "nodes": [{"X": 4, "Y": 5}, {"X": 4, "Y": 3}], "offsets": [0]}]}, "text": ["This is an AND logic gate,", "all of its inputs need to be activated for it to activate."], "name": "Logic tutorial 2", "perf_steps": 20, "flags": {"can_swap": false}}
+{
+  "bg": {
+    "H": 9,
+    "W": 9,
+    "EndX": 4,
+    "EndY": 1,
+    "BG": [
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        ".",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ]
+    ]
+  },
+  "entities": {
+    "player": {
+      "X": 4,
+      "Y": 7,
+      "dir": "U",
+      "alive": true
+    },
+    "bullet": {
+      "X": 0,
+      "Y": 0,
+      "dir": "U",
+      "alive": false
+    },
+    "nbBoxes": 2,
+    "Boxes": [
+      {
+        "X": 2,
+        "Y": 6
+      },
+      {
+        "X": 6,
+        "Y": 4
+      }
+    ]
+  },
+  "logic": {
+    "nb_activators": 2,
+    "activators": [
+      {
+        "X": 6,
+        "Y": 6,
+        "type": "I"
+      },
+      {
+        "X": 2,
+        "Y": 4,
+        "type": "I"
+      }
+    ],
+    "nb_gates": 1,
+    "gates": [
+      {
+        "X": 4,
+        "Y": 5,
+        "type": "AND",
+        "dir": "U"
+      }
+    ],
+    "nb_doors": 1,
+    "doors": [
+      {
+        "X": 4,
+        "Y": 3,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 4,
+            "Y": 3,
+            "orient": "H"
+          }
+        ]
+      }
+    ],
+    "nb_links": 3,
+    "links": [
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 6,
+            "Y": 6
+          },
+          {
+            "X": 4,
+            "Y": 6
+          },
+          {
+            "X": 4,
+            "Y": 5
+          }
+        ],
+        "offsets": [
+          2,
+          1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 4,
+        "nodes": [
+          {
+            "X": 2,
+            "Y": 4
+          },
+          {
+            "X": 2,
+            "Y": 6
+          },
+          {
+            "X": 4,
+            "Y": 6
+          },
+          {
+            "X": 4,
+            "Y": 5
+          }
+        ],
+        "offsets": [
+          0,
+          2,
+          -1
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Door",
+        "nb_nodes": 2,
+        "nodes": [
+          {
+            "X": 4,
+            "Y": 5
+          },
+          {
+            "X": 4,
+            "Y": 3
+          }
+        ],
+        "offsets": [
+          0
+        ]
+      }
+    ]
+  },
+  "hint": [
+    "This tile needs all of its inputs to be on to activate."
+  ],
+  "dialogue": [
+    "What is this again?",
+    "It looks like it's engraved with magic runes."
+  ],
+  "name": "Logic tutorial 2",
+  "perf_steps": 20,
+  "flags": {
+    "can_swap": false
+  }
+}

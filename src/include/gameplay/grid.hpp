@@ -10,6 +10,7 @@ class Grid
         int h, w;
         std::vector<std::vector<char>> tiles = {{'X'}};
         int x0, y0;
+        int pxl_h, pxl_w;
         sf::RenderTexture pre_render;
 
     public:
@@ -19,10 +20,10 @@ class Grid
         Grid(const Grid& tocopy);
         Grid& operator=(const Grid& other);
         ~Grid();
-        sf::Vector2i readJson(Json::Value json_bg);
+        sf::Vector2i create(Json::Value, std::map<char, sf::Texture>);
 
         char getTile(sf::Vector2i coords);
-        void resize(sf::Vector2f win_size, int Y0, std::map<char, sf::Texture> textures);
+        void resize(sf::Vector2f win_size, int Y0);
         void display(sf::RenderWindow* windowPoint, sf::Font font);
         void getDisplay(sf::Vector2i* C0, int* deltaP);
 };

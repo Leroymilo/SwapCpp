@@ -1,5 +1,6 @@
 {"bg": {"H": 7, "W": 7, "EndX": 3, "EndY": 1, "BG": [["X", "X", "X", "X", "X", "X", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", ".", ".", ".", ".", ".", "X"], ["X", "X", "X", "X", "X", "X", "X"]]}, "entities": {"player": {"X": 3, "Y": 5, "dir": "U", "alive": true}, "bullet": {"X": 0, "Y": 0, "dir": "U", "alive": false}, "nbBoxes": 0, "Boxes": []}, "logic": {"nb_activators": 0, "activators": [], "nb_gates": 0, "gates": [], "nb_doors": 0, "doors": [], "nb_links": 0, "links": []},
 "name": "Unnamed Level",
+"hint": [], "dialogue": [],
 "perf_steps": 4,
 "flags": {
     "can_swap": true
