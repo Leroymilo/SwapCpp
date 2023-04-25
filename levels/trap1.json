@@ -109,6 +109,7 @@
   "name": "The Trap",
   "perf_steps": 7,
   "flags": {
-    "can_swap": true
+    "can_swap": true,
+    "has_ghost": true
   }
 }

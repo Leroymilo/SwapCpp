@@ -1,16 +1,15 @@
 {
   "bg": {
     "H": 9,
-    "W": 9,
+    "W": 8,
     "EndX": 6,
-    "EndY": 2,
+    "EndY": 4,
     "BG": [
       [
         "X",
         "X",
         "X",
-        "X",
-        "X",
+        ".",
         "X",
         "X",
         "X",
@@ -18,51 +17,6 @@
       ],
       [
         "X",
-        ".",
-        ".",
-        ".",
-        "X",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        "X",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        "X",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        "x",
-        "x",
-        "x",
-        "X",
-        "X",
-        ".",
-        "X",
-        "X"
-      ],
-      [
-        "X",
-        ".",
         ".",
         ".",
         ".",
@@ -79,6 +33,45 @@
         ".",
         ".",
         ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        "X",
+        ".",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        "X",
+        ".",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
         ".",
         "X"
       ],
@@ -90,11 +83,9 @@
         ".",
         ".",
         ".",
-        ".",
         "X"
       ],
       [
-        "X",
         "X",
         "X",
         "X",
@@ -108,63 +99,93 @@
   },
   "entities": {
     "player": {
-      "X": 4,
-      "Y": 6,
-      "dir": "U",
+      "X": 5,
+      "Y": 2,
+      "dir": "L",
       "alive": true
     },
     "bullet": {
-      "X": 0,
-      "Y": 0,
-      "dir": "U",
-      "alive": false
+      "X": 3,
+      "Y": 4,
+      "dir": "R",
+      "alive": true
     },
-    "nbBoxes": 0,
-    "Boxes": []
+    "nbBoxes": 1,
+    "Boxes": [
+      {
+        "X": 5,
+        "Y": 6
+      }
+    ]
   },
   "logic": {
     "nb_activators": 1,
     "activators": [
       {
-        "X": 2,
-        "Y": 2,
+        "X": 3,
+        "Y": 0,
         "type": "T"
       }
     ],
-    "nb_gates": 0,
-    "gates": [],
+    "nb_gates": 1,
+    "gates": [
+      {
+        "X": 4,
+        "Y": 0,
+        "type": "NO",
+        "dir": "R"
+      }
+    ],
     "nb_doors": 1,
     "doors": [
       {
-        "X": 6,
+        "X": 5,
         "Y": 4,
         "nb_tiles": 1,
         "tiles": [
           {
-            "X": 6,
+            "X": 5,
             "Y": 4,
-            "orient": "H"
+            "orient": "V"
           }
         ]
       }
     ],
-    "nb_links": 1,
+    "nb_links": 2,
     "links": [
       {
         "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 2,
+        "nodes": [
+          {
+            "X": 3,
+            "Y": 0
+          },
+          {
+            "X": 4,
+            "Y": 0
+          }
+        ],
+        "offsets": [
+          0
+        ]
+      },
+      {
+        "type_start": "Gate",
         "type_end": "Door",
         "nb_nodes": 3,
         "nodes": [
           {
-            "X": 2,
-            "Y": 2
+            "X": 4,
+            "Y": 0
           },
           {
-            "X": 2,
-            "Y": 4
+            "X": 5,
+            "Y": 0
           },
           {
-            "X": 6,
+            "X": 5,
             "Y": 4
           }
         ],
@@ -176,12 +197,15 @@
     ]
   },
   "hint": [
-    "This is a target, shoot your bullet into it to activate it."
+    ""
   ],
-  "dialogue": [],
-  "name": "Target tutorial 1",
-  "perf_steps": 11,
+  "dialogue": [
+    "I have to be smart about this one..."
+  ],
+  "name": "Revenge of the Bullet",
+  "perf_steps": 39,
   "flags": {
-    "can_swap": true
+    "can_swap": false,
+    "has_ghost": true
   }
 }

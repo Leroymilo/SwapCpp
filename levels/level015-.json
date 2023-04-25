@@ -213,6 +213,7 @@
   "name": "Betrayal",
   "perf_steps": 15,
   "flags": {
-    "can_swap": true
+    "can_swap": true,
+    "has_ghost": true
   }
 }

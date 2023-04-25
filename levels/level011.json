@@ -234,8 +234,9 @@
     "This might even be my only way out."
   ],
   "name": "The Trap",
-  "perf_steps": 7,
+  "perf_steps": 20,
   "flags": {
-    "can_swap": false
+    "can_swap": false,
+    "has_ghost": true
   }
 }

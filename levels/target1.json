@@ -1,9 +1,9 @@
 {
   "bg": {
-    "H": 7,
-    "W": 13,
-    "EndX": 10,
-    "EndY": 4,
+    "H": 9,
+    "W": 9,
+    "EndX": 6,
+    "EndY": 2,
     "BG": [
       [
         "X",
@@ -14,48 +14,10 @@
         "X",
         "X",
         "X",
-        "X",
-        "X",
-        "X",
-        "X",
         "X"
       ],
       [
         "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
         ".",
         ".",
         ".",
@@ -70,11 +32,40 @@
         ".",
         ".",
         ".",
+        "X",
         ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
         ".",
         ".",
         ".",
         "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "x",
+        "x",
+        "x",
+        "X",
+        "X",
+        ".",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        ".",
         ".",
         ".",
         ".",
@@ -89,17 +80,20 @@
         ".",
         ".",
         ".",
+        "X"
+      ],
+      [
         "X",
+        ".",
+        ".",
+        ".",
+        ".",
         ".",
         ".",
         ".",
         "X"
       ],
       [
-        "X",
-        "X",
-        "X",
-        "X",
         "X",
         "X",
         "X",
@@ -114,9 +108,9 @@
   },
   "entities": {
     "player": {
-      "X": 6,
-      "Y": 4,
-      "dir": "L",
+      "X": 4,
+      "Y": 6,
+      "dir": "U",
       "alive": true
     },
     "bullet": {
@@ -125,25 +119,16 @@
       "dir": "U",
       "alive": false
     },
-    "nbBoxes": 2,
-    "Boxes": [
-      {
-        "X": 2,
-        "Y": 4
-      },
-      {
-        "X": 4,
-        "Y": 1
-      }
-    ]
+    "nbBoxes": 0,
+    "Boxes": []
   },
   "logic": {
     "nb_activators": 1,
     "activators": [
       {
-        "X": 4,
-        "Y": 4,
-        "type": "I"
+        "X": 2,
+        "Y": 2,
+        "type": "T"
       }
     ],
     "nb_gates": 0,
@@ -151,14 +136,14 @@
     "nb_doors": 1,
     "doors": [
       {
-        "X": 8,
-        "Y": 1,
+        "X": 6,
+        "Y": 4,
         "nb_tiles": 1,
         "tiles": [
           {
-            "X": 8,
-            "Y": 1,
-            "orient": "V"
+            "X": 6,
+            "Y": 4,
+            "orient": "H"
           }
         ]
       }
@@ -168,27 +153,22 @@
       {
         "type_start": "Activator",
         "type_end": "Door",
-        "nb_nodes": 4,
+        "nb_nodes": 3,
         "nodes": [
           {
-            "X": 4,
+            "X": 2,
+            "Y": 2
+          },
+          {
+            "X": 2,
             "Y": 4
           },
           {
-            "X": 4,
-            "Y": 2
-          },
-          {
-            "X": 8,
-            "Y": 2
-          },
-          {
-            "X": 8,
-            "Y": 1
+            "X": 6,
+            "Y": 4
           }
         ],
         "offsets": [
-          0,
           0,
           0
         ]
@@ -196,12 +176,13 @@
     ]
   },
   "hint": [
-    "You can crush anything in a closing door."
+    "This is a target, shoot your bullet into it to activate it."
   ],
   "dialogue": [],
-  "name": "I call this one \"Smash\"",
-  "perf_steps": 39,
+  "name": "Target tutorial 1",
+  "perf_steps": 11,
   "flags": {
-    "can_swap": true
+    "can_swap": true,
+    "has_ghost": true
   }
 }

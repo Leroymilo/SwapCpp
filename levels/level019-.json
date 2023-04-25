@@ -409,6 +409,7 @@
   "name": "2 Doors... Again?",
   "perf_steps": 28,
   "flags": {
-    "can_swap": true
+    "can_swap": true,
+    "has_ghost": true
   }
 }

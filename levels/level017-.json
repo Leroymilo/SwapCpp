@@ -474,6 +474,7 @@
   "name": "Bullet & Logic Trial",
   "perf_steps": 55,
   "flags": {
-    "can_swap": true
+    "can_swap": true,
+    "has_ghost": true
   }
 }

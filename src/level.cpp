@@ -62,9 +62,17 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
 
     // Loading stuff :
     name = json_data["name"].asCString();
-    can_swap = json_data["flags"]["can_swap"].asBool();
-    flag_icons["no_swap"].loadFromFile("assets/no_swap.png");
+    Json::Value json_flags = json_data["flags"];
+    int i = 0;
+    for (Json::Value::iterator itr = json_flags.begin(); itr != json_flags.end(); itr++)
+    {
+        std::string key = json_flags.getMemberNames()[i];
+        flags[key] = json_flags[key].asBool();
+        flag_icons[key].loadFromFile("assets/" + key + ".png");
+        i ++;
+    }
     perf_steps = json_data["perf_steps"].asInt();
+    ordered_flags = {"has_ghost", "can_swap"};
 
     process_logic(false);
     validate_step();
@@ -173,7 +181,7 @@ void Level::pLikePush(PlayerLike* pushed, char direction)
 
 bool Level::swap()
 {
-    if (!can_swap) return false;
+    if (!flags["can_swap"]) return false;
 
     if (Player.alive && !ghost.alive)
     {
@@ -313,9 +321,12 @@ void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every ti
 {
     sf::Vector2f winSize(windowP->getSize());
 
-    sf::FloatRect bounds = sf::Text(name, font, 30).getLocalBounds();
-    int Y0 = bounds.height + bounds.top;
-    winSize.y -= Y0;
+    int Y0 = 0;
+    sf::FloatRect bounds;
+
+    // bounds = sf::Text(name, font, 30).getLocalBounds();
+    // Y0 += bounds.height + bounds.top;
+    // winSize.y -= Y0;
 
     bounds = sf::Text("Ip", font, 28).getLocalBounds();
     winSize.y -= bounds.height + bounds.top;
@@ -341,12 +352,13 @@ void Level::displayBG(sf::RenderWindow * windowP)
 
     sf::Vector2u winSize = windowP->getSize();
     float max_y = winSize.y;
+    sf::FloatRect bounds;
 
     // Displaying level name :
-    sf::Text nameDisp(name, font, 30);
-    sf::FloatRect bounds = nameDisp.getLocalBounds();
-    nameDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, 0);
-    windowP->draw(nameDisp);
+    // sf::Text nameDisp(name, font, 30);
+    // bounds = nameDisp.getLocalBounds();
+    // nameDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, 0);
+    // windowP->draw(nameDisp);
 
     // Displaying level background :
     backGround.display(windowP, font);
@@ -390,12 +402,15 @@ void Level::displayBG(sf::RenderWindow * windowP)
     C0.y -= delta;
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
 
-    if (!can_swap)
+    for (std::string flag_key : ordered_flags)
     {
-        tile.setTexture(&flag_icons["no_swap"]);
-        tile.setPosition(sf::Vector2f(C0));
-        windowP->draw(tile);
-        C0.x += delta;
+        if (flags[flag_key])
+        {
+            tile.setTexture(&flag_icons[flag_key]);
+            tile.setPosition(sf::Vector2f(C0));
+            windowP->draw(tile);
+            C0.x += delta;
+        }
     }
 }
 

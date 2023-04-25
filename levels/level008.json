@@ -92,7 +92,7 @@
       "alive": true
     },
     "bullet": {
-      "X": 4,
+      "X": 5,
       "Y": 1,
       "dir": "L",
       "alive": true
@@ -118,8 +118,9 @@
     "Is this... myself? I don't think I should touch this thing..."
   ],
   "name": "Bullet tutorial 1",
-  "perf_steps": 11,
+  "perf_steps": 13,
   "flags": {
-    "can_swap": false
+    "can_swap": false,
+    "has_ghost": true
   }
 }

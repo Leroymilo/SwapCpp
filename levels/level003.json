@@ -115,6 +115,7 @@
   "name": "Tutorial 3",
   "perf_steps": 6,
   "flags": {
-    "can_swap": false
+    "can_swap": false,
+    "has_ghost": false
   }
 }

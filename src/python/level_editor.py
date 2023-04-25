@@ -188,7 +188,7 @@ class LevelEditor(LevelEditor) :
         self.show_link_tools(False)
         self.display_level()
     
-    def edit(self, val=True) :
+    def edit(self, event: wx.Event = None, val=True) :
         self.edited = val
         text = base_editor_title + " : " + '*'*val
         if self.level_name is None :
@@ -653,12 +653,11 @@ class LevelEditor(LevelEditor) :
             if res == 5101 :
                 return 0
         
-        self.level.save(
-            "levels/" + self.level_name,
-            swap=self.allow_swap_item.IsChecked()
-        )
+        self.level.flags["has_ghost"] = self.has_ghost_item.IsChecked()
+        self.level.flags["can_swap"] = self.allow_swap_item.IsChecked()
+        self.level.save("levels/" + self.level_name)
         
-        self.edit(False)
+        self.edit(val=False)
         self.display_error(f"Level saved as \"{self.level_name}\" !")
         return 1
     
@@ -715,6 +714,8 @@ class LevelEditor(LevelEditor) :
         self.SetTitle(base_editor_title + " : " + self.level_name)
         self.update_link_choice()
         self.allow_swap_item.Check(self.level.flags["can_swap"])
+        self.has_ghost_item.Check(self.level.flags["has_ghost"])
+        self.edited = False
     
     #=========================================================================================================================================================
     # Edit menu :

@@ -2,8 +2,8 @@
   "bg": {
     "H": 9,
     "W": 9,
-    "EndX": 4,
-    "EndY": 1,
+    "EndX": 2,
+    "EndY": 6,
     "BG": [
       [
         "X",
@@ -21,7 +21,51 @@
         ".",
         ".",
         ".",
+        "X",
+        "X",
         ".",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "x",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
+        "X",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        ".",
+        ".",
+        ".",
+        "X"
+      ],
+      [
+        "X",
+        ".",
+        ".",
+        ".",
+        "X",
         ".",
         ".",
         ".",
@@ -43,51 +87,7 @@
         ".",
         ".",
         ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
         "X",
-        "X",
-        "X",
-        "X",
-        ".",
-        "X",
-        "X",
-        "X",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
         ".",
         ".",
         ".",
@@ -100,7 +100,7 @@
         "X",
         "X",
         "X",
-        "X",
+        ".",
         "X",
         "X"
       ]
@@ -108,9 +108,9 @@
   },
   "entities": {
     "player": {
-      "X": 4,
-      "Y": 7,
-      "dir": "U",
+      "X": 2,
+      "Y": 2,
+      "dir": "R",
       "alive": true
     },
     "bullet": {
@@ -122,39 +122,114 @@
     "nbBoxes": 1,
     "Boxes": [
       {
-        "X": 2,
-        "Y": 6
+        "X": 6,
+        "Y": 2
       }
     ]
   },
   "logic": {
-    "nb_activators": 1,
+    "nb_activators": 2,
     "activators": [
       {
-        "X": 6,
-        "Y": 6,
+        "X": 7,
+        "Y": 2,
         "type": "I"
+      },
+      {
+        "X": 6,
+        "Y": 8,
+        "type": "T"
       }
     ],
-    "nb_gates": 0,
-    "gates": [],
-    "nb_doors": 1,
+    "nb_gates": 1,
+    "gates": [
+      {
+        "X": 6,
+        "Y": 1,
+        "type": "NO",
+        "dir": "L"
+      }
+    ],
+    "nb_doors": 2,
     "doors": [
       {
         "X": 4,
-        "Y": 4,
+        "Y": 2,
+        "nb_tiles": 2,
+        "tiles": [
+          {
+            "X": 4,
+            "Y": 2,
+            "orient": "V"
+          },
+          {
+            "X": 5,
+            "Y": 2,
+            "orient": "V"
+          }
+        ]
+      },
+      {
+        "X": 4,
+        "Y": 6,
         "nb_tiles": 1,
         "tiles": [
           {
             "X": 4,
-            "Y": 4,
-            "orient": "H"
+            "Y": 6,
+            "orient": "V"
           }
         ]
       }
     ],
-    "nb_links": 1,
+    "nb_links": 3,
     "links": [
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 7,
+            "Y": 2
+          },
+          {
+            "X": 7,
+            "Y": 1
+          },
+          {
+            "X": 6,
+            "Y": 1
+          }
+        ],
+        "offsets": [
+          0,
+          0
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Door",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 6,
+            "Y": 1
+          },
+          {
+            "X": 4,
+            "Y": 1
+          },
+          {
+            "X": 4,
+            "Y": 2
+          }
+        ],
+        "offsets": [
+          0,
+          0
+        ]
+      },
       {
         "type_start": "Activator",
         "type_end": "Door",
@@ -162,35 +237,30 @@
         "nodes": [
           {
             "X": 6,
+            "Y": 8
+          },
+          {
+            "X": 6,
             "Y": 6
           },
           {
             "X": 4,
             "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 4
           }
         ],
         "offsets": [
-          2,
+          0,
           0
         ]
       }
     ]
   },
-  "hint": [
-    ""
-  ],
-  "dialogue": [
-    "What is this inscription on the tile?",
-    "It looks like it can be hold down..."
-  ],
-  "name": "Logic tutorial 1",
-  "perf_steps": 14,
+  "hint": [],
+  "dialogue": [],
+  "name": "Bullet Airlock",
+  "perf_steps": 15,
   "flags": {
-    "can_swap": false,
-    "has_ghost": false
+    "can_swap": true,
+    "has_ghost": true
   }
 }

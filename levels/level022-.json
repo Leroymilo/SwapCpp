@@ -191,6 +191,7 @@
   "name": "Minimalism",
   "perf_steps": 10,
   "flags": {
-    "can_swap": true
+    "can_swap": true,
+    "has_ghost": true
   }
 }

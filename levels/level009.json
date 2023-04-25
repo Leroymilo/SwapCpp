@@ -117,8 +117,9 @@
     "It looks like a ghost, it can go through thorns with ease."
   ],
   "name": "Bullet tutorial 2",
-  "perf_steps": 5,
+  "perf_steps": 9,
   "flags": {
-    "can_swap": false
+    "can_swap": false,
+    "has_ghost": true
   }
 }

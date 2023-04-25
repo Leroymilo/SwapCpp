@@ -163,7 +163,7 @@
       "dir": "U",
       "alive": false
     },
-    "nbBoxes": 6,
+    "nbBoxes": 5,
     "Boxes": [
       {
         "X": 9,
@@ -183,10 +183,6 @@
       },
       {
         "X": 5,
-        "Y": 9
-      },
-      {
-        "X": 6,
         "Y": 9
       }
     ]
@@ -517,9 +513,10 @@
     ""
   ],
   "dialogue": [],
-  "name": "Locked hysteresis",
-  "perf_steps": 26,
+  "name": "Hysteresis",
+  "perf_steps": 47,
   "flags": {
-    "can_swap": true
+    "can_swap": false,
+    "has_ghost": true
   }
 }

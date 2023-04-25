@@ -53,6 +53,10 @@ class LevelEditor ( wx.Frame ):
 		self.level_dlg_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Change Level Dialogue", wx.EmptyString, wx.ITEM_NORMAL )
 		self.edit_menu.Append( self.level_dlg_item )
 
+		self.has_ghost_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Has Ghost", wx.EmptyString, wx.ITEM_CHECK )
+		self.edit_menu.Append( self.has_ghost_item )
+		self.has_ghost_item.Check( True )
+
 		self.allow_swap_item = wx.MenuItem( self.edit_menu, wx.ID_ANY, u"Allow Swaps", wx.EmptyString, wx.ITEM_CHECK )
 		self.edit_menu.Append( self.allow_swap_item )
 		self.allow_swap_item.Check( True )
@@ -150,6 +154,8 @@ class LevelEditor ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.change_level_name, id = self.level_name_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_level_hint, id = self.level_hint_item.GetId() )
 		self.Bind( wx.EVT_MENU, self.change_level_dlg, id = self.level_dlg_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.edit, id = self.has_ghost_item.GetId() )
+		self.Bind( wx.EVT_MENU, self.edit, id = self.allow_swap_item.GetId() )
 		self.tools.Bind( wx.EVT_CHOICE, self.change_tool )
 		self.sel_link_choice.Bind( wx.EVT_CHOICE, self.change_link )
 		self.sel_seg_spin.Bind( wx.EVT_SPINCTRL, self.change_segment )
@@ -200,6 +206,10 @@ class LevelEditor ( wx.Frame ):
 
 	def change_level_dlg( self, event ):
 		event.Skip()
+
+	def edit( self, event ):
+		event.Skip()
+
 
 	def change_tool( self, event ):
 		event.Skip()

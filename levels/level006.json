@@ -312,6 +312,7 @@
   "name": "Logic tutorial 3",
   "perf_steps": 20,
   "flags": {
-    "can_swap": false
+    "can_swap": false,
+    "has_ghost": false
   }
 }

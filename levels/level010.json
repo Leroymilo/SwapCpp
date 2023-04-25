@@ -112,8 +112,9 @@
     "I need to find a way to push it out of here."
   ],
   "name": "Bullet tutorial 3",
-  "perf_steps": 14,
+  "perf_steps": 15,
   "flags": {
-    "can_swap": false
+    "can_swap": false,
+    "has_ghost": true
   }
 }

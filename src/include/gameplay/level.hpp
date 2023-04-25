@@ -24,7 +24,10 @@ class Level
         Grid backGround;
         Logic logic;
         bool solved = false;
-        bool can_swap = true;
+
+        std::map<std::string, bool> flags;
+        std::map<std::string, sf::Texture> flag_icons;
+        std::list<std::string> ordered_flags;
 
         sf::Font font;
         std::string name;
@@ -34,7 +37,6 @@ class Level
         std::vector<std::string> dlg = {};
 
         std::map<char, sf::Texture> bg_tiles;
-        std::map<std::string, sf::Texture> flag_icons;
 
         bool boxPush(Entity* pusher, char direction);//Recursive calls of the pushing function
         void pLikePush(PlayerLike* pushed, char direction);//End call for the pushing function : if a box pushes an enemy

@@ -252,6 +252,7 @@
   "name": "Logic tutorial 2",
   "perf_steps": 20,
   "flags": {
-    "can_swap": false
+    "can_swap": false,
+    "has_ghost": false
   }
 }
