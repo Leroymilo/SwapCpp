@@ -284,7 +284,7 @@ int LevelGrid::clicked()
 
 void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p, sf::Font font)
 {
-    win_p->clear(sf::Color(20, 30, 200));
+    win_p->clear(sf::Color(20, 30, 120));
 
     lvl_g_p->draw(win_p, font);
 
