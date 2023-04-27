@@ -65,8 +65,8 @@ class Level
         void validate_step();
 
         void resize_bg(sf::RenderWindow* windowP);
-        void display(sf::RenderWindow* windowP, bool disp = true, int frame = 4);
-        void animate(sf::RenderWindow* windowP);
+        void display(sf::RenderWindow* windowP, bool disp = true);
+        void animate(sf::RenderWindow* windowP, int frame, bool disp = true);
 };
 
 void display_pause(sf::RenderWindow*, sf::Font);    // Function to display the pause menu over the level

@@ -414,7 +414,7 @@ void Level::displayBG(sf::RenderWindow * windowP)
     }
 }
 
-void Level::display(sf::RenderWindow * windowP, bool disp, int frame)
+void Level::animate(sf::RenderWindow * windowP, int frame, bool disp)
 {
     displayBG(windowP);
 
@@ -434,37 +434,9 @@ void Level::display(sf::RenderWindow * windowP, bool disp, int frame)
         windowP->display();
 }
 
-void Level::animate(sf::RenderWindow * windowP)
+void Level::display(sf::RenderWindow * windowP, bool disp)
 {
-    sf::Clock clock;
-    int t1;
-
-    sf::Vector2i C0;
-    int delta;
-    backGround.getDisplay(&C0, &delta);
-
-    for (int i = 1; i <= 3; i++)//All animations are 4 frames long
-    {
-        t1 = clock.getElapsedTime().asMilliseconds();
-        displayBG(windowP);
-
-        //Animation of logic elements
-        logic.anim(C0, delta, windowP, i);
-
-        //Animation of the player
-        Player.anim(C0, delta, windowP, i);
-
-        //Animation of the ghost
-        ghost.anim(C0, delta, windowP, i);
-
-        //Animation of the boxes
-        boxes.anim(C0, delta, windowP, i);
-
-        windowP->display();
-        while (clock.getElapsedTime().asMilliseconds()-t1 < 20) {}
-    }
-    Player.step = (Player.step + 1)%4;
-    display(windowP);
+    animate(windowP, 4, disp);
 }
 
 // Handling pause menu
@@ -719,7 +691,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
 
             else if (pkey == 7)
             {
-                if (steps.size() > 0 && steps.back() != '+')
+                if (level.nbSteps > 0)
                 {
                     pre_resets.push_back(level);
                     level = pre_resets.front();
@@ -748,12 +720,25 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
         if (animating && cur_time >= anim_start + frame * anim_deltaT)
         {
             frame++;
-            level.display(windowP, true, frame);
+            level.animate(windowP, frame);
             if (frame == 4)
             {
                 frame = 0;
                 animating = false;
             }
+
+            /*
+            There are 4 frames in a step, numbered from 1 to 4.
+            Passing frame=0 in the animate function will draw the previous state,
+            passing frame=4 will draw the current state, which is also the last draw of the animation.
+
+            When making in-step animated sprite (animation plays during the step transition),
+            the left-most column of the sprite sheet should be the "standing" one, while the 3 other columns make a cycle.
+
+            For elements moving during the in-step animation,
+            the drawing position is calculated by linear interpolation between frame 0 and 4,
+            making frames 1, 2 and 3 respectively at exactly 25%, 50% and 75% of a step.
+            */
         }
 
         if (frame == 0 && level.won)
