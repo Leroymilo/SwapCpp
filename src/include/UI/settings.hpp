@@ -20,7 +20,7 @@ class Option_Line
 
         void reshape();
         bool update();
-        void draw(sf::Font font);
+        void draw();
 };
 
 class Options
@@ -35,13 +35,13 @@ class Options
         Button exit_;
 
         Options();
-        Options(Save*, sf::RenderWindow*, sf::Font);
+        Options(Save*, sf::RenderWindow*);
 
         void reshape();
         bool update();
-        void draw(sf::Font font);
+        void draw();
 };
 
-int settings(sf::RenderWindow*, Save*, sf::Font);
+int settings(sf::RenderWindow*, Save*);
 
 #endif //SETTINGS_H

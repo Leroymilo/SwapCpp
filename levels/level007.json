@@ -5,106 +5,48 @@
     "EndX": 1,
     "EndY": 1,
     "BG": [
-      [
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X",
-        "X"
-      ],
-      [
-        "X",
-        "X",
-        "X",
-        ".",
-        "X",
-        "X",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X"
-      ]
+      "XXXXXXXX",
+      "XE....XX",
+      "XXX.XX.X",
+      "X......X",
+      "X.X....X",
+      "X.X....X",
+      "XXXXXXXX"
     ]
   },
   "entities": {
     "player": {
-      "X": 1,
-      "Y": 5,
-      "dir": "U",
-      "alive": true
+      "physf": {
+        "X": 1,
+        "Y": 5,
+        "dir": "U",
+        "alive": true
+      },
+      "ghost": {
+        "X": 0,
+        "Y": 0,
+        "dir": "U",
+        "alive": false
+      }
     },
-    "bullet": {
-      "X": 0,
-      "Y": 0,
-      "dir": "U",
-      "alive": false
-    },
-    "nbBoxes": 3,
-    "Boxes": [
+    "statues": [
       {
         "X": 2,
-        "Y": 3
+        "Y": 3,
+        "alive": true
       },
       {
         "X": 3,
-        "Y": 3
+        "Y": 3,
+        "alive": true
       },
       {
         "X": 4,
-        "Y": 3
+        "Y": 3,
+        "alive": true
       }
-    ]
+    ],
+    "monsters?": []
   },
   "logic": {
     "nb_activators": 1,
@@ -200,5 +142,6 @@
   "flags": {
     "can_swap": false,
     "has_ghost": false
-  }
+  },
+  "V": "2.1.3"
 }

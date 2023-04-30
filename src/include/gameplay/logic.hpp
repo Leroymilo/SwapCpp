@@ -3,19 +3,11 @@
 
 #include <list>
 #include <vector>
+#include <unordered_set>
 
-#include <SFML/Graphics.hpp>
 #include <json/value.h>
 
-//Comparator for a map using sf::Vector2i as keys
-//Found here : https://stackoverflow.com/questions/56506121/sfvector2i-as-key-in-stdmap-shows-as-1-1-if-the-y-value-is-1-even-if-the
-struct VectorComparator
-{
-    bool operator() (sf::Vector2i lhs, sf::Vector2i rhs) const
-    {
-        return lhs.x < rhs.x || (lhs.x == rhs.x && lhs.y < rhs.y);
-    }
-};
+#include "globals.hpp"
 
 class Link
 {
@@ -140,14 +132,14 @@ class Logic
     public :
         Logic();
         Logic(Json::Value json_logic);
-        bool isClosedDoor(sf::Vector2i coords);
-        bool isWallForMost(sf::Vector2i coords);    //"Most" being the player and boxes
-        bool isWallForGhost(sf::Vector2i coords);
+        bool is_closed_door(sf::Vector2i coords);
+        bool is_wall_for_physf(sf::Vector2i coords);    //"Most" being the player and boxes
+        bool is_wall_for_ghost(sf::Vector2i coords);
 
         std::list<sf::Vector2i> update_activators(
-            std::list<sf::Vector2i> heavy_coords,
-            std::list<sf::Vector2i> ghost_coords,
-            bool didSwap, bool * balive
+            std::unordered_set<sf::Vector2i, VectorHasher> heavy_coords,
+            std::unordered_set<sf::Vector2i, VectorHasher> ghost_coords,
+            bool did_swap, bool * ghost_alive
         );
         //Returns the position of the outputs of every activator that chenged state
         void update(std::list<sf::Vector2i> changed_elts);

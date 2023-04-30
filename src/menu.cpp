@@ -1,17 +1,18 @@
-#include "UI/menu.hpp"
-
 #include <filesystem>
 #include <string>
 #include <regex>
 #include <iostream>
 #include <cmath>
 
+#include "globals.hpp"
+#include "UI/menu.hpp"
+
 sf::Texture title;
 Button start_;
 Button exit_;
 Button settings;
 
-void draw_title(sf::RenderWindow* win_p, sf::Font font)
+void draw_title(sf::RenderWindow* win_p)
 {
     win_p->clear(sf::Color(138, 208, 234));
 
@@ -24,14 +25,14 @@ void draw_title(sf::RenderWindow* win_p, sf::Font font)
     title_rect.setPosition(X, Y);
     win_p->draw(title_rect);
 
-    start_.draw(font);
-    exit_.draw(font);
-    settings.draw(font);
+    start_.draw();
+    exit_.draw();
+    settings.draw();
 
     win_p->display();
 }
 
-int title_screen(sf::RenderWindow* win_p, sf::Font font)
+int title_screen(sf::RenderWindow* win_p)
 {
     title.loadFromFile("assets/Menu/Title.png");
     start_ = Button("continue", "Start", Alignment(1, 0, 0, 8, 4, 0), win_p);
@@ -39,7 +40,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
     settings = Button("settings", "Settings", Alignment(1, 0, 0, 8, 8, 0), win_p);
 
     // First draw
-    draw_title(win_p, font);
+    draw_title(win_p);
 
     while (win_p->isOpen())
     {
@@ -54,7 +55,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
 
             else if (evnt.type == sf::Event::GainedFocus)
             {
-                draw_title(win_p, font);
+                draw_title(win_p);
             }
             
             else if (evnt.type == sf::Event::Resized)
@@ -64,7 +65,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
                 start_.reshape();
                 exit_.reshape();
                 settings.reshape();
-                draw_title(win_p, font);
+                draw_title(win_p);
             }
         }
 
@@ -83,7 +84,7 @@ int title_screen(sf::RenderWindow* win_p, sf::Font font)
 
         if (start_.update() || exit_.update() || settings.update())
         {
-            draw_title(win_p, font);
+            draw_title(win_p);
         }
     }
 
@@ -199,7 +200,7 @@ bool LevelGrid::update()
     return updated;
 }
 
-void LevelGrid::draw(sf::RenderWindow* win_p, sf::Font font)
+void LevelGrid::draw(sf::RenderWindow* win_p)
 {
     for (int y=0; y<H; y++)
     {
@@ -212,14 +213,14 @@ void LevelGrid::draw(sf::RenderWindow* win_p, sf::Font font)
             if (button == levels.end())
                 continue;   // The level is not in the list
             
-            button->second.draw(font);
+            button->second.draw();
             
             if (save_p->is_solved(lvl_id))
             {
                 int steps = save_p->get_steps(lvl_id);
                 sf::Rect<int> but_hb = button->second.hitbox;
                 std::string text = "steps : " + std::to_string(steps);
-                sf::Text step_disp(text, font, 14);
+                sf::Text step_disp(text, font.get_font(), 14);
                 sf::FloatRect bounds = step_disp.getLocalBounds();
                 step_disp.setPosition(but_hb.left + (but_hb.width - bounds.width)/2, but_hb.top + but_hb.height);
                 win_p->draw(step_disp);
@@ -229,11 +230,11 @@ void LevelGrid::draw(sf::RenderWindow* win_p, sf::Font font)
 
     if (nb_pages > 1)
     {
-        right.draw(font);
-        left.draw(font);
+        right.draw();
+        left.draw();
     }
 
-    exit_.draw(font);
+    exit_.draw();
 }
 
 int LevelGrid::clicked()
@@ -282,21 +283,21 @@ int LevelGrid::clicked()
     return 0;
 }
 
-void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p, sf::Font font)
+void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p)
 {
     win_p->clear(sf::Color(20, 30, 120));
 
-    lvl_g_p->draw(win_p, font);
+    lvl_g_p->draw(win_p);
 
     win_p->display();
 }
 
-int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
+int level_select(sf::RenderWindow* win_p, Save* save_p)
 {
     LevelGrid level_grid(win_p, save_p);
 
     // First draw
-    draw_levels(win_p, &level_grid, font);
+    draw_levels(win_p, &level_grid);
 
     while (win_p->isOpen())
     {
@@ -311,7 +312,7 @@ int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
 
             else if (evnt.type == sf::Event::GainedFocus)
             {
-                draw_levels(win_p, &level_grid, font);
+                draw_levels(win_p, &level_grid);
             }
             
             else if (evnt.type == sf::Event::Resized)
@@ -319,7 +320,7 @@ int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 win_p->setView(sf::View(view));
                 level_grid.reshape();
-                draw_levels(win_p, &level_grid, font);
+                draw_levels(win_p, &level_grid);
             }
 
             else if (evnt.type == sf::Event::KeyPressed)
@@ -344,12 +345,12 @@ int level_select(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
         else if (clicked == -1)
         {
             level_grid.reshape();
-            draw_levels(win_p, &level_grid, font);
+            draw_levels(win_p, &level_grid);
         }
 
         if (level_grid.update())
         {
-            draw_levels(win_p, &level_grid, font);
+            draw_levels(win_p, &level_grid);
         }
     
     }

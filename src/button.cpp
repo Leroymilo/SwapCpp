@@ -97,7 +97,7 @@ bool Button::update()
     return (on != prev_on) || (hover != prev_hover);
 }
 
-void Button::draw(sf::Font font)
+void Button::draw()
 {
     if (!defined)
     {
@@ -122,7 +122,7 @@ void Button::draw(sf::Font font)
     button.setPosition(sf::Vector2f(hitbox.left, hitbox.top));
     ref_win_p->draw(button);
 
-    sf::Text text_disp(text, font);
+    sf::Text text_disp(text, font.get_font());
     sf::FloatRect bounds = text_disp.getLocalBounds();
     text_disp.setPosition(sf::Vector2f(
         hitbox.left + (hitbox.width - bounds.width - bounds.left)/2,
@@ -221,7 +221,7 @@ bool CycleButton::update()
     return buttons[state].update();
 }
 
-void CycleButton::draw(sf::Font font)
+void CycleButton::draw()
 {
     if (!defined)
     {
@@ -229,5 +229,11 @@ void CycleButton::draw(sf::Font font)
         return;
     }
     
-    buttons[state].draw(font);
+    buttons[state].draw();
+}
+
+void CycleButton::set_alignment(Alignment new_align)
+{
+    for (auto &button : buttons)
+        button.set_alignment(new_align);
 }

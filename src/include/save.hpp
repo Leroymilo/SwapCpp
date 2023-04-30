@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include "globals.hpp"
+
 class Save
 {
     private:

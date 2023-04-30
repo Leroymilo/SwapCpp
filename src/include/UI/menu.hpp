@@ -10,8 +10,8 @@
 
 // Functions for Title screen
 
-void draw_title(sf::RenderWindow*, sf::Font);
-int title_screen(sf::RenderWindow*, sf::Font);
+void draw_title(sf::RenderWindow*);
+int title_screen(sf::RenderWindow*);
 
 // Class and Functions for Level selection screen
 
@@ -35,11 +35,11 @@ class LevelGrid
         LevelGrid(sf::RenderWindow*, Save*);
         void reshape();
         bool update();
-        void draw(sf::RenderWindow* win_p, sf::Font);
+        void draw(sf::RenderWindow* win_p);
         int clicked();
 };
 
-void draw_levels(sf::RenderWindow*, LevelGrid*, sf::Font);
-int level_select(sf::RenderWindow*, Save* save_p, sf::Font);
+void draw_levels(sf::RenderWindow*, LevelGrid*);
+int level_select(sf::RenderWindow*, Save*);
 
 #endif //MENU_H

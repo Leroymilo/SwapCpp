@@ -5,94 +5,37 @@
     "EndX": 6,
     "EndY": 2,
     "BG": [
-      [
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        "X",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        "X",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        "X",
-        ".",
-        "X",
-        "X",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        ".",
-        "x",
-        "X"
-      ],
-      [
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X"
-      ]
+      "XXXXXXXXX",
+      "X...X...X",
+      "X...X.E.X",
+      "X...X.XXX",
+      "X......TX",
+      "XXXXXXXXX"
     ]
   },
   "entities": {
     "player": {
-      "X": 2,
-      "Y": 3,
-      "dir": "D",
-      "alive": true
+      "physf": {
+        "X": 2,
+        "Y": 3,
+        "dir": "D",
+        "alive": true
+      },
+      "ghost": {
+        "X": 4,
+        "Y": 4,
+        "dir": "D",
+        "alive": true
+      }
     },
-    "bullet": {
-      "X": 4,
-      "Y": 4,
-      "dir": "D",
-      "alive": true
-    },
-    "nbBoxes": 1,
-    "Boxes": [
+    "statues": [
       {
         "X": 2,
-        "Y": 2
+        "Y": 2,
+        "alive": true
       }
-    ]
+    ],
+    "monsters?": []
   },
   "logic": {
     "nb_activators": 0,
@@ -116,5 +59,6 @@
   "flags": {
     "can_swap": false,
     "has_ghost": true
-  }
+  },
+  "V": "2.1.3"
 }

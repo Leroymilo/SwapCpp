@@ -3,8 +3,6 @@
 #include <regex>
 #include <filesystem>
 
-#include <SFML/Graphics.hpp>
-
 #include "gameplay/level.hpp"
 #include "UI/menu.hpp"
 #include "UI/settings.hpp"
@@ -27,10 +25,6 @@ int main()
     }
 
     window.setVerticalSyncEnabled(save.get_flag_state("vsync"));
-
-    sf::Font font;
-    if (!font.loadFromFile("assets/font.ttf"))
-        std::cout << "Could not load font" << std::endl;
     
     std::string scene = "Title";
     int level_id = 1;
@@ -41,7 +35,7 @@ int main()
         if (scene == "Title")
         {
             // Title screen logic :
-            int res = title_screen(&window, font);
+            int res = title_screen(&window);
             if (res == 0)
             {
                 window.close();
@@ -53,14 +47,14 @@ int main()
         else if (scene == "Settings")
         {
             // Into the settings screen :
-            int res = settings(&window, &save, font);
+            int res = settings(&window, &save);
             scene = "Title";
         }
 
         else if (scene == "Select")
         {
             // Selecting a level :
-            int res = level_select(&window, &save, font);
+            int res = level_select(&window, &save);
             if (res == 0)
                 scene = "Title";
             else
@@ -74,7 +68,7 @@ int main()
         {
             // Running a level :
             int nb_steps;
-            int won = run(level_id, save.is_solved(level_id), &window, font, &nb_steps);
+            int won = run(level_id, save.is_solved(level_id), &window, &nb_steps);
 
             if (won > 0)
             {

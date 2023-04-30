@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "globals.hpp"
 #include "UI/settings.hpp"
 
 
@@ -28,23 +29,23 @@ bool Option_Line::update()
     return button.update();
 }
 
-void Option_Line::draw(sf::Font font)
+void Option_Line::draw()
 {
     int button_height = button.hitbox.height;
     sf::Vector2i top_left = text_align.compute(sf::Vector2i(button_height, button_height), ref_win_p->getSize());
-    sf::Text text_disp(text, font, 30);
+    sf::Text text_disp(text, font.get_font(), 30);
     sf::FloatRect bounds = text_disp.getLocalBounds();
     top_left.y += (button_height-bounds.height-bounds.top)/2;
     text_disp.setPosition(sf::Vector2f(top_left));
     ref_win_p->draw(text_disp);
 
-    button.draw(font);
+    button.draw();
 }
 
 
 Options::Options() {}
 
-Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
+Options::Options(Save* save_p, sf::RenderWindow* win_p)
 {
     ref_save_p = save_p;
     ref_win_p = win_p;
@@ -54,7 +55,7 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
     float max_text_W = 0;
     for (std::string key : flags)
     {
-        sf::Text desc(save_p->get_flag_desc(key), font, 30);
+        sf::Text desc(save_p->get_flag_desc(key), font.get_font(), 30);
         float width = desc.getLocalBounds().width;
         if (width > max_text_W)
         {
@@ -65,7 +66,7 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
     // initializing lines :
     for (int i = 0; i < flags.size(); i++)
     {
-        Alignment align(2, 1, max_text_W, flags.size(), i, 16);
+        Alignment align(2, 1, max_text_W, flags.size(), i, DELTA);
         lines[flags[i]] = Option_Line(
             win_p,
             flags[i],
@@ -77,12 +78,12 @@ Options::Options(Save* save_p, sf::RenderWindow* win_p, sf::Font font)
 
     exit_ = Button(
         "exit", "Exit",
-        Alignment(2, 0, 32, flags.size()+2, flags.size()+1, 16),
+        Alignment(2, 0, 32, flags.size()+2, flags.size()+1, DELTA),
         ref_win_p
     );
     apply = Button(
         "continue", "Apply",
-        Alignment(2, 1, 32, flags.size()+2, flags.size()+1, 16),
+        Alignment(2, 1, 32, flags.size()+2, flags.size()+1, DELTA),
         ref_win_p
     );
 
@@ -120,27 +121,27 @@ bool Options::update()
     return updated;
 }
 
-void Options::draw(sf::Font font)
+void Options::draw()
 {
     ref_win_p->clear(sf::Color(20, 30, 200));
     for (auto& line_elt : lines)
     {
-        line_elt.second.draw(font);
+        line_elt.second.draw();
     }
 
-    exit_.draw(font);
-    apply.draw(font);
+    exit_.draw();
+    apply.draw();
 
     ref_win_p->display();
 }
 
-int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
+int settings(sf::RenderWindow* win_p, Save* save_p)
 {
     Save save_copy = save_p->copy();
 
     bool prev_fs = save_copy.get_flag_state("fullscreen");
-    Options opts(&save_copy, win_p, font);
-    opts.draw(font);
+    Options opts(&save_copy, win_p);
+    opts.draw();
 
     while (win_p->isOpen())
     {
@@ -155,7 +156,7 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
 
             else if (evnt.type == sf::Event::GainedFocus)
             {
-                opts.draw(font);
+                opts.draw();
             }
             
             else if (evnt.type == sf::Event::Resized)
@@ -163,7 +164,7 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
                 win_p->setView(sf::View(view));
                 opts.reshape();
-                opts.draw(font);
+                opts.draw();
             }
 
             else if (evnt.type == sf::Event::KeyPressed)
@@ -177,7 +178,7 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
 
         if (opts.update())
         {
-            opts.draw(font);
+            opts.draw();
         }
 
         if (opts.apply.clicked())
@@ -196,7 +197,7 @@ int settings(sf::RenderWindow* win_p, Save* save_p, sf::Font font)
                 }
                 prev_fs = save_copy.get_flag_state("fullscreen");
                 opts.reshape();
-                opts.draw(font);
+                opts.draw();
             }
 
             win_p->setVerticalSyncEnabled(save_copy.get_flag_state("vsync"));

@@ -19,7 +19,7 @@ std::string make_level_name(int nb)
 //Constructor and meta
 Level::Level(){}
 
-Level::Level(std::string file_name, sf::Font font) : font(font)
+Level::Level(std::string file_name)
 {
     // Reading Json :
     std::ifstream file("levels/" + file_name + ".json");
@@ -29,15 +29,19 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
 
     // Loading tiles sprites :
     bg_tiles['X'].loadFromFile("assets/Tiles/Wall.png");
-    bg_tiles['x'].loadFromFile("assets/Tiles/Grate.png");
+    bg_tiles['T'].loadFromFile("assets/Tiles/Thorns.png");
     bg_tiles['.'].loadFromFile("assets/Tiles/Floor.png");
-    bg_tiles['W'].loadFromFile("assets/Tiles/Win.png");
+    bg_tiles['E'].loadFromFile("assets/Tiles/Win.png");
 
     // Making objects :
     win_tile = backGround.create(json_data["bg"], bg_tiles);
-    Player = PlayerLike(json_data["entities"]["player"], "player");
-    ghost = PlayerLike(json_data["entities"]["bullet"], "bullet");
-    boxes = Boxes(json_data["entities"]["nbBoxes"].asInt(), json_data["entities"]["Boxes"]);
+    player = SwapperEntity(json_data["entities"]["player"], "player");
+    
+    Json::Value boxes_data = json_data["entities"]["statues"];
+    statues.resize(boxes_data.size());
+    for (int i = 0; i < statues.size(); i++)
+        statues[i] = BaseEntity(boxes_data[i], "statue");
+
     logic = Logic(json_data["logic"]);
 
     // Loading text :
@@ -68,226 +72,267 @@ Level::Level(std::string file_name, sf::Font font) : font(font)
     {
         std::string key = json_flags.getMemberNames()[i];
         flags[key] = json_flags[key].asBool();
-        flag_icons[key].loadFromFile("assets/" + key + ".png");
+        flag_textures[key].loadFromFile("assets/" + key + ".png");
+        flag_sprites[key].setTexture(flag_textures[key], true);
         i ++;
     }
     perf_steps = json_data["perf_steps"].asInt();
-    ordered_flags = {"has_ghost", "can_swap"};
 
     process_logic(false);
     validate_step();
 }
 
-Level::Level(int number, bool solved, sf::Font font) : Level(make_level_name(number), font)
+Level::Level(int number, bool solved) : Level(make_level_name(number))
 {
     this->solved = solved;
 }
 
-std::string Level::get_pLike_state()
-{
-    std::string res = "";
-    res.append(std::to_string(int(Player.alive)));
-    res.push_back(Player.dir);
-    res.append(std::to_string(int(ghost.alive)));
-    res.push_back(ghost.dir);
-    return res;
-}
-
 
 //Gameplay
-bool Level::isWallForMost(sf::Vector2i coords)
+bool Level::get_statue(sf::Vector2i coords, BaseEntity *&statue_p)
 {
-    if (backGround.getTile(coords) == 'X' or backGround.getTile(coords) == 'x')
-        return true;
-    return logic.isWallForMost(coords);
+    for (auto & statue : statues) {
+        if (statue.pos == coords) {
+            statue_p = &statue;
+            return true;
+        }
+    }
+    return false;
 }
 
-bool Level::isWallForGhost(sf::Vector2i coords)
+bool Level::get_physf(sf::Vector2i coords, MovingEntity *&physf_p)
+{
+    if (coords == player.physf.pos) {
+        physf_p = &(player.physf);
+        return true;
+    }
+    return false;
+}
+
+bool Level::get_ghost(sf::Vector2i coords, MovingEntity *&ghost_p)
+{
+    if (coords == player.ghost.pos) {
+        ghost_p = &(player.ghost);
+        return true;
+    }
+    return false;
+}
+
+bool Level::is_wall_for_physf(sf::Vector2i coords)
+{
+    if (backGround.getTile(coords) == 'X' or backGround.getTile(coords) == 'T')
+        return true;
+    
+    return logic.is_wall_for_physf(coords);
+}
+
+bool Level::is_wall_for_ghost(sf::Vector2i coords)
 {
     if (backGround.getTile(coords) == 'X')
         return true;
-    bool hasBox;
-    boxes.get_box(coords, &hasBox);
-    return hasBox || logic.isWallForGhost(coords);
+    
+    BaseEntity *statue_p;
+    if (get_statue(coords, statue_p) && statue_p->alive)
+        return true;
+    
+    return logic.is_wall_for_ghost(coords);
 }
 
-bool Level::push(char direction)
+bool Level::base_push(BaseEntity *pusher, Direction dir)
 {
-    if (!Player.alive)
-        return false;
+    sf::Vector2i next_pos = pusher->get_next_pos(dir);
 
-    bool STEP = !(Player.dir == direction);
-    Player.dir = direction;
+    // Checking if there's a wall blocking :
+    bool can_push = !is_wall_for_physf(next_pos);
 
-    sf::Vector2i newCoords = Player.get_next_pos();
+    if (!can_push) return false;
 
-    //Checking if there's a wall blocking :
-    bool isBlocked = isWallForMost(newCoords);
+    // Checking if there's a any statue to push :
+    BaseEntity *statue_p;
+    if (get_statue(next_pos, statue_p))
+        can_push = base_push(statue_p, dir);
 
-    //Checking if there's a box blocking :
-    if (!isBlocked)
+    if (!can_push) return false;
+
+    // Pushing any physf :
+    MovingEntity *physf_p;
+    if (get_physf(next_pos, physf_p)) {
+        if (physf_p->alive <= pusher->alive)
+            physf_push(physf_p, dir);
+    }
+
+    // Pushing any ghost (must not be broken) :
+    if (pusher->alive)
     {
-        bool boxBlocked;
-        Entity* boxP = boxes.get_box(newCoords, &boxBlocked);
-        if (boxBlocked)
-        {
-            isBlocked = boxPush(boxP, direction);
+        MovingEntity *ghost_p;
+        if (get_ghost(next_pos, ghost_p)) {
+            if (ghost_p->alive)
+                ghost_push(ghost_p, dir);
         }
     }
 
-    //Updating the coords if nothing is blocking:
-    if (!isBlocked)
-    {
-        Player.pos = newCoords;
-        return true;
-    }
-    return STEP;
-}
-
-bool Level::boxPush(Entity* pusher, char direction)
-{
-    sf::Vector2i newCoords = pusher->get_next_pos(direction);
-    //Checking if there's a wall blocking :
-    bool isBlocked = isWallForMost(newCoords);
-
-    //Checking if there's a box blocking :
-    if (!isBlocked)
-    {
-        bool boxBlocked;
-        Entity* boxP = boxes.get_box(newCoords, &boxBlocked);
-        if (boxBlocked)
-            isBlocked = boxPush(boxP, direction);
-    }
-
-    //Updating the coords if nothing is blocking:
-    if (!isBlocked)
-        pusher->pos = newCoords;
-
-    //Pushing a PlayerLike if it's in front :
-    if (ghost.alive && ghost.pos == newCoords)
-        pLikePush(&ghost, direction);
+    // Updating the coords
+    pusher->pos = next_pos;
     
-    return isBlocked;
+    return true;
 }
 
-void Level::pLikePush(PlayerLike* pushed, char direction)
+bool Level::physf_push(MovingEntity *pusher, Direction dir)
 {
-    sf::Vector2i newCoords = pushed->get_next_pos(direction);
-    pushed->pos = newCoords;
-    if (!isWallForGhost(newCoords))
-        pushed->dir = direction;
-    //It's pushed anyway.
+    sf::Vector2i next_pos = pusher->get_next_pos(dir);
+
+    if (pusher->alive) pusher->dir = dir;
+    
+    // Checking if there's a wall blocking :
+    bool can_push = !is_wall_for_physf(next_pos);
+
+    if (!can_push) return false;
+
+    // Checking if there's a any statue to push :
+    BaseEntity *statue_p;
+    if (get_statue(next_pos, statue_p))
+        can_push = base_push(statue_p, dir);
+
+    if (!can_push) return false;
+
+    // Updating the coords
+    pusher->pos = next_pos;
+
+    return true;
+}
+
+bool Level::ghost_push(MovingEntity *pusher, Direction dir)
+{
+    sf::Vector2i next_pos = pusher->get_next_pos(dir);
+
+    if (pusher->alive) pusher->dir = dir;
+    
+    // Checking if there's a wall blocking :
+    bool can_push = !is_wall_for_ghost(next_pos);
+
+    if (!can_push) return false;
+
+    // Trying to push an eventual ghost
+    MovingEntity *ghost_p;
+    if (get_ghost(next_pos, ghost_p)) {
+        if (ghost_p->alive)
+            can_push = ghost_push(ghost_p, dir);
+    }
+
+    if (!can_push) return false;
+
+    // Updating the coords
+    pusher->pos = next_pos;
+
+    return true;
+}
+
+bool Level::player_push(Direction dir)
+{
+    if (!player.physf.alive)
+        return false;
+
+    bool change_dir = !(player.physf.dir == dir);
+    player.physf.dir = dir;
+
+    return physf_push(&(player.physf), dir) || change_dir;
 }
 
 bool Level::swap()
 {
     if (!flags["can_swap"]) return false;
 
-    if (Player.alive && !ghost.alive)
-    {
-        if (isWallForGhost(Player.get_next_pos()))
+    // Swapping
+    if (player.ghost.alive) {
+        if (is_wall_for_physf(player.ghost.pos))
             return false;
-        ghost.alive = true;
-        ghost.pos = Player.get_next_pos();
-        ghost.dir = Player.dir;
+        player.swap();
     }
 
-    else if (Player.alive && ghost.alive)
-    {
-        if (isWallForMost(ghost.pos))
+    // Summoning
+    else if (player.physf.alive) {
+        if (is_wall_for_ghost(player.physf.get_next_pos()))
             return false;
-        sf::Vector2i tempC = Player.pos;
-        char tempdir = Player.dir;
-        Player.pos = ghost.pos;
-        ghost.pos = tempC;
-        Player.dir = ghost.dir;
-        ghost.dir = tempdir;
+        player.summon();
     }
 
-    else if (!Player.alive && ghost.alive)
-    {
-        if (isWallForMost(ghost.pos))
-            return false;
-        Player.alive = true;
-        ghost.alive = false;
-        Player.pos = ghost.pos;
-        Player.dir = ghost.dir;
-    }
+    else return false;
 
-    else 
-        return false;
-    
     return true;
 }
 
 bool Level::wait()
 {
-    if (ghost.alive)
+    // Waiting is only possible if there are non-playable alive MovingEntities in the level
+    if (player.ghost.alive)
     {
         return true;
     }
     return false;
 }
 
-void Level::process_logic(bool didSwap)
+void Level::process_logic(bool did_swap)
 {
-    std::list<sf::Vector2i> heavy_pos = boxes.get_boxes_pos();
-    if (Player.alive)
-        heavy_pos.push_back(Player.pos);
+    std::unordered_set<sf::Vector2i, VectorHasher> physf_pos;
+    std::unordered_set<sf::Vector2i, VectorHasher> ghost_pos;
 
-    std::list<sf::Vector2i> ghost_pos;
-    if (ghost.alive)
-        ghost_pos.push_back(ghost.pos);
-
+    if (player.physf.alive)
+        physf_pos.insert(player.physf.pos);
+    for (BaseEntity &statue : statues) {
+        if (statue.alive)
+            physf_pos.insert(statue.pos);
+    }
     
-    std::list<sf::Vector2i> updated_activators = logic.update_activators(heavy_pos, ghost_pos, didSwap, &ghost.alive);
+    if (player.ghost.alive)
+        ghost_pos.insert(player.ghost.pos);
+
+    std::list<sf::Vector2i> updated_activators = logic.update_activators(
+        physf_pos, ghost_pos, did_swap, &(player.ghost.alive)
+    );
+
     logic.update(updated_activators);
 }
 
-void Level::step(bool didSwap)
+void Level::step(bool did_swap)
 {
-    //Ghost crushing and movement :
-    ghost.alive = !isWallForGhost(ghost.pos) && ghost.alive;
-    if (ghost.alive && !didSwap)
+    // Ghost movement :
+    if (player.ghost.alive && !did_swap && !is_wall_for_ghost(player.ghost.pos))
     {
-        sf::Vector2i newC = ghost.get_next_pos();
+        sf::Vector2i new_pos = player.ghost.get_next_pos();
 
-        if (isWallForGhost(newC))
+        if (is_wall_for_ghost(new_pos))
         {
-            ghost.revert();
-            newC = ghost.get_next_pos();
+            player.ghost.revert();
+            new_pos = player.ghost.get_next_pos();
         }
 
-        if (isWallForGhost(newC))
-            ghost.revert();
+        if (is_wall_for_ghost(new_pos))
+            player.ghost.revert();
         else
-            ghost.pos = newC;
+            player.ghost.pos = new_pos;
     }
 
-    //Checking if player get shot :
-    if (ghost.alive && Player.alive)
+    // Checking if player physf get shot :
+    if (player.ghost.alive && player.physf.alive)
     {
-        Player.alive = Player.pos != ghost.pos;
-        if (Player.get_prev_pos() == ghost.pos && Player.pos == ghost.get_prev_pos() && !didSwap)
+        player.physf.alive = player.physf.pos != player.ghost.pos;
+        if (player.physf.get_prev_pos() == player.ghost.pos && player.physf.pos == player.ghost.get_prev_pos() && !did_swap)
         {
-            // Player crossed ghost
-            Player.alive = false;
+            // physf crossed its ghost
+            player.physf.alive = false;
         }
     }
 
-    process_logic(didSwap);
+    process_logic(did_swap);
 
-    //Checking if player and/or ghost get crushed :
-    Player.alive = !isWallForMost(Player.pos) && Player.alive;
-    ghost.alive = !isWallForGhost(ghost.pos) && ghost.alive;
+    // Checking if player and/or ghost get crushed :
+    player.physf.alive = player.physf.alive && !is_wall_for_physf(player.physf.pos);
+    player.ghost.alive = player.ghost.alive && !is_wall_for_ghost(player.ghost.pos);
 
     //Same for boxes :
-    std::vector<bool> to_destroy;
-    for (sf::Vector2i coords : boxes.get_boxes_pos())
-    {
-        to_destroy.push_back(isWallForMost(coords));
+    for (BaseEntity &statue : statues) {
+        statue.alive = statue.alive && !is_wall_for_physf(statue.pos);
     }
-    boxes.destroy(to_destroy);
 
     nbSteps++;
 }
@@ -296,9 +341,10 @@ void Level::undo(std::list<char>* steps)
 {
     steps->pop_back();
 
-    Player.undo();
-    ghost.undo();
-    boxes.undo();
+    player.undo();
+    for (BaseEntity &statue : statues) {
+        statue.undo();
+    }
     logic.undo();
 
     nbSteps--;
@@ -306,12 +352,13 @@ void Level::undo(std::list<char>* steps)
 
 void Level::validate_step()
 {
-    Player.validate_step();
-    ghost.validate_step();
-    boxes.validate_step();
+    player.validate_step();
+    for (BaseEntity &statue : statues) {
+        statue.validate_step();
+    }
     logic.validate_step();
 
-    if (Player.alive && Player.pos == win_tile)
+    if (player.physf.alive && player.physf.pos == win_tile)
         won = true;
 }
 
@@ -324,22 +371,22 @@ void Level::resize_bg(sf::RenderWindow * windowP)   //Should get called every ti
     int Y0 = 0;
     sf::FloatRect bounds;
 
-    // bounds = sf::Text(name, font, 30).getLocalBounds();
+    // bounds = sf::Text(name, font.get_font(), 30).getLocalBounds();
     // Y0 += bounds.height + bounds.top;
     // winSize.y -= Y0;
 
-    bounds = sf::Text("Ip", font, 28).getLocalBounds();
+    bounds = sf::Text("Ip", font.get_font(), 28).getLocalBounds();
     winSize.y -= bounds.height + bounds.top;
     // A literal string is used because the number of steps changing makes the whole text bump around if used.
 
     for (int i = hint_lines-1; i >= 0; i--)
     {
-        sf::FloatRect bounds = sf::Text(hint[i], font, 24).getLocalBounds();
+        sf::FloatRect bounds = sf::Text(hint[i], font.get_font(), 24).getLocalBounds();
         winSize.y -= bounds.height + bounds.top;
     }
     for (int i = dlg_lines-1; i >= 0; i--)
     {
-        sf::FloatRect bounds = sf::Text(dlg[i], font, 24).getLocalBounds();
+        sf::FloatRect bounds = sf::Text(dlg[i], font.get_font(), 24).getLocalBounds();
         winSize.y -= bounds.height + bounds.top;
     }
 
@@ -355,29 +402,29 @@ void Level::displayBG(sf::RenderWindow * windowP)
     sf::FloatRect bounds;
 
     // Displaying level name :
-    // sf::Text nameDisp(name, font, 30);
+    // sf::Text nameDisp(name, font.get_font(), 30);
     // bounds = nameDisp.getLocalBounds();
     // nameDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, 0);
     // windowP->draw(nameDisp);
 
     // Displaying level background :
-    backGround.display(windowP, font);
+    backGround.display(windowP);
 
     // Displaying number of steps :
     std::string step_text = "step : " + std::to_string(nbSteps);
     if (solved) {step_text += "/" + std::to_string(perf_steps);}
-    sf::Text stepDisp(step_text, font, 28);
+    sf::Text stepDisp(step_text, font.get_font(), 28);
     bounds = stepDisp.getLocalBounds();
     stepDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
     windowP->draw(stepDisp);
-    bounds = sf::Text("Ip", font, 28).getLocalBounds();
+    bounds = sf::Text("Ip", font.get_font(), 28).getLocalBounds();
     max_y -= bounds.height + bounds.top;
-    // This is because stepDisp changes height when the step number changes, so I put something that only depends on the font used.
+    // This is because stepDisp changes height when the step number changes, so I put something that only depends on the font.get_font() used.
 
     // Displaying level text :
     for (int i = hint_lines-1; i >= 0; i--)
     {
-        sf::Text helpDisp(hint[i], font, 24);
+        sf::Text helpDisp(hint[i], font.get_font(), 24);
         helpDisp.setStyle(sf::Text::Italic);
         bounds = helpDisp.getLocalBounds();
         helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
@@ -386,7 +433,7 @@ void Level::displayBG(sf::RenderWindow * windowP)
     }
     for (int i = dlg_lines-1; i >= 0; i--)
     {
-        sf::Text helpDisp(dlg[i], font, 24);
+        sf::Text helpDisp(dlg[i], font.get_font(), 24);
         helpDisp.setStyle(sf::Text::Bold);
         bounds = helpDisp.getLocalBounds();
         helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, max_y-bounds.height-bounds.top);
@@ -402,13 +449,12 @@ void Level::displayBG(sf::RenderWindow * windowP)
     C0.y -= delta;
     sf::RectangleShape tile(sf::Vector2f(delta, delta));
 
-    for (std::string flag_key : ordered_flags)
+    for (std::string flag_key : flag_order)
     {
         if (flags[flag_key])
         {
-            tile.setTexture(&flag_icons[flag_key]);
-            tile.setPosition(sf::Vector2f(C0));
-            windowP->draw(tile);
+            flag_sprites[flag_key].setPosition(sf::Vector2f(C0));
+            windowP->draw(flag_sprites[flag_key]);
             C0.x += delta;
         }
     }
@@ -423,12 +469,10 @@ void Level::animate(sf::RenderWindow * windowP, int frame, bool disp)
     backGround.getDisplay(&C0, &delta);
 
     logic.anim(C0, delta, windowP, frame);
-
-    Player.anim(C0, delta, windowP, frame);
-
-    ghost.anim(C0, delta, windowP, frame);
-    
-    boxes.anim(C0, delta, windowP, frame);
+    for (BaseEntity &statue : statues) {
+        statue.draw(C0, delta, windowP, frame);
+    }
+    player.draw(C0, delta, windowP, frame);
 
     if (disp)
         windowP->display();
@@ -440,7 +484,7 @@ void Level::display(sf::RenderWindow * windowP, bool disp)
 }
 
 // Handling pause menu
-int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
+int pause(Level* levelP, sf::RenderWindow* windowP)
 {
     Button continue_("continue", "Continue", Alignment(1, 0, 0, 3, 2, 0), windowP);
     Button exit_("exit", "Exit", Alignment(1, 0, 0, 3, 0, 0), windowP);
@@ -448,8 +492,8 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
     // First draw :
 
     levelP->display(windowP, false);
-    continue_.draw(font);
-    exit_.draw(font);
+    continue_.draw();
+    exit_.draw();
     windowP->display();
 
     while (windowP->isOpen())
@@ -466,8 +510,8 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
             else if (evnt.type == sf::Event::GainedFocus)
             {
                 levelP->display(windowP, false);
-                continue_.draw(font);
-                exit_.draw(font);
+                continue_.draw();
+                exit_.draw();
                 windowP->display();
             }
             
@@ -479,8 +523,8 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
                 levelP->display(windowP, false);
                 continue_.reshape();
                 exit_.reshape();
-                continue_.draw(font);
-                exit_.draw(font);
+                continue_.draw();
+                exit_.draw();
                 windowP->display();
             }
 
@@ -505,8 +549,8 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
         if (continue_.update() || exit_.update())
         {
             levelP->display(windowP, false);
-            continue_.draw(font);
-            exit_.draw(font);
+            continue_.draw();
+            exit_.draw();
             windowP->display();
         }
 
@@ -516,11 +560,11 @@ int pause(Level* levelP, sf::RenderWindow* windowP, sf::Font font)
 }
 
 // Main gameplay loop with keyboard input handling
-int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int* nb_steps)
+int run(int level_id, bool solved, sf::RenderWindow* windowP, int* nb_steps)
 {
     //SFML stuff and level initialization :
     sf::Clock clock;
-    Level level(level_id, solved, font);
+    Level level(level_id, solved);
     level.resize_bg(windowP);
 
     //First draw :
@@ -542,8 +586,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
 
     //Gameplay variables :
     bool step = false;
-    bool didSwap = false;
-    std::string directions = "URDL";
+    bool did_swap = false;
     std::list<char> steps;
     //A step can be : U, R, D, L, H (shot), P (swap), W or + (reset)
     std::list<Level> pre_resets;
@@ -589,7 +632,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
 
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
                 {
-                    int res = pause(&level, windowP, font);
+                    int res = pause(&level, windowP);
 
                     if (res == 0)
                     {
@@ -650,12 +693,13 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
         {
             int t = clock.getElapsedTime().asMilliseconds();
             step = false;
-            didSwap = false;
+            did_swap = false;
 
             if (pkey < 4)
             {
-                step = level.push(directions[pkey]);
-                if (step) steps.push_back(directions[pkey]);
+                Direction dir = static_cast<Direction>(pkey);
+                step = level.player_push(dir);
+                if (step) steps.push_back(DIR2CHAR.at(dir));
             }
 
             else if (pkey == 4)
@@ -664,7 +708,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
                 if (step)
                 {
                     steps.push_back('P');
-                    didSwap = true;
+                    did_swap = true;
                 }
             }
 
@@ -704,7 +748,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, sf::Font font, int
 
             if (step)
             {
-                level.step(didSwap);
+                level.step(did_swap);
                 level.validate_step();
 
                 animating = true;

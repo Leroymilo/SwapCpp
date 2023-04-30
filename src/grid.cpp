@@ -1,7 +1,7 @@
-#include "gameplay/grid.hpp"
-
 #include <fstream>
 #include <iostream>
+
+#include "gameplay/grid.hpp"
 
 Grid::Grid(){}
 
@@ -23,18 +23,19 @@ sf::Vector2i Grid::create(Json::Value json_bg, std::map<char, sf::Texture> textu
 {
     h = json_bg["H"].asInt();
     w = json_bg["W"].asInt();
-    int endX = json_bg["EndX"].asInt();
-    int endY = json_bg["EndY"].asInt();
     tiles.resize(h);
+
+    int endX, endY;
     
     for (int y=0; y<h; y++){
         tiles[y].resize(w);
         for (int x=0; x<w; x++){
-            tiles[y][x] = json_bg["BG"][y][x].asCString()[0];
+            tiles[y][x] = json_bg["BG"][y].asCString()[x];
+            if (tiles[y][x] == 'E') {
+                endX = x, endY = y;
+            }
         }
     }
-
-    tiles[endY][endX] = 'W';
 
     pre_render.create(w * delta, h * delta);
     pre_render.clear(sf::Color::Transparent);
@@ -73,14 +74,14 @@ void Grid::resize(sf::Vector2f win_size, int Y0)
     else
         delta = win_size.x/w;
     
-    delta -= delta % 16;
+    delta -= delta % DELTA;
     if (delta == 0) return;
 
     pxl_w = delta*w, pxl_h = delta*h;
     x0 = (win_size.x-pxl_w)/2, y0 = (win_size.y-pxl_h)/2 + delta/4 + Y0;
 }
 
-void Grid::display(sf::RenderWindow* windowPoint, sf::Font font)
+void Grid::display(sf::RenderWindow* windowPoint)
 {
     if (delta > 0)
     {
@@ -93,7 +94,7 @@ void Grid::display(sf::RenderWindow* windowPoint, sf::Font font)
     else
     {
         sf::Vector2u winSize = windowPoint->getSize();
-        sf::Text helpDisp("smol window owo", font, 12);
+        sf::Text helpDisp("smol window owo", font.get_font(), 12);
         sf::FloatRect bounds = helpDisp.getLocalBounds();
         helpDisp.setPosition((winSize.x-bounds.width-bounds.left)/2, y0);
         windowPoint->draw(helpDisp);

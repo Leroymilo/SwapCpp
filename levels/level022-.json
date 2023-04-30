@@ -5,53 +5,28 @@
     "EndX": 6,
     "EndY": 1,
     "BG": [
-      [
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X"
-      ],
-      [
-        "X",
-        ".",
-        ".",
-        "x",
-        ".",
-        ".",
-        ".",
-        "X"
-      ],
-      [
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X",
-        "X"
-      ]
+      "XXXXXXXX",
+      "X..T..EX",
+      "XXXXXXXX"
     ]
   },
   "entities": {
     "player": {
-      "X": 0,
-      "Y": 0,
-      "dir": "R",
-      "alive": false
+      "physf": {
+        "X": 0,
+        "Y": 0,
+        "dir": "R",
+        "alive": false
+      },
+      "ghost": {
+        "X": 4,
+        "Y": 1,
+        "dir": "R",
+        "alive": true
+      }
     },
-    "bullet": {
-      "X": 4,
-      "Y": 1,
-      "dir": "R",
-      "alive": true
-    },
-    "nbBoxes": 0,
-    "Boxes": []
+    "statues": [],
+    "monsters?": []
   },
   "logic": {
     "nb_activators": 2,
@@ -193,5 +168,6 @@
   "flags": {
     "can_swap": true,
     "has_ghost": true
-  }
+  },
+  "V": "2.1.3"
 }

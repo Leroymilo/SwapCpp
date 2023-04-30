@@ -6,68 +6,89 @@
 #include <SFML/Graphics.hpp>
 #include <json/value.h>
 
-class Entity    //Generic class describing entities
+#include "globals.hpp"
+
+class BaseEntity
+// Generic class describing entities,
+// Contains coordinates, aliveness, step validation, undoing and drawing function
+// The texture is a spritesheet with sprites for clean, broken and a breaking animation
 {
     protected:
-        sf::Texture sprite;
+        sf::Texture texture;
+        sf::Sprite sprite;
         std::list<bool> hist_alive;
         std::list<sf::Vector2i> hist_pos;
+
+        void set_sprite_rect(int, bool force = false);
         
     public:
         bool alive;
         sf::Vector2i pos;
 
-        Entity();
-        Entity(sf::Vector2i pos, sf::Texture sprite);
-        sf::Vector2i get_next_pos(char direction);
+        BaseEntity();
+        BaseEntity(Json::Value, std::string);
+
+        sf::Vector2i get_next_pos(Direction);
+
         void validate_step();
         void undo();
-        void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
-
+        void draw(sf::Vector2i C0, int delta, sf::RenderWindow*, int);
 };
 
-class PlayerLike : public Entity   //Everything that can wove on its own (Player and Ghost for now)
+class MovingEntity : public BaseEntity
+// Any entity that moves on its own, the distinction between ghost and physf is done in the level itself.
+// Inherits from BaseEntity and contains orientation as well as a method to reverse its orientation
+// The spreadsheet has sprites for oriented alive (with step cycle) and oriented death animation
 {
     private:
-        std::map<char, std::vector<sf::Texture>> sprites;
-        sf::Texture death_sprites [4];
-        std::list<char> hist_dir;
+        std::list<Direction> hist_dir;
+
+        void set_sprite_rect(int, bool force = false);
 
     public:
-        char dir;
+        Direction dir;
         int step = 0;
 
-        PlayerLike();
-        PlayerLike(Json::Value json_entity, std::string name);
-        sf::Vector2i get_next_pos(char direction = '_');
+        MovingEntity();
+        MovingEntity(Json::Value, std::string);
+
+        sf::Vector2i get_next_pos(Direction = _);
         sf::Vector2i get_prev_pos();
         void revert();
+
         void validate_step();
         void undo();
-        void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
-        void destroy(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void draw(sf::Vector2i C0, int delta, sf::RenderWindow*, int);
+        // It's the same as its parent class draw() except it needs to calls its own set_sprite_rect()
 };
 
-class Boxes     //list of boxes (simple entities)
+class SwapperEntity
+// An entity able to swap between a ghost and a physf (short for physical form),
+// both can be "alive" at the same time and are separate MovingEntities.
+// Contains an additional texture and sprite for a swapping animation, and a swap function
 {
     private:
-        int nb_boxes;
-        std::vector<Entity> list;
-    
-    public:
-        Boxes();
-        Boxes(int nb_boxes, Json::Value boxes);
+        sf::Texture swap_texture;
+        sf::Sprite swap_sprite_physf;
+        sf::Sprite swap_sprite_ghost;
 
-        Entity* get_box(sf::Vector2i coords, bool* hasBox);
-        std::list<sf::Vector2i> get_boxes_pos();
-        void destroy(std::vector<bool> to_destroy);
+        bool will_swap = false, anim_swap = false;
+
+        void set_swap_sprites_rect(int);
+
+    public:
+        MovingEntity physf;
+        MovingEntity ghost;
+
+        SwapperEntity();
+        SwapperEntity(Json::Value, std::string);
+
+        void swap();
+        void summon();
+
         void validate_step();
         void undo();
-
-        void draw(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint);
-        void anim(sf::Vector2i C0, int delta, sf::RenderWindow* windowPoint, int frame);
+        void draw(sf::Vector2i C0, int delta, sf::RenderWindow*, int);
 };
 
 #endif //ENTITY_H

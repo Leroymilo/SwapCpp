@@ -3,6 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "globals.hpp"
+
 struct Alignment
 {
     int nb_h, i_h, d_h, nb_v, i_v, d_v;
@@ -36,7 +38,7 @@ class Button
         Button(std::string texture_name, std::string text, Alignment, sf::RenderWindow*);
         void reshape();
         bool update();
-        void draw(sf::Font);
+        void draw();
         bool clicked();
 
         void set_alignment(Alignment new_align);
@@ -58,7 +60,7 @@ class CycleButton
 
         void reshape();
         bool update();
-        void draw(sf::Font);
+        void draw();
 
         void set_alignment(Alignment new_align);
         int get_state();

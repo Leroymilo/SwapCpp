@@ -1,9 +1,10 @@
-#include "gameplay/logic.hpp"
+#include <fstream>
+#include <iostream>
 
 #include <json/value.h>
 
-#include <fstream>
-#include <iostream>
+#include "gameplay/logic.hpp"
+#include "globals.hpp"
 
 #define __min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -137,7 +138,7 @@ Activator::Activator(char type)
     {
         sprites[i].loadFromFile(
             "assets/Logic/" + name + ".png",
-            sf::IntRect(i*16, 0, 16, 16)
+            sf::IntRect(i*DELTA, 0, DELTA, DELTA)
         );
     }
 }
@@ -212,7 +213,7 @@ Gate::Gate(Json::Value gate_data)
     {
         sprites[i].loadFromFile(
             "assets/Logic/" + type + ".png",
-            sf::IntRect(i*16, dir*16, 16, 16)
+            sf::IntRect(i*DELTA, dir*DELTA, DELTA, DELTA)
         );
     }
 }
@@ -336,7 +337,7 @@ Door::Door(Json::Value door_data)
         {
             sprites[orient][j].loadFromFile(
                 "assets/Logic/Door.png",
-                sf::IntRect(j*16, i*16, 16, 16)
+                sf::IntRect(j*DELTA, i*DELTA, DELTA, DELTA)
             );
         }
     }
@@ -482,7 +483,7 @@ Logic::Logic(Json::Value json_logic)
     validate_step();
 }
 
-bool Logic::isClosedDoor(sf::Vector2i coords)
+bool Logic::is_closed_door(sf::Vector2i coords)
 {
     auto elt_door_tile = door_tiles.find(coords);
     if (elt_door_tile != door_tiles.end())
@@ -490,27 +491,27 @@ bool Logic::isClosedDoor(sf::Vector2i coords)
     return false;
 }
 
-bool Logic::isWallForMost(sf::Vector2i coords)
+bool Logic::is_wall_for_physf(sf::Vector2i coords)
 {
     auto elt_act = activators.find(coords);
     if (elt_act != activators.end() && elt_act->second.type == 'T')
         return true;
 
-    return isClosedDoor(coords);
+    return is_closed_door(coords);
 }
 
-bool Logic::isWallForGhost(sf::Vector2i coords)
+bool Logic::is_wall_for_ghost(sf::Vector2i coords)
 {
-    return isClosedDoor(coords);
+    return is_closed_door(coords);
 }
 
 std::list<sf::Vector2i> Logic::update_activators(
-    std::list<sf::Vector2i> heavy_coords,
-    std::list<sf::Vector2i> ghost_coords,
-    bool didSwap, bool * balive)
+    std::unordered_set<sf::Vector2i, VectorHasher> physf_coords,
+    std::unordered_set<sf::Vector2i, VectorHasher> ghost_coords,
+    bool did_swap, bool * ghost_alive)
 {
-    //heavy_coords has the coordinates of "heavy objects" (alive boxes and the player if it's alive)
-    //ghost_coords has the coordinates of "ghost objects" (just the ghost if it's alive)
+    //physf_coords has the coordinates of physical objects (alive boxes and the player if it's alive)
+    //ghost_coords has the coordinates of ghost objects (just the ghost if it's alive)
 
     std::list<sf::Vector2i> changed;
 
@@ -518,7 +519,7 @@ std::list<sf::Vector2i> Logic::update_activators(
     {
         if (act_elt_p.second.type == 'I')
         {
-            if (std::find(heavy_coords.begin(), heavy_coords.end(), act_elt_p.first) != heavy_coords.end())
+            if (physf_coords.find(act_elt_p.first) != physf_coords.end())
             {
                 if (!act_elt_p.second.get_state())
                 {
@@ -536,19 +537,17 @@ std::list<sf::Vector2i> Logic::update_activators(
 
         else if (act_elt_p.second.type == 'T')
         {
-            auto elt_act = std::find(ghost_coords.begin(), ghost_coords.end(), act_elt_p.first);
-
-            if (elt_act != ghost_coords.end())
+            if (ghost_coords.find(act_elt_p.first) != ghost_coords.end())
             {
                 if (!act_elt_p.second.get_state())
                 {
                     activators[act_elt_p.first].set_state(true);
                     activators[act_elt_p.first].get_outputs(&changed, &links);
                 }
-                *balive = false;
+                *ghost_alive = false;
             }
 
-            else if (act_elt_p.second.get_state() && didSwap)
+            else if (act_elt_p.second.get_state() && did_swap)
             {
                 activators[act_elt_p.first].set_state(false);
                 activators[act_elt_p.first].get_outputs(&changed, &links);

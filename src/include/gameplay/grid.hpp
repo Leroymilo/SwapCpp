@@ -4,6 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <json/value.h>
 
+#include "globals.hpp"
+
 class Grid
 {
     private:
@@ -14,7 +16,7 @@ class Grid
         sf::RenderTexture pre_render;
 
     public:
-        int delta = 16;
+        int delta = DELTA;
 
         Grid();
         Grid(const Grid& tocopy);
@@ -24,7 +26,7 @@ class Grid
 
         char getTile(sf::Vector2i coords);
         void resize(sf::Vector2f win_size, int Y0);
-        void display(sf::RenderWindow* windowPoint, sf::Font font);
+        void display(sf::RenderWindow* windowPoint);
         void getDisplay(sf::Vector2i* C0, int* deltaP);
 };
 
