@@ -189,7 +189,7 @@ void MovingEntity::draw(sf::Vector2i C0, int delta, sf::RenderWindow *windowPoin
 // Methods for SwapperEntity
 SwapperEntity::SwapperEntity() {}
 
-SwapperEntity::SwapperEntity(Json::Value json_obj, std::string name)
+SwapperEntity::SwapperEntity(Json::Value json_obj, std::string name, bool has_ghost) : has_ghost(has_ghost)
 {
     physf = MovingEntity(json_obj["physf"], name + "_physf");
     ghost = MovingEntity(json_obj["ghost"], name + "_ghost");
@@ -277,6 +277,6 @@ void SwapperEntity::draw(sf::Vector2i C0, int delta, sf::RenderWindow *windowP, 
 
     else {
         physf.draw(C0, delta, windowP, anim_frame);
-        ghost.draw(C0, delta, windowP, anim_frame);
+        if (has_ghost) ghost.draw(C0, delta, windowP, anim_frame);
     }
 }

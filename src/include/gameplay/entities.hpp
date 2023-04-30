@@ -72,6 +72,8 @@ class SwapperEntity
         sf::Sprite swap_sprite_physf;
         sf::Sprite swap_sprite_ghost;
 
+        bool has_ghost;
+
         bool will_swap = false, anim_swap = false;
 
         void set_swap_sprites_rect(int);
@@ -81,7 +83,7 @@ class SwapperEntity
         MovingEntity ghost;
 
         SwapperEntity();
-        SwapperEntity(Json::Value, std::string);
+        SwapperEntity(Json::Value, std::string, bool has_ghost);
 
         void swap();
         void summon();

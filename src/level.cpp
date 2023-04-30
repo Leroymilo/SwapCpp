@@ -27,6 +27,18 @@ Level::Level(std::string file_name)
     Json::Value json_data;
     reader.parse(file, json_data);
 
+    // Loading level flags :
+    Json::Value json_flags = json_data["flags"];
+    int i = 0;
+    for (Json::Value::iterator itr = json_flags.begin(); itr != json_flags.end(); itr++)
+    {
+        std::string key = json_flags.getMemberNames()[i];
+        flags[key] = json_flags[key].asBool();
+        flag_textures[key].loadFromFile("assets/" + key + ".png");
+        flag_sprites[key].setTexture(flag_textures[key], true);
+        i ++;
+    }
+
     // Loading tiles sprites :
     bg_tiles['X'].loadFromFile("assets/Tiles/Wall.png");
     bg_tiles['T'].loadFromFile("assets/Tiles/Thorns.png");
@@ -35,7 +47,7 @@ Level::Level(std::string file_name)
 
     // Making objects :
     win_tile = backGround.create(json_data["bg"], bg_tiles);
-    player = SwapperEntity(json_data["entities"]["player"], "player");
+    player = SwapperEntity(json_data["entities"]["player"], "player", flags["has_ghost"]);
     
     Json::Value boxes_data = json_data["entities"]["statues"];
     statues.resize(boxes_data.size());
@@ -66,16 +78,6 @@ Level::Level(std::string file_name)
 
     // Loading stuff :
     name = json_data["name"].asCString();
-    Json::Value json_flags = json_data["flags"];
-    int i = 0;
-    for (Json::Value::iterator itr = json_flags.begin(); itr != json_flags.end(); itr++)
-    {
-        std::string key = json_flags.getMemberNames()[i];
-        flags[key] = json_flags[key].asBool();
-        flag_textures[key].loadFromFile("assets/" + key + ".png");
-        flag_sprites[key].setTexture(flag_textures[key], true);
-        i ++;
-    }
     perf_steps = json_data["perf_steps"].asInt();
 
     process_logic(false);
