@@ -447,15 +447,14 @@ void Level::displayBG(sf::RenderWindow * windowP)
     sf::Vector2i C0;
     int delta;
     backGround.getDisplay(&C0, &delta);
-    delta = delta/2;
     C0.y -= delta;
-    sf::RectangleShape tile(sf::Vector2f(delta, delta));
 
     for (std::string flag_key : flag_order)
     {
         if (flags[flag_key])
         {
             flag_sprites[flag_key].setPosition(sf::Vector2f(C0));
+            flag_sprites[flag_key].setScale(delta/DELTA, delta/DELTA);
             windowP->draw(flag_sprites[flag_key]);
             C0.x += delta;
         }

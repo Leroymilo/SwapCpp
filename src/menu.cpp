@@ -132,19 +132,25 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save
 
 void LevelGrid::reshape()
 {
-    W = 1;
-    while (W < 11 && win_p->getSize().x * 0.8 > (W + 2) * button_size + (W + 1) * delta)
-    {
-        W++;
-    }
-    W--;
+    // W = 1;
+    // while (W < 11 && win_p->getSize().x * 0.8 > (W + 2) * button_size + (W + 1) * delta)
+    // {
+    //     W++;
+    // }
+    // W--;
 
-    H = 1;
-    while (win_p->getSize().y * 0.8 > (H + 1) * button_size + H * delta)
-    {
-        H++;
-    }
-    H--;
+    // H = 1;
+    // while (win_p->getSize().y * 0.8 > (H + 1) * button_size + H * delta)
+    // {
+    //     H++;
+    // }
+    // H--;
+
+    // For now, it's 12 levels per page anyway :
+    if (win_p->getSize().x >= win_p->getSize().y)
+        W = 4, H = 3;
+    else
+        W = 3, H = 4;
 
     nb_pages = std::ceil((float)levels.rbegin()->first / ((float)W * (float)H));
     if (page >= nb_pages)

@@ -102,12 +102,12 @@ void Grid::resize(sf::Vector2f win_size, int Y0)
         return;
     }
 
-    float shapeQ = float(w)/(float(h) + 0.5);
+    float shapeQ = float(w)/(float(h) + 1);
 
     float WinQ = float(win_size.x)/float(win_size.y);
 
     if (WinQ > shapeQ)
-        delta = win_size.y/(h+0.5);
+        delta = win_size.y/(h + 1);
     else
         delta = win_size.x/w;
     
