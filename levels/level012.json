@@ -2,15 +2,13 @@
   "bg": {
     "H": 9,
     "W": 8,
-    "EndX": 6,
-    "EndY": 4,
     "BG": [
       "XXX.XXXX",
+      "X..T...X",
       "X......X",
-      "X......X",
-      "X.X.XXXX",
+      "X...XXXX",
       "X.X...EX",
-      "X.X.XXXX",
+      "X...XXXX",
       "X......X",
       "X......X",
       "XXXXXXXX"
@@ -37,8 +35,7 @@
         "Y": 6,
         "alive": true
       }
-    ],
-    "monsters?": []
+    ]
   },
   "logic": {
     "nb_activators": 1,
@@ -125,10 +122,9 @@
     "I have to be smart about this one..."
   ],
   "name": "Revenge of the Bullet",
-  "perf_steps": 39,
+  "perf_steps": 33,
   "flags": {
     "can_swap": false,
     "has_ghost": true
-  },
-  "V": "2.1.3"
+  }
 }

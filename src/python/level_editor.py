@@ -171,6 +171,8 @@ class LevelEditor(LevelEditor) :
 
         # Setting up level :
         self.level = Level(blank_level)
+        self.has_ghost_item.Check(self.level.flags["has_ghost"])
+        self.allow_swap_item.Check(self.level.flags["can_swap"])
         self.surf = pg.Surface(self.level.get_surface(delta))
 
         # Setting up clicks :
@@ -606,7 +608,7 @@ class LevelEditor(LevelEditor) :
             return
         
         scroll = event.GetWheelRotation()//event.GetWheelDelta()
-        if self.tool in {"Player", "ghost"} :
+        if self.tool in {"Player", "Ghost"} :
             self.level.change_obj_dir(scroll, self.tool)
         elif self.tool.endswith("Gate") :
             self.level.change_obj_dir(scroll, "Gate", pos)
@@ -670,6 +672,8 @@ class LevelEditor(LevelEditor) :
         new_W, new_H = value // 100, value % 100
 
         self.level = Level(blank_level)
+        self.has_ghost_item.Check(self.level.flags["has_ghost"])
+        self.allow_swap_item.Check(self.level.flags["can_swap"])
         self.level.size = (new_W, new_H)
         self.surf = pg.Surface((new_W * delta, new_H * delta))
 
@@ -701,6 +705,8 @@ class LevelEditor(LevelEditor) :
         level_path = level_path.removeprefix(main_path)
 
         self.level = Level(level_path)
+        self.has_ghost_item.Check(self.level.flags["has_ghost"])
+        self.allow_swap_item.Check(self.level.flags["can_swap"])
         W, H = self.level.size
         self.surf = pg.Surface((W * delta, H * delta))
         self.display_level()

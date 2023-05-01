@@ -2,8 +2,6 @@
   "bg": {
     "H": 9,
     "W": 9,
-    "EndX": 6,
-    "EndY": 2,
     "BG": [
       "XXXXXXXXX",
       "X...X...X",
@@ -31,8 +29,7 @@
         "alive": true
       }
     },
-    "statues": [],
-    "monsters?": []
+    "statues": []
   },
   "logic": {
     "nb_activators": 2,
@@ -138,18 +135,16 @@
     ]
   },
   "hint": [
-    ""
+    "Remember that you can press SPACE to wait."
   ],
   "dialogue": [
     "It's in the way again!",
-    "Maybe I can trap it in this ominous symbol...",
-    "This might even be my only way out."
+    "Maybe I can trap it in this ominous symbol..."
   ],
   "name": "The Trap",
   "perf_steps": 20,
   "flags": {
     "can_swap": false,
     "has_ghost": true
-  },
-  "V": "2.1.3"
+  }
 }

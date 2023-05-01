@@ -182,7 +182,7 @@ class Level :
             "bg": {"H": self.size[1], "W": self.size[0], "BG": self.grid},
 
             "entities": {
-                "player": self.player, "ghost": self.ghost,
+                "player": {"physf": self.player, "ghost": self.ghost,},
                 "statues": [
                     {"X": statue_pos[0], "Y": statue_pos[1], "alive": alive}
                     for statue_pos, alive in self.statues.items()
@@ -381,7 +381,7 @@ class Level :
     def change_obj_dir(self, amount: int, type_: str, pos: tuple[int] = (-1, -1)) :
         if type_ == "Player" :
             i_dir = dirs.index(self.player["dir"])
-        elif type_ == "ghost" :
+        elif type_ == "Ghost" :
             i_dir = dirs.index(self.ghost["dir"])
         elif type_ == "Gate" and pos in self.gates :
             i_dir = dirs.index(self.gates[pos].dir)
@@ -392,7 +392,7 @@ class Level :
         
         if type_ == "Player" :
             self.player["dir"] = dirs[i_dir]
-        elif type_ == "ghost" :
+        elif type_ == "Ghost" :
             self.ghost["dir"] = dirs[i_dir]
         elif type_ == "Gate" :
             self.gates[pos].dir = dirs[i_dir]

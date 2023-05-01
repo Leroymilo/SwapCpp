@@ -2,15 +2,13 @@
   "bg": {
     "H": 7,
     "W": 9,
-    "EndX": 6,
-    "EndY": 4,
     "BG": [
       "XXXXXXXXX",
+      "X...XX..X",
+      "X....X..X",
       "X.......X",
-      "XX.XXXX.X",
-      "X...X...X",
-      "X...X.E.X",
-      "X...X...X",
+      "X..X..E.X",
+      "X..XX...X",
       "XXXXXXXXX"
     ]
   },
@@ -18,19 +16,18 @@
     "player": {
       "physf": {
         "X": 2,
-        "Y": 4,
+        "Y": 2,
         "dir": "D",
         "alive": true
       },
       "ghost": {
-        "X": 5,
-        "Y": 1,
-        "dir": "L",
+        "X": 4,
+        "Y": 4,
+        "dir": "D",
         "alive": true
       }
     },
-    "statues": [],
-    "monsters?": []
+    "statues": []
   },
   "logic": {
     "nb_activators": 0,
@@ -50,10 +47,9 @@
     "Is this... myself? I don't think I should touch this thing..."
   ],
   "name": "Bullet tutorial 1",
-  "perf_steps": 13,
+  "perf_steps": 7,
   "flags": {
     "can_swap": false,
     "has_ghost": true
-  },
-  "V": "2.1.3"
+  }
 }
