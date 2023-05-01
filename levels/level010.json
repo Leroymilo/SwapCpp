@@ -1,64 +1,387 @@
 {
   "bg": {
-    "H": 6,
-    "W": 9,
-    "EndX": 6,
-    "EndY": 2,
+    "H": 9,
+    "W": 10,
     "BG": [
-      "XXXXXXXXX",
-      "X...X...X",
-      "X...X.E.X",
-      "X...X.XXX",
-      "X......TX",
-      "XXXXXXXXX"
+      "....XXXTTT",
+      ".TXXX...X.",
+      "TTT.....X.",
+      "XXTTX...XT",
+      "XET.XX..TT",
+      "X.X.X...TT",
+      "X.X......T",
+      "X........X",
+      "XXXXXXXXXX"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 2,
-        "Y": 3,
+        "X": 4,
+        "Y": 2,
         "dir": "D",
         "alive": true
       },
       "ghost": {
-        "X": 4,
-        "Y": 4,
+        "X": 0,
+        "Y": 0,
         "dir": "D",
-        "alive": true
+        "alive": false
       }
     },
     "statues": [
       {
-        "X": 2,
+        "X": 5,
         "Y": 2,
         "alive": true
+      },
+      {
+        "X": 6,
+        "Y": 3,
+        "alive": true
+      },
+      {
+        "X": 6,
+        "Y": 4,
+        "alive": true
+      },
+      {
+        "X": 5,
+        "Y": 6,
+        "alive": true
+      },
+      {
+        "X": 6,
+        "Y": 6,
+        "alive": true
+      },
+      {
+        "X": 7,
+        "Y": 6,
+        "alive": true
+      },
+      {
+        "X": 3,
+        "Y": 6,
+        "alive": true
       }
-    ],
-    "monsters?": []
+    ]
   },
   "logic": {
-    "nb_activators": 0,
-    "activators": [],
-    "nb_gates": 0,
-    "gates": [],
-    "nb_doors": 0,
-    "doors": [],
-    "nb_links": 0,
-    "links": []
+    "nb_activators": 7,
+    "activators": [
+      {
+        "X": 3,
+        "Y": 4,
+        "type": "I"
+      },
+      {
+        "X": 6,
+        "Y": 5,
+        "type": "I"
+      },
+      {
+        "X": 7,
+        "Y": 3,
+        "type": "I"
+      },
+      {
+        "X": 6,
+        "Y": 7,
+        "type": "I"
+      },
+      {
+        "X": 5,
+        "Y": 6,
+        "type": "I"
+      },
+      {
+        "X": 8,
+        "Y": 6,
+        "type": "I"
+      },
+      {
+        "X": 3,
+        "Y": 2,
+        "type": "I"
+      }
+    ],
+    "nb_gates": 3,
+    "gates": [
+      {
+        "X": 4,
+        "Y": 8,
+        "type": "AND",
+        "dir": "L"
+      },
+      {
+        "X": 7,
+        "Y": 7,
+        "type": "AND",
+        "dir": "D"
+      },
+      {
+        "X": 5,
+        "Y": 4,
+        "type": "AND",
+        "dir": "R"
+      }
+    ],
+    "nb_doors": 1,
+    "doors": [
+      {
+        "X": 2,
+        "Y": 7,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 2,
+            "Y": 7,
+            "orient": "V"
+          }
+        ]
+      }
+    ],
+    "nb_links": 10,
+    "links": [
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 2,
+        "nodes": [
+          {
+            "X": 3,
+            "Y": 4
+          },
+          {
+            "X": 5,
+            "Y": 4
+          }
+        ],
+        "offsets": [
+          1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 4,
+        "nodes": [
+          {
+            "X": 3,
+            "Y": 2
+          },
+          {
+            "X": 4,
+            "Y": 2
+          },
+          {
+            "X": 4,
+            "Y": 4
+          },
+          {
+            "X": 5,
+            "Y": 4
+          }
+        ],
+        "offsets": [
+          2,
+          0,
+          -1
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 5,
+            "Y": 4
+          },
+          {
+            "X": 7,
+            "Y": 4
+          },
+          {
+            "X": 7,
+            "Y": 7
+          }
+        ],
+        "offsets": [
+          0,
+          -1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 6,
+            "Y": 5
+          },
+          {
+            "X": 5,
+            "Y": 5
+          },
+          {
+            "X": 5,
+            "Y": 4
+          }
+        ],
+        "offsets": [
+          2,
+          -2
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 2,
+        "nodes": [
+          {
+            "X": 7,
+            "Y": 3
+          },
+          {
+            "X": 7,
+            "Y": 7
+          }
+        ],
+        "offsets": [
+          1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 8,
+            "Y": 6
+          },
+          {
+            "X": 8,
+            "Y": 7
+          },
+          {
+            "X": 7,
+            "Y": 7
+          }
+        ],
+        "offsets": [
+          0,
+          -2
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 7,
+            "Y": 7
+          },
+          {
+            "X": 7,
+            "Y": 8
+          },
+          {
+            "X": 4,
+            "Y": 8
+          }
+        ],
+        "offsets": [
+          0,
+          1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 6,
+            "Y": 7
+          },
+          {
+            "X": 6,
+            "Y": 8
+          },
+          {
+            "X": 4,
+            "Y": 8
+          }
+        ],
+        "offsets": [
+          0,
+          -1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 5,
+            "Y": 6
+          },
+          {
+            "X": 4,
+            "Y": 6
+          },
+          {
+            "X": 4,
+            "Y": 8
+          }
+        ],
+        "offsets": [
+          2,
+          2
+        ]
+      },
+      {
+        "type_start": "Gate",
+        "type_end": "Door",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 4,
+            "Y": 8
+          },
+          {
+            "X": 2,
+            "Y": 8
+          },
+          {
+            "X": 2,
+            "Y": 7
+          }
+        ],
+        "offsets": [
+          0,
+          0
+        ]
+      }
+    ]
   },
   "hint": [
     ""
   ],
   "dialogue": [
-    "It's completely blocking the way!",
-    "I need to find a way to push it out of here."
+    "WHAT THE HELL !?",
+    "This looks as crowded as a warehouse!"
   ],
   "name": "Bullet tutorial 3",
-  "perf_steps": 15,
+  "perf_steps": 45,
   "flags": {
     "can_swap": false,
-    "has_ghost": true
-  },
-  "V": "2.1.3"
+    "has_ghost": false
+  }
 }

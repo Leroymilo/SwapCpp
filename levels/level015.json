@@ -1,36 +1,36 @@
 {
   "bg": {
     "H": 7,
-    "W": 7,
+    "W": 9,
     "BG": [
-      "TTXXXXX",
-      "T..E..X",
-      "X.....T",
-      "XXX.XXT",
-      "X....XX",
-      "XT....X",
-      "TTXXXXX"
+      "XXXXXXXXX",
+      "X...X...X",
+      "X...X.E.X",
+      "X...X...X",
+      "X...X.XXX",
+      "X......TX",
+      "XXXXXXXXX"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 3,
-        "Y": 5,
-        "dir": "U",
+        "X": 2,
+        "Y": 4,
+        "dir": "D",
         "alive": true
       },
       "ghost": {
-        "X": 0,
-        "Y": 0,
-        "dir": "U",
-        "alive": false
+        "X": 4,
+        "Y": 5,
+        "dir": "D",
+        "alive": true
       }
     },
     "statues": [
       {
-        "X": 3,
-        "Y": 3,
+        "X": 2,
+        "Y": 2,
         "alive": true
       }
     ]
@@ -46,16 +46,16 @@
     "links": []
   },
   "hint": [
-    "Use BACKSPACE to undo your moves."
+    ""
   ],
   "dialogue": [
-    "This statue is in the way,",
-    "I hope it's not too heavy..."
+    "Damn it!",
+    "I need to find out how to get it out of my way."
   ],
-  "name": "Tutorial 2",
-  "perf_steps": 6,
+  "name": "The Trap",
+  "perf_steps": 18,
   "flags": {
     "can_swap": false,
-    "has_ghost": false
+    "has_ghost": true
   }
 }

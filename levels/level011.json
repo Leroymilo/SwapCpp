@@ -1,74 +1,78 @@
 {
   "bg": {
-    "H": 9,
-    "W": 9,
+    "H": 7,
+    "W": 8,
     "BG": [
-      "XXXXXXXXX",
-      "X...X...X",
-      "X...X.E.X",
-      "X...X...X",
-      "X.XXXX.XX",
-      "X......T.",
-      "XXXX.X..X",
-      "X.......X",
-      "XXXXXXXXX"
+      "XXXXXXXX",
+      "TE....TT",
+      "TXX.XX.T",
+      "X......X",
+      "X.X....X",
+      "X.TT...X",
+      "XXTXXXXX"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 2,
-        "Y": 2,
+        "X": 1,
+        "Y": 5,
         "dir": "U",
         "alive": true
       },
       "ghost": {
-        "X": 2,
-        "Y": 5,
-        "dir": "R",
-        "alive": true
+        "X": 0,
+        "Y": 0,
+        "dir": "U",
+        "alive": false
       }
     },
-    "statues": []
-  },
-  "logic": {
-    "nb_activators": 2,
-    "activators": [
+    "statues": [
       {
         "X": 2,
-        "Y": 1,
-        "type": "I"
+        "Y": 3,
+        "alive": true
       },
       {
-        "X": 8,
-        "Y": 5,
-        "type": "T"
+        "X": 3,
+        "Y": 3,
+        "alive": true
+      },
+      {
+        "X": 4,
+        "Y": 3,
+        "alive": true
       }
-    ],
-    "nb_gates": 0,
-    "gates": [],
-    "nb_doors": 2,
-    "doors": [
+    ]
+  },
+  "logic": {
+    "nb_activators": 1,
+    "activators": [
       {
         "X": 5,
-        "Y": 5,
-        "nb_tiles": 1,
-        "tiles": [
-          {
-            "X": 5,
-            "Y": 5,
-            "orient": "V"
-          }
-        ]
-      },
+        "Y": 3,
+        "type": "I"
+      }
+    ],
+    "nb_gates": 1,
+    "gates": [
       {
-        "X": 6,
+        "X": 4,
         "Y": 4,
+        "type": "NO",
+        "dir": "L"
+      }
+    ],
+    "nb_doors": 1,
+    "doors": [
+      {
+        "X": 3,
+        "Y": 2,
         "nb_tiles": 1,
         "tiles": [
           {
-            "X": 6,
-            "Y": 4,
+            "X": 3,
+            "Y": 2,
             "orient": "H"
           }
         ]
@@ -78,53 +82,43 @@
     "links": [
       {
         "type_start": "Activator",
-        "type_end": "Door",
-        "nb_nodes": 5,
+        "type_end": "Gate",
+        "nb_nodes": 3,
         "nodes": [
           {
-            "X": 2,
-            "Y": 1
-          },
-          {
-            "X": 4,
-            "Y": 1
-          },
-          {
-            "X": 4,
-            "Y": 4
+            "X": 5,
+            "Y": 3
           },
           {
             "X": 5,
             "Y": 4
           },
           {
-            "X": 5,
-            "Y": 5
+            "X": 4,
+            "Y": 4
           }
         ],
         "offsets": [
-          2,
-          0,
           0,
           0
         ]
       },
       {
-        "type_start": "Activator",
+        "type_start": "Gate",
         "type_end": "Door",
         "nb_nodes": 3,
         "nodes": [
           {
-            "X": 8,
-            "Y": 5
-          },
-          {
-            "X": 8,
+            "X": 4,
             "Y": 4
           },
           {
-            "X": 6,
+            "X": 3,
             "Y": 4
+          },
+          {
+            "X": 3,
+            "Y": 2
           }
         ],
         "offsets": [
@@ -135,16 +129,16 @@
     ]
   },
   "hint": [
-    "Remember that you can press SPACE to wait."
+    "This one will revert its input."
   ],
   "dialogue": [
-    "It's in the way again!",
-    "Maybe I can trap it in this ominous symbol..."
+    "Ok, this looks way simpler.",
+    "This weird symbol is familiar..."
   ],
-  "name": "The Trap",
-  "perf_steps": 20,
+  "name": "Logic tutorial 4",
+  "perf_steps": 16,
   "flags": {
     "can_swap": false,
-    "has_ghost": true
+    "has_ghost": false
   }
 }

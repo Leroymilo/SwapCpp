@@ -32,7 +32,7 @@ def get_image(path: str, n_w: int = 1, n_h: int = 1) :
             dict_im[alive] = image.subsurface(alive * 4 * delta, 0, delta, delta)
         return dict_im
 
-    elif n_h == 4 : # gates
+    elif n_w == 5 and n_h == 4 : # gates
         dict_im = {}
         for i in range(4) :
             dict_im[dirs[i]] = image.subsurface(0, i*delta, delta, delta)
@@ -48,14 +48,14 @@ def get_image(path: str, n_w: int = 1, n_h: int = 1) :
         return image.subsurface(0, 0, delta, delta)
 
 
-floor   = get_image("assets/Tiles/Floor.png")
-wall    = get_image("assets/Tiles/Wall.png")
-thorns   = get_image("assets/Tiles/Thorns.png")
-goal    = get_image("assets/Tiles/Win.png")
+floor       = get_image("assets/Tiles/Floor.png")
+wall        = get_image("assets/Tiles/Wall.png", 4, 4)
+thorns      = get_image("assets/Tiles/Thorns.png")
+goal        = get_image("assets/Tiles/Win.png")
 
-statue     = get_image("assets/Entities/statue.png", 5, 1)
-player  = get_image("assets/Entities/player_physf.png", 8, 4)
-ghost  = get_image("assets/Entities/player_ghost.png", 8, 4)
+statue      = get_image("assets/Entities/statue.png", 5, 1)
+player      = get_image("assets/Entities/player_physf.png", 8, 4)
+ghost       = get_image("assets/Entities/player_ghost.png", 8, 4)
 
 interruptor = get_image("assets/Logic/Button.png", 5, 1)
 target      = get_image("assets/Logic/Target.png", 5, 1)

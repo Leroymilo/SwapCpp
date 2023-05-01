@@ -1,89 +1,177 @@
 {
   "bg": {
-    "H": 9,
-    "W": 8,
+    "H": 7,
+    "W": 11,
     "BG": [
-      "XXX.XXXX",
-      "X..T...X",
-      "X......X",
-      "X...XXXX",
-      "X.X...EX",
-      "X...XXXX",
-      "X......X",
-      "X......X",
-      "XXXXXXXX"
+      "XXXXXXXXXXX",
+      "X.........X",
+      "XX.TT.XXXXX",
+      "X.....X...X",
+      "T.......E.X",
+      "TT....X..TX",
+      "XXXXXXXXXXX"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 5,
-        "Y": 2,
-        "dir": "L",
+        "X": 2,
+        "Y": 4,
+        "dir": "U",
         "alive": true
       },
       "ghost": {
-        "X": 3,
-        "Y": 4,
-        "dir": "R",
-        "alive": true
+        "X": 0,
+        "Y": 0,
+        "dir": "U",
+        "alive": false
       }
     },
     "statues": [
       {
-        "X": 5,
-        "Y": 6,
+        "X": 3,
+        "Y": 1,
+        "alive": true
+      },
+      {
+        "X": 4,
+        "Y": 1,
+        "alive": false
+      },
+      {
+        "X": 4,
+        "Y": 4,
         "alive": true
       }
     ]
   },
   "logic": {
-    "nb_activators": 1,
+    "nb_activators": 3,
     "activators": [
       {
-        "X": 3,
-        "Y": 0,
-        "type": "T"
+        "X": 9,
+        "Y": 1,
+        "type": "I"
+      },
+      {
+        "X": 7,
+        "Y": 1,
+        "type": "I"
+      },
+      {
+        "X": 8,
+        "Y": 1,
+        "type": "I"
       }
     ],
-    "nb_gates": 1,
+    "nb_gates": 2,
     "gates": [
       {
-        "X": 4,
-        "Y": 0,
+        "X": 9,
+        "Y": 2,
         "type": "NO",
-        "dir": "R"
+        "dir": "D"
+      },
+      {
+        "X": 7,
+        "Y": 3,
+        "type": "AND",
+        "dir": "L"
       }
     ],
     "nb_doors": 1,
     "doors": [
       {
-        "X": 5,
+        "X": 6,
         "Y": 4,
         "nb_tiles": 1,
         "tiles": [
           {
-            "X": 5,
+            "X": 6,
             "Y": 4,
             "orient": "V"
           }
         ]
       }
     ],
-    "nb_links": 2,
+    "nb_links": 5,
     "links": [
+      {
+        "type_start": "Gate",
+        "type_end": "Door",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 7,
+            "Y": 3
+          },
+          {
+            "X": 6,
+            "Y": 3
+          },
+          {
+            "X": 6,
+            "Y": 4
+          }
+        ],
+        "offsets": [
+          0,
+          0
+        ]
+      },
       {
         "type_start": "Activator",
         "type_end": "Gate",
         "nb_nodes": 2,
         "nodes": [
           {
-            "X": 3,
-            "Y": 0
+            "X": 7,
+            "Y": 1
           },
           {
-            "X": 4,
-            "Y": 0
+            "X": 7,
+            "Y": 3
+          }
+        ],
+        "offsets": [
+          2
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 8,
+            "Y": 1
+          },
+          {
+            "X": 8,
+            "Y": 3
+          },
+          {
+            "X": 7,
+            "Y": 3
+          }
+        ],
+        "offsets": [
+          0,
+          -1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Gate",
+        "nb_nodes": 2,
+        "nodes": [
+          {
+            "X": 9,
+            "Y": 1
+          },
+          {
+            "X": 9,
+            "Y": 2
           }
         ],
         "offsets": [
@@ -92,25 +180,25 @@
       },
       {
         "type_start": "Gate",
-        "type_end": "Door",
+        "type_end": "Gate",
         "nb_nodes": 3,
         "nodes": [
           {
-            "X": 4,
-            "Y": 0
+            "X": 9,
+            "Y": 2
           },
           {
-            "X": 5,
-            "Y": 0
+            "X": 9,
+            "Y": 3
           },
           {
-            "X": 5,
-            "Y": 4
+            "X": 7,
+            "Y": 3
           }
         ],
         "offsets": [
           0,
-          0
+          1
         ]
       }
     ]
@@ -119,12 +207,13 @@
     ""
   ],
   "dialogue": [
-    "I have to be smart about this one..."
+    "This room again? Hold on...",
+    "The lock of this door looks different..."
   ],
-  "name": "Revenge of the Bullet",
-  "perf_steps": 33,
+  "name": "Logic tutorial 4",
+  "perf_steps": 34,
   "flags": {
     "can_swap": false,
-    "has_ghost": true
+    "has_ghost": false
   }
 }

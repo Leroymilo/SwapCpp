@@ -1,15 +1,15 @@
 {
   "bg": {
     "H": 7,
-    "W": 12,
+    "W": 9,
     "BG": [
-      "XXXXXXXXXXXX",
-      "XTT....X.ETX",
-      "XT.....X...X",
-      "XT..X..T...X",
-      "X...X......X",
-      "X...X....TTX",
-      "XXXXXXTTXXXX"
+      "XTXXXXTTX",
+      "XT..TXE.X",
+      "X...T...X",
+      "X.......X",
+      "XX..T...X",
+      "TT..T.TTT",
+      "TXXTXXXXT"
     ]
   },
   "entities": {
@@ -21,10 +21,10 @@
         "alive": true
       },
       "ghost": {
-        "X": 0,
-        "Y": 0,
-        "dir": "U",
-        "alive": false
+        "X": 4,
+        "Y": 3,
+        "dir": "D",
+        "alive": true
       }
     },
     "statues": []
@@ -40,16 +40,16 @@
     "links": []
   },
   "hint": [
-    "Use the arrow keys to move."
+    ""
   ],
   "dialogue": [
-    "Where... did I fall? It looks like some overgrown ruins.",
-    "I guess the only way is down these stairs..."
+    "Did it follow me or is it another one?",
+    "It looks like a ghost, it can go through thorns."
   ],
-  "name": "Tutorial 1",
-  "perf_steps": 15,
+  "name": "Bullet tutorial 2",
+  "perf_steps": 9,
   "flags": {
     "can_swap": false,
-    "has_ghost": false
+    "has_ghost": true
   }
 }

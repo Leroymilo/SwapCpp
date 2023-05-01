@@ -1,27 +1,21 @@
 {
   "bg": {
-    "H": 9,
-    "W": 9,
-    "EndX": 4,
-    "EndY": 1,
+    "H": 5,
+    "W": 12,
     "BG": [
-      "XXXXXXXXX",
-      "X...E...X",
-      "X.......X",
-      "X.......X",
-      "XXXX.XXXX",
-      "X.......X",
-      "X.......X",
-      "X.......X",
-      "XXXXXXXXX"
+      "XXXXXXXXXXXX",
+      "XT......TXEX",
+      "X........T.X",
+      "XT.X.......T",
+      "XTTTXXXXXXXT"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 4,
-        "Y": 7,
-        "dir": "U",
+        "X": 2,
+        "Y": 2,
+        "dir": "R",
         "alive": true
       },
       "ghost": {
@@ -33,78 +27,58 @@
     },
     "statues": [
       {
-        "X": 2,
-        "Y": 6,
+        "X": 5,
+        "Y": 1,
         "alive": true
-      }
-    ],
-    "monsters?": []
-  },
-  "logic": {
-    "nb_activators": 1,
-    "activators": [
-      {
-        "X": 6,
-        "Y": 6,
-        "type": "I"
-      }
-    ],
-    "nb_gates": 0,
-    "gates": [],
-    "nb_doors": 1,
-    "doors": [
+      },
       {
         "X": 4,
-        "Y": 4,
-        "nb_tiles": 1,
-        "tiles": [
-          {
-            "X": 4,
-            "Y": 4,
-            "orient": "H"
-          }
-        ]
-      }
-    ],
-    "nb_links": 1,
-    "links": [
+        "Y": 2,
+        "alive": true
+      },
       {
-        "type_start": "Activator",
-        "type_end": "Door",
-        "nb_nodes": 3,
-        "nodes": [
-          {
-            "X": 6,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 4
-          }
-        ],
-        "offsets": [
-          2,
-          0
-        ]
+        "X": 6,
+        "Y": 1,
+        "alive": true
+      },
+      {
+        "X": 7,
+        "Y": 2,
+        "alive": true
+      },
+      {
+        "X": 5,
+        "Y": 2,
+        "alive": true
+      },
+      {
+        "X": 6,
+        "Y": 3,
+        "alive": true
       }
     ]
   },
+  "logic": {
+    "nb_activators": 0,
+    "activators": [],
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 0,
+    "doors": [],
+    "nb_links": 0,
+    "links": []
+  },
   "hint": [
-    ""
+    "Remember that you can undo with BACKSPACE."
   ],
   "dialogue": [
-    "What is this inscription on the tile?",
-    "It looks like it can be hold down..."
+    "That's a LOT of them!",
+    "I have to find a way through them."
   ],
   "name": "Logic tutorial 1",
-  "perf_steps": 14,
+  "perf_steps": 13,
   "flags": {
     "can_swap": false,
     "has_ghost": false
-  },
-  "V": "2.1.3"
+  }
 }

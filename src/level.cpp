@@ -192,8 +192,10 @@ bool Level::physf_push(MovingEntity *pusher, Direction dir)
 
     // Checking if there's a any statue to push :
     BaseEntity *statue_p;
-    if (get_statue(next_pos, statue_p))
-        can_push = base_push(statue_p, dir);
+    if (get_statue(next_pos, statue_p)) {
+        if (statue_p->alive)
+            can_push = base_push(statue_p, dir);
+    }
 
     if (!can_push) return false;
 
@@ -453,6 +455,7 @@ void Level::displayBG(sf::RenderWindow * windowP)
     {
         if (flags[flag_key])
         {
+            flag_sprites[flag_key].setTexture(flag_textures[flag_key]);
             flag_sprites[flag_key].setPosition(sf::Vector2f(C0));
             flag_sprites[flag_key].setScale(delta/DELTA, delta/DELTA);
             windowP->draw(flag_sprites[flag_key]);

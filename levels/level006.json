@@ -2,25 +2,23 @@
   "bg": {
     "H": 9,
     "W": 9,
-    "EndX": 6,
-    "EndY": 2,
     "BG": [
       "XXXXXXXXX",
-      "X...X...X",
-      "X.....E.X",
-      "X...X...X",
-      "XX.XXXXXX",
-      "X.......X",
-      "X.......X",
-      "X.......X",
-      "XXXXXXXXX"
+      "XT..E...X",
+      "TT.....TX",
+      "TTT....TT",
+      "XTTX.XXXX",
+      "XT......X",
+      "X.......T",
+      "X......TX",
+      "XXXXXXTTX"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 2,
-        "Y": 6,
+        "X": 4,
+        "Y": 7,
         "dir": "U",
         "alive": true
       },
@@ -33,201 +31,76 @@
     },
     "statues": [
       {
-        "X": 5,
-        "Y": 5,
-        "alive": true
-      },
-      {
-        "X": 5,
-        "Y": 7,
+        "X": 2,
+        "Y": 6,
         "alive": true
       }
-    ],
-    "monsters?": []
+    ]
   },
   "logic": {
-    "nb_activators": 3,
+    "nb_activators": 1,
     "activators": [
       {
-        "X": 7,
-        "Y": 5,
-        "type": "I"
-      },
-      {
-        "X": 7,
-        "Y": 7,
-        "type": "I"
-      },
-      {
-        "X": 2,
-        "Y": 2,
-        "type": "I"
-      }
-    ],
-    "nb_gates": 1,
-    "gates": [
-      {
-        "X": 4,
+        "X": 6,
         "Y": 6,
-        "type": "OR",
-        "dir": "L"
+        "type": "I"
       }
     ],
-    "nb_doors": 2,
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 1,
     "doors": [
       {
         "X": 4,
-        "Y": 2,
-        "nb_tiles": 1,
-        "tiles": [
-          {
-            "X": 4,
-            "Y": 2,
-            "orient": "V"
-          }
-        ]
-      },
-      {
-        "X": 2,
         "Y": 4,
         "nb_tiles": 1,
         "tiles": [
           {
-            "X": 2,
+            "X": 4,
             "Y": 4,
             "orient": "H"
           }
         ]
       }
     ],
-    "nb_links": 4,
+    "nb_links": 1,
     "links": [
       {
         "type_start": "Activator",
-        "type_end": "Gate",
-        "nb_nodes": 4,
-        "nodes": [
-          {
-            "X": 7,
-            "Y": 5
-          },
-          {
-            "X": 6,
-            "Y": 5
-          },
-          {
-            "X": 6,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 6
-          }
-        ],
-        "offsets": [
-          2,
-          0,
-          -1
-        ]
-      },
-      {
-        "type_start": "Activator",
-        "type_end": "Gate",
-        "nb_nodes": 4,
-        "nodes": [
-          {
-            "X": 7,
-            "Y": 7
-          },
-          {
-            "X": 6,
-            "Y": 7
-          },
-          {
-            "X": 6,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 6
-          }
-        ],
-        "offsets": [
-          2,
-          0,
-          1
-        ]
-      },
-      {
-        "type_start": "Activator",
         "type_end": "Door",
-        "nb_nodes": 4,
+        "nb_nodes": 3,
         "nodes": [
           {
-            "X": 2,
-            "Y": 2
+            "X": 6,
+            "Y": 6
           },
-          {
-            "X": 2,
-            "Y": 3
-          },
-          {
-            "X": 4,
-            "Y": 3
-          },
-          {
-            "X": 4,
-            "Y": 2
-          }
-        ],
-        "offsets": [
-          0,
-          0,
-          0
-        ]
-      },
-      {
-        "type_start": "Gate",
-        "type_end": "Door",
-        "nb_nodes": 4,
-        "nodes": [
           {
             "X": 4,
             "Y": 6
           },
           {
-            "X": 3,
-            "Y": 6
-          },
-          {
-            "X": 3,
-            "Y": 4
-          },
-          {
-            "X": 2,
+            "X": 4,
             "Y": 4
           }
         ],
         "offsets": [
-          0,
-          0,
+          2,
           0
         ]
       }
     ]
   },
   "hint": [
-    "This tile needs at least one of its inputs to be on to activate."
+    ""
   ],
   "dialogue": [
-    "Another one ?!",
-    "I guess that's one me for falling in an old tower..."
+    "I can't read these weird inscriptions on this tile,",
+    "but it looks like it can be held down..."
   ],
-  "name": "Logic tutorial 3",
-  "perf_steps": 20,
+  "name": "Logic tutorial 1",
+  "perf_steps": 14,
   "flags": {
     "can_swap": false,
     "has_ghost": false
-  },
-  "V": "2.1.3"
+  }
 }

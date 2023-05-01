@@ -1,0 +1,150 @@
+{
+  "bg": {
+    "H": 9,
+    "W": 9,
+    "BG": [
+      "XXXXXXXXX",
+      "X...X...X",
+      "X...X.E.X",
+      "X...X...X",
+      "X.XXXX.XX",
+      "X......T.",
+      "XXXX.X..X",
+      "X.......X",
+      "XXXXXXXXX"
+    ]
+  },
+  "entities": {
+    "player": {
+      "physf": {
+        "X": 2,
+        "Y": 2,
+        "dir": "U",
+        "alive": true
+      },
+      "ghost": {
+        "X": 2,
+        "Y": 5,
+        "dir": "R",
+        "alive": true
+      }
+    },
+    "statues": []
+  },
+  "logic": {
+    "nb_activators": 2,
+    "activators": [
+      {
+        "X": 2,
+        "Y": 1,
+        "type": "I"
+      },
+      {
+        "X": 8,
+        "Y": 5,
+        "type": "T"
+      }
+    ],
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 2,
+    "doors": [
+      {
+        "X": 5,
+        "Y": 5,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 5,
+            "Y": 5,
+            "orient": "V"
+          }
+        ]
+      },
+      {
+        "X": 6,
+        "Y": 4,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 6,
+            "Y": 4,
+            "orient": "H"
+          }
+        ]
+      }
+    ],
+    "nb_links": 2,
+    "links": [
+      {
+        "type_start": "Activator",
+        "type_end": "Door",
+        "nb_nodes": 5,
+        "nodes": [
+          {
+            "X": 2,
+            "Y": 1
+          },
+          {
+            "X": 4,
+            "Y": 1
+          },
+          {
+            "X": 4,
+            "Y": 4
+          },
+          {
+            "X": 5,
+            "Y": 4
+          },
+          {
+            "X": 5,
+            "Y": 5
+          }
+        ],
+        "offsets": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Door",
+        "nb_nodes": 3,
+        "nodes": [
+          {
+            "X": 8,
+            "Y": 5
+          },
+          {
+            "X": 8,
+            "Y": 4
+          },
+          {
+            "X": 6,
+            "Y": 4
+          }
+        ],
+        "offsets": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "hint": [
+    "Remember that you can press SPACE to wait."
+  ],
+  "dialogue": [
+    "It's in the way again!",
+    "Maybe I can trap it in this ominous symbol..."
+  ],
+  "name": "The Trap",
+  "perf_steps": 20,
+  "flags": {
+    "can_swap": false,
+    "has_ghost": true
+  }
+}

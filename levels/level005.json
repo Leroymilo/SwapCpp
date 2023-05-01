@@ -1,27 +1,23 @@
 {
   "bg": {
-    "H": 9,
+    "H": 7,
     "W": 9,
-    "EndX": 4,
-    "EndY": 1,
     "BG": [
-      "XXXXXXXXX",
-      "X...E...X",
-      "X.......X",
-      "XXXX.XXXX",
-      "X.......X",
-      "X.......X",
-      "X.......X",
-      "X.......X",
-      "XXXXXXXXX"
+      "TTXXXXXXX",
+      "XTTTTXTTX",
+      "XT...X..X",
+      "X......EX",
+      "X....X..X",
+      "X...TTT.X",
+      "XXXXXXTXX"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 4,
-        "Y": 7,
-        "dir": "U",
+        "X": 2,
+        "Y": 3,
+        "dir": "R",
         "alive": true
       },
       "ghost": {
@@ -33,141 +29,38 @@
     },
     "statues": [
       {
-        "X": 2,
-        "Y": 6,
-        "alive": true
-      },
-      {
-        "X": 6,
-        "Y": 4,
-        "alive": true
-      }
-    ],
-    "monsters?": []
-  },
-  "logic": {
-    "nb_activators": 2,
-    "activators": [
-      {
-        "X": 6,
-        "Y": 6,
-        "type": "I"
-      },
-      {
-        "X": 2,
-        "Y": 4,
-        "type": "I"
-      }
-    ],
-    "nb_gates": 1,
-    "gates": [
-      {
-        "X": 4,
-        "Y": 5,
-        "type": "AND",
-        "dir": "U"
-      }
-    ],
-    "nb_doors": 1,
-    "doors": [
-      {
         "X": 4,
         "Y": 3,
-        "nb_tiles": 1,
-        "tiles": [
-          {
-            "X": 4,
-            "Y": 3,
-            "orient": "H"
-          }
-        ]
-      }
-    ],
-    "nb_links": 3,
-    "links": [
-      {
-        "type_start": "Activator",
-        "type_end": "Gate",
-        "nb_nodes": 3,
-        "nodes": [
-          {
-            "X": 6,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 5
-          }
-        ],
-        "offsets": [
-          2,
-          1
-        ]
+        "alive": true
       },
       {
-        "type_start": "Activator",
-        "type_end": "Gate",
-        "nb_nodes": 4,
-        "nodes": [
-          {
-            "X": 2,
-            "Y": 4
-          },
-          {
-            "X": 2,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 5
-          }
-        ],
-        "offsets": [
-          0,
-          2,
-          -1
-        ]
-      },
-      {
-        "type_start": "Gate",
-        "type_end": "Door",
-        "nb_nodes": 2,
-        "nodes": [
-          {
-            "X": 4,
-            "Y": 5
-          },
-          {
-            "X": 4,
-            "Y": 3
-          }
-        ],
-        "offsets": [
-          0
-        ]
+        "X": 5,
+        "Y": 3,
+        "alive": false
       }
     ]
   },
+  "logic": {
+    "nb_activators": 0,
+    "activators": [],
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 0,
+    "doors": [],
+    "nb_links": 0,
+    "links": []
+  },
   "hint": [
-    "This tile needs all of its inputs to be on to activate."
+    ""
   ],
   "dialogue": [
-    "What is this again?",
-    "It looks like it's engraved with magic runes."
+    "It looks like this statue did not survive time...",
+    "I can walk over it but there's no way its surviving friend can."
   ],
   "name": "Logic tutorial 2",
-  "perf_steps": 20,
+  "perf_steps": 7,
   "flags": {
     "can_swap": false,
     "has_ghost": false
-  },
-  "V": "2.1.3"
+  }
 }

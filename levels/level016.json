@@ -1,41 +1,47 @@
 {
   "bg": {
-    "H": 7,
-    "W": 7,
+    "H": 8,
+    "W": 10,
     "BG": [
-      "XXXXXXX",
-      "X..E..T",
-      "XXX.XXT",
-      "TT....X",
-      "T.....X",
-      "X...T.X",
-      "XXXXTTT"
+      "XTXXXXXXXX",
+      "XTTX.X...X",
+      "XX.....X.X",
+      "X..X.X...X",
+      "X....X.E.X",
+      "XT...TT..T",
+      "XTT..XTTXT",
+      "TTXXXX.TTT"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 3,
+        "X": 2,
         "Y": 5,
         "dir": "U",
         "alive": true
       },
       "ghost": {
-        "X": 0,
-        "Y": 0,
-        "dir": "U",
-        "alive": false
+        "X": 3,
+        "Y": 2,
+        "dir": "R",
+        "alive": true
       }
     },
     "statues": [
       {
-        "X": 3,
+        "X": 4,
         "Y": 3,
         "alive": true
       },
       {
         "X": 4,
-        "Y": 3,
+        "Y": 4,
+        "alive": false
+      },
+      {
+        "X": 4,
+        "Y": 5,
         "alive": true
       }
     ]
@@ -51,16 +57,15 @@
     "links": []
   },
   "hint": [
-    "Use PLUS to reset the level.",
-    "You can undo resets."
+    ""
   ],
   "dialogue": [
-    "Two of them? This should still be fine."
+    "I wonder if it will block the statues..."
   ],
-  "name": "Tutorial 3",
-  "perf_steps": 6,
+  "name": "Revenge of the Bullet",
+  "perf_steps": 18,
   "flags": {
     "can_swap": false,
-    "has_ghost": false
+    "has_ghost": true
   }
 }

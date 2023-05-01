@@ -4,10 +4,10 @@
     "W": 9,
     "BG": [
       "XXXXXXXXX",
-      "X...E...X",
-      "X.......X",
-      "XXXX.XXXX",
-      "X.......X",
+      "X...X...X",
+      "X.....E.X",
+      "X...X...X",
+      "XX.XXXXXX",
       "X.......X",
       "X.......X",
       "X.......X",
@@ -17,8 +17,8 @@
   "entities": {
     "player": {
       "physf": {
-        "X": 4,
-        "Y": 7,
+        "X": 2,
+        "Y": 6,
         "dir": "U",
         "alive": true
       },
@@ -31,28 +31,33 @@
     },
     "statues": [
       {
-        "X": 2,
-        "Y": 6,
+        "X": 5,
+        "Y": 5,
         "alive": true
       },
       {
-        "X": 6,
-        "Y": 4,
+        "X": 5,
+        "Y": 7,
         "alive": true
       }
     ]
   },
   "logic": {
-    "nb_activators": 2,
+    "nb_activators": 3,
     "activators": [
       {
-        "X": 6,
-        "Y": 6,
+        "X": 7,
+        "Y": 5,
+        "type": "I"
+      },
+      {
+        "X": 7,
+        "Y": 7,
         "type": "I"
       },
       {
         "X": 2,
-        "Y": 4,
+        "Y": 2,
         "type": "I"
       }
     ],
@@ -60,33 +65,53 @@
     "gates": [
       {
         "X": 4,
-        "Y": 5,
-        "type": "AND",
-        "dir": "U"
+        "Y": 6,
+        "type": "OR",
+        "dir": "L"
       }
     ],
-    "nb_doors": 1,
+    "nb_doors": 2,
     "doors": [
       {
         "X": 4,
-        "Y": 3,
+        "Y": 2,
         "nb_tiles": 1,
         "tiles": [
           {
             "X": 4,
-            "Y": 3,
+            "Y": 2,
+            "orient": "V"
+          }
+        ]
+      },
+      {
+        "X": 2,
+        "Y": 4,
+        "nb_tiles": 1,
+        "tiles": [
+          {
+            "X": 2,
+            "Y": 4,
             "orient": "H"
           }
         ]
       }
     ],
-    "nb_links": 3,
+    "nb_links": 4,
     "links": [
       {
         "type_start": "Activator",
         "type_end": "Gate",
-        "nb_nodes": 3,
+        "nb_nodes": 4,
         "nodes": [
+          {
+            "X": 7,
+            "Y": 5
+          },
+          {
+            "X": 6,
+            "Y": 5
+          },
           {
             "X": 6,
             "Y": 6
@@ -94,15 +119,12 @@
           {
             "X": 4,
             "Y": 6
-          },
-          {
-            "X": 4,
-            "Y": 5
           }
         ],
         "offsets": [
           2,
-          1
+          0,
+          -1
         ]
       },
       {
@@ -111,56 +133,94 @@
         "nb_nodes": 4,
         "nodes": [
           {
-            "X": 2,
-            "Y": 4
+            "X": 7,
+            "Y": 7
           },
           {
-            "X": 2,
+            "X": 6,
+            "Y": 7
+          },
+          {
+            "X": 6,
             "Y": 6
           },
           {
             "X": 4,
             "Y": 6
+          }
+        ],
+        "offsets": [
+          2,
+          0,
+          1
+        ]
+      },
+      {
+        "type_start": "Activator",
+        "type_end": "Door",
+        "nb_nodes": 4,
+        "nodes": [
+          {
+            "X": 2,
+            "Y": 2
+          },
+          {
+            "X": 2,
+            "Y": 3
           },
           {
             "X": 4,
-            "Y": 5
+            "Y": 3
+          },
+          {
+            "X": 4,
+            "Y": 2
           }
         ],
         "offsets": [
           0,
-          2,
-          -1
+          0,
+          0
         ]
       },
       {
         "type_start": "Gate",
         "type_end": "Door",
-        "nb_nodes": 2,
+        "nb_nodes": 4,
         "nodes": [
           {
             "X": 4,
-            "Y": 5
+            "Y": 6
           },
           {
-            "X": 4,
-            "Y": 3
+            "X": 3,
+            "Y": 6
+          },
+          {
+            "X": 3,
+            "Y": 4
+          },
+          {
+            "X": 2,
+            "Y": 4
           }
         ],
         "offsets": [
+          0,
+          0,
           0
         ]
       }
     ]
   },
   "hint": [
-    "This tile needs all of its inputs to be on to activate."
+    "This tile needs at least one of its inputs to be on to activate."
   ],
   "dialogue": [
-    "What is this again?",
-    "It looks like it's engraved with magic runes."
+    "Another one ?!",
+    "I guess that's one me for falling in an old tower..."
   ],
-  "name": "Logic tutorial 2",
+  "name": "Logic tutorial 3",
   "perf_steps": 20,
   "flags": {
     "can_swap": false,

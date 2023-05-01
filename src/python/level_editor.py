@@ -297,17 +297,18 @@ class LevelEditor(LevelEditor) :
         for x in range(W) :
             for y in range(H) :
                 tile = self.level.get_tile(x, y)
+                self.surf.blit(floor, (delta * x, delta * y))
 
+                img = None
                 if (x, y) == self.level.goal :
                     img = goal
                 elif tile == 'X' :
                     img = wall
                 elif tile == 'T' :
                     img = thorns
-                else :
-                    img = floor
                 
-                self.surf.blit(img, (delta * x, delta * y))
+                if img is not None :
+                    self.surf.blit(img, (delta * x, delta * y))
 
         #logic
         for link in self.level.links.values() :

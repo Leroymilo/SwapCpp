@@ -1,24 +1,22 @@
 {
   "bg": {
     "H": 7,
-    "W": 8,
-    "EndX": 1,
-    "EndY": 1,
+    "W": 11,
     "BG": [
-      "XXXXXXXX",
-      "XE....XX",
-      "XXX.XX.X",
-      "X......X",
-      "X.X....X",
-      "X.X....X",
-      "XXXXXXXX"
+      "XXXXXXXXXXX",
+      "X.........X",
+      "XX.TT.X.XXX",
+      "X.....X...X",
+      "T.....X.E.X",
+      "TT....X..TX",
+      "XXXXXXXXXXX"
     ]
   },
   "entities": {
     "player": {
       "physf": {
-        "X": 1,
-        "Y": 5,
+        "X": 2,
+        "Y": 4,
         "dir": "U",
         "alive": true
       },
@@ -31,96 +29,65 @@
     },
     "statues": [
       {
-        "X": 2,
-        "Y": 3,
-        "alive": true
-      },
-      {
         "X": 3,
-        "Y": 3,
+        "Y": 1,
         "alive": true
       },
       {
         "X": 4,
-        "Y": 3,
+        "Y": 1,
+        "alive": false
+      },
+      {
+        "X": 4,
+        "Y": 4,
         "alive": true
       }
-    ],
-    "monsters?": []
+    ]
   },
   "logic": {
     "nb_activators": 1,
     "activators": [
       {
-        "X": 5,
-        "Y": 3,
+        "X": 9,
+        "Y": 1,
         "type": "I"
       }
     ],
-    "nb_gates": 1,
-    "gates": [
-      {
-        "X": 4,
-        "Y": 4,
-        "type": "NO",
-        "dir": "L"
-      }
-    ],
+    "nb_gates": 0,
+    "gates": [],
     "nb_doors": 1,
     "doors": [
       {
-        "X": 3,
+        "X": 7,
         "Y": 2,
         "nb_tiles": 1,
         "tiles": [
           {
-            "X": 3,
+            "X": 7,
             "Y": 2,
             "orient": "H"
           }
         ]
       }
     ],
-    "nb_links": 2,
+    "nb_links": 1,
     "links": [
       {
         "type_start": "Activator",
-        "type_end": "Gate",
-        "nb_nodes": 3,
-        "nodes": [
-          {
-            "X": 5,
-            "Y": 3
-          },
-          {
-            "X": 5,
-            "Y": 4
-          },
-          {
-            "X": 4,
-            "Y": 4
-          }
-        ],
-        "offsets": [
-          0,
-          0
-        ]
-      },
-      {
-        "type_start": "Gate",
         "type_end": "Door",
         "nb_nodes": 3,
         "nodes": [
           {
-            "X": 4,
-            "Y": 4
+            "X": 9,
+            "Y": 1
           },
           {
-            "X": 3,
-            "Y": 4
+            "X": 9,
+            "Y": 2
           },
           {
-            "X": 3,
+            "X": 7,
             "Y": 2
           }
         ],
@@ -132,16 +99,15 @@
     ]
   },
   "hint": [
-    "This one will revert its input."
+    ""
   ],
   "dialogue": [
-    "Ok, this one just looks like a pokeball..."
+    "I don't think a broken statue can hold one of these tiles down..."
   ],
   "name": "Logic tutorial 4",
-  "perf_steps": 16,
+  "perf_steps": 36,
   "flags": {
     "can_swap": false,
     "has_ghost": false
-  },
-  "V": "2.1.3"
+  }
 }
