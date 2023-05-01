@@ -3,6 +3,13 @@
 
 #include "gameplay/grid.hpp"
 
+sf::Vector2i neighbors[] = {
+    sf::Vector2i(0, -1),
+    sf::Vector2i(1, 0),
+    sf::Vector2i(0, 1),
+    sf::Vector2i(-1, 0)
+};
+
 Grid::Grid(){}
 
 Grid::Grid(const Grid& tocopy)
@@ -37,15 +44,45 @@ sf::Vector2i Grid::create(Json::Value json_bg, std::map<char, sf::Texture> textu
         }
     }
 
+    // Initializing wall sprite :
+    sf::Sprite wall_sprite(textures['X'], sf::IntRect(0, 0, DELTA, DELTA));
+
+    // Initializing other sprites :
+    std::map<char, sf::Sprite> sprites;
+    sprites['T'].setTexture(textures['T'], true);
+    sprites['E'].setTexture(textures['E'], true);
+
+    // Fill background with floor :
     pre_render.create(w * delta, h * delta);
     pre_render.clear(sf::Color::Transparent);
-    sf::RectangleShape tile(sf::Vector2f(delta, delta));
+    textures['.'].setRepeated(true);
+    sf::Sprite floor_sprite(textures['.'], sf::IntRect(0, 0, DELTA * w, DELTA * h));
+    pre_render.draw(floor_sprite);
 
     for (int x=0; x<w; x++){
         for (int y=0; y<h; y++){
-            tile.setTexture(&textures[tiles[y][x]]);
-            tile.setPosition(delta * x, delta * y);
-            pre_render.draw(tile);
+            char tile_type = tiles[y][x];
+
+            // Wall orientation :
+            if (tile_type == 'X') {
+                int value = 0;
+                for (int i = 0; i < 4; i++) {
+                    int nx = x + neighbors[i].x, ny = y + neighbors[i].y;
+                    if (0 <= nx && nx < w && 0 <= ny && ny < h && tiles[ny][nx] == 'X') {
+                        value += (1 << i);
+                    }
+                }
+                int left = (value%4), top = (value/4);
+                wall_sprite.setTextureRect(sf::IntRect(left * DELTA, top * DELTA, DELTA, DELTA));
+                wall_sprite.setPosition(DELTA * x, DELTA * y);
+                pre_render.draw(wall_sprite);
+            }
+
+            // Thorns or End :
+            else if (tile_type != '.') {
+                sprites[tile_type].setPosition(DELTA * x, DELTA * y);
+                pre_render.draw(sprites[tile_type]);
+            }
         }
     }
 
