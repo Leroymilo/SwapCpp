@@ -172,12 +172,10 @@ void MovingEntity::draw(sf::Vector2i C0, int delta, sf::RenderWindow *windowPoin
 
     float pxlX = C0.x + pos.x * delta, pxlY = C0.y + pos.y * delta;
 
-    if (alive) {
-        // moving animation
-        sf::Vector2i prev_pos = *(std::next(hist_pos.rbegin()));
-        pxlX += delta * (4 - anim_frame) * (prev_pos.x - pos.x) / 4;
-        pxlY += delta * (4 - anim_frame) * (prev_pos.y - pos.y) / 4;
-    }
+    // moving animation
+    sf::Vector2i prev_pos = *(std::next(hist_pos.rbegin()));
+    pxlX += delta * (4 - anim_frame) * (prev_pos.x - pos.x) / 4;
+    pxlY += delta * (4 - anim_frame) * (prev_pos.y - pos.y) / 4;
 
     sprite.setTexture(texture);
     sprite.setPosition(pxlX, pxlY);

@@ -575,8 +575,8 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, int* nb_steps)
     
     //Input handling :
     int time = clock.getElapsedTime().asMilliseconds();
-    int long_deltaT = 200;
-    int short_deltaT = 160;
+    int long_deltaT = 240;
+    int short_deltaT = 200;
     bool long_press = false;
     bool process_input = false;
     int nbKeys = 8;
@@ -596,7 +596,7 @@ int run(int level_id, bool solved, sf::RenderWindow* windowP, int* nb_steps)
 
     //Animation handling :
     bool animating = false;
-    int anim_deltaT = 30;
+    int anim_deltaT = 40;
     int anim_start = 0;
     int frame = 0;
 

@@ -47,8 +47,8 @@
   "dialogue": [],
   "perf_steps": 4,
   "flags": {
-    "can_swap": true,
-    "has_ghost": true
+    "can_swap": false,
+    "has_ghost": false
   },
   "V": "2.1.3"
 }

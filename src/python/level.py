@@ -141,12 +141,12 @@ class Level :
             raise TypeError("source should be json dict, json dump or json file path")
 
         self.size = (data["bg"]["W"], data["bg"]["H"])
-        self.grid = data["bg"]["BG"]
-        self.goal = (data["bg"]["EndX"], data["bg"]["EndY"])
+        self.grid: list[str] = data["bg"]["BG"]
+        self.goal = self.find_goal()
 
-        self.player = data["entities"]["player"]
-        self.bullet = data["entities"]["bullet"]
-        self.boxes = {(box["X"], box["Y"]) for box in data["entities"]["Boxes"]}
+        self.player = data["entities"]["player"]["physf"]
+        self.ghost = data["entities"]["player"]["ghost"]
+        self.statues: dict[tuple[int,int], bool] = {(statue_["X"], statue_["Y"]): statue_["alive"] for statue_ in data["entities"]["statues"]}
 
         activators = data["logic"]["activators"]
         self.buttons = {(act["X"], act["Y"]) for act in activators if act["type"] == "I"}
@@ -168,13 +168,25 @@ class Level :
         self.perf_steps = data["perf_steps"]
         self.flags = data["flags"]
     
+    def find_goal(self) -> tuple[int] :
+        for y in range(self.size[1]) :
+            x = self.grid[y].find('E')
+            if x > -1 :
+                self.grid[y] = self.grid[y].replace('E', '.')
+                return (x, y)
+
     def to_dict(self) :
+        line = self.grid[self.goal[1]]
+        self.grid[self.goal[1]] = line[:self.goal[0]] + 'E' + line[self.goal[0]+1:]
         return {
-            "bg": {"H": self.size[1], "W": self.size[0], "EndX": self.goal[0], "EndY": self.goal[1], "BG": self.grid},
+            "bg": {"H": self.size[1], "W": self.size[0], "BG": self.grid},
 
             "entities": {
-                "player": self.player, "bullet": self.bullet,
-                "nbBoxes": len(self.boxes), "Boxes": [{"X": box[0], "Y": box[1]} for box in self.boxes]
+                "player": self.player, "ghost": self.ghost,
+                "statues": [
+                    {"X": statue_pos[0], "Y": statue_pos[1], "alive": alive}
+                    for statue_pos, alive in self.statues.items()
+                ]
             },
 
             "logic": {
@@ -211,20 +223,22 @@ class Level :
         return self.grid[y][x]
     
     def set_tile(self, x: int, y: int, char: str) :
-        self.grid[y][x] = char
+        
+        line = self.grid[y]
+        self.grid[y] = line[:x] + char + line[x+1:]
     
     def erase_any(self, x: int, y: int) :
-        # Removes anything standing on (x, y) to place a wall or a grate
+        # Removes anything standing on (x, y) to place a wall or thorns
         
         if (self.player["X"], self.player["Y"]) == (x, y) :
             self.player["alive"] = False
             self.player["X"], self.player["Y"] = 0, 0
         
-        if (self.bullet["X"], self.bullet["Y"]) == (x, y) :
-            self.bullet["alive"] = False
-            self.bullet["X"], self.bullet["Y"] = 0, 0
+        if (self.ghost["X"], self.ghost["Y"]) == (x, y) :
+            self.ghost["alive"] = False
+            self.ghost["X"], self.ghost["Y"] = 0, 0
         
-        self.boxes.discard((x, y))
+        self.statues.pop((x, y), None)
         self.buttons.discard((x, y))
         self.targets.discard((x, y))
         
@@ -236,7 +250,7 @@ class Level :
 
         # Walls and goal check :
 
-        if type_ not in {"link", "gate", "door_tile", "door_hub"} and self.get_tile(x, y) in {'X', 'x'} :
+        if type_ not in {"link", "gate", "door_tile", "door_hub"} and self.get_tile(x, y) in {'X', 'T'} :
             return False
         
         if (x, y) == self.goal :
@@ -244,11 +258,11 @@ class Level :
 
         # Building sets of blocked coordinates :
 
-        entities = self.boxes.copy()
+        entities = set(self.statues.keys())
         if self.player["alive"] :
             entities.add((self.player["X"], self.player["Y"]))
-        if self.bullet["alive"] :
-            entities.add((self.bullet["X"], self.bullet["Y"]))
+        if self.ghost["alive"] :
+            entities.add((self.ghost["X"], self.ghost["Y"]))
 
         logics = self.buttons | self.targets | set(self.gates.keys())
 
@@ -259,7 +273,7 @@ class Level :
         
         # Specific checks :
 
-        if type_ in {"player", "bullet", "box"} :
+        if type_ in {"player", "ghost", "statue"} :
             if (x, y) in (door_tiles | entities | self.targets) :
                 return False
             return True
@@ -367,8 +381,8 @@ class Level :
     def change_obj_dir(self, amount: int, type_: str, pos: tuple[int] = (-1, -1)) :
         if type_ == "Player" :
             i_dir = dirs.index(self.player["dir"])
-        elif type_ == "Bullet" :
-            i_dir = dirs.index(self.bullet["dir"])
+        elif type_ == "ghost" :
+            i_dir = dirs.index(self.ghost["dir"])
         elif type_ == "Gate" and pos in self.gates :
             i_dir = dirs.index(self.gates[pos].dir)
         else :
@@ -378,8 +392,8 @@ class Level :
         
         if type_ == "Player" :
             self.player["dir"] = dirs[i_dir]
-        elif type_ == "Bullet" :
-            self.bullet["dir"] = dirs[i_dir]
+        elif type_ == "ghost" :
+            self.ghost["dir"] = dirs[i_dir]
         elif type_ == "Gate" :
             self.gates[pos].dir = dirs[i_dir]
     

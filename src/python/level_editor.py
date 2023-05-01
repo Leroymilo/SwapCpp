@@ -10,15 +10,15 @@ from src.python.level import Level, Door
 main_path = "src".join(__file__.split("src")[:-1])
 blank_level = "levels/blank_level.json"
 
-tools = ["Wall", "Grate", "Goal", "Player", "Bullet", "Box", "Button", "Target", "AND Gate", "OR Gate", "NO Gate", "Door Tile", "Door Hub", "Connector"]
+tools = ["Wall", "Thorns", "Goal", "Player", "Ghost", "Statue", "Button", "Target", "AND Gate", "OR Gate", "NO Gate", "Door Tile", "Door Hub", "Connector"]
 
 help_texts = {
     "Wall"      : "Right click to place, left click to remove. Placing removes other objects.",
-    "Grate"     : "Right click to place, left click to remove. Placing removes other objects.",
+    "Thorns"     : "Right click to place, left click to remove. Placing removes other objects.",
     "Goal"      : "Right click to place. There can only be one, cannot be removed. Placing removes other objects (can serve as an eraser).",
     "Player"    : "Right click to place, left click to remove. There can only be one. Scroll to rotate.",
-    "Bullet"    : "Right click to place, left click to remove. There can only be one. Scroll to rotate.",
-    "Box"       : "Right click to place, left click to remove.",
+    "Ghost"    : "Right click to place, left click to remove. There can only be one. Scroll to rotate.",
+    "Statue"       : "Right click to place, left click to remove.",
     "Button"    : "Right click to place, left click to remove.",
     "Target"    : "Right click to place, left click to remove. Placing removes other objects.",
     "AND Gate"  : "Right click to place, left click to remove. Scroll to rotate.",
@@ -300,8 +300,8 @@ class LevelEditor(LevelEditor) :
                     img = goal
                 elif tile == 'X' :
                     img = wall
-                elif tile == 'x' :
-                    img = grate
+                elif tile == 'T' :
+                    img = thorns
                 else :
                     img = floor
                 
@@ -318,9 +318,9 @@ class LevelEditor(LevelEditor) :
             self.draw_wip_link()
 
         for x, y in self.level.buttons :
-            self.surf.blit(interruptor, (delta * x, delta * y))
+            self.surf.blit(interruptor[1], (delta * x, delta * y))
         for x, y in self.level.targets :
-            self.surf.blit(target, (delta * x, delta * y))
+            self.surf.blit(target[1], (delta * x, delta * y))
         
         for gate in self.level.gates.values() :
             gate.draw(self.surf, delta)
@@ -343,15 +343,14 @@ class LevelEditor(LevelEditor) :
         
         #entities
         player_data = self.level.player
-        if player_data["alive"] :
-            self.surf.blit(player[player_data["dir"]], (delta * player_data["X"], delta * player_data["Y"]))
+        self.surf.blit(player[player_data["alive"]][player_data["dir"]], (delta * player_data["X"], delta * player_data["Y"]))
         
-        bullet_data = self.level.bullet
-        if bullet_data["alive"] :
-            self.surf.blit(bullet[bullet_data["dir"]], (delta * bullet_data["X"], delta * bullet_data["Y"]))
+        if self.has_ghost_item.IsChecked() :
+            ghost_data = self.level.ghost
+            self.surf.blit(ghost[ghost_data["alive"]][ghost_data["dir"]], (delta * ghost_data["X"], delta * ghost_data["Y"]))
         
-        for x, y in self.level.boxes :
-            self.surf.blit(box, (delta * x, delta * y))
+        for statue_pos, alive in self.level.statues.items() :
+            self.surf.blit(statue[alive], (delta * statue_pos[0], delta * statue_pos[1]))
 
         # Display :
         pg.image.save(self.surf, "temp.png", "PNG")
@@ -441,22 +440,22 @@ class LevelEditor(LevelEditor) :
             elif self.left_c and tile == 'X' :
                 self.level.set_tile(x, y, '.')
         
-        elif self.tool == "Grate" :
+        elif self.tool == "Thorns" :
             if self.right_c :
                 if (x, y) != self.level.goal :
                     self.level.erase_any(x, y)
-                    self.level.set_tile(x, y, 'x')
+                    self.level.set_tile(x, y, 'T')
                 else :
                     self.display_error("Cannot place here !")
                     return
-            elif self.left_c and tile == 'x' :
+            elif self.left_c and tile == 'T' :
                 self.level.set_tile(x, y, '.')
         
         elif self.tool == "Goal" :
             if self.right_c :
                 self.level.goal = x, y
                 self.level.erase_any(x, y)
-                self.level.grid[y][x] = '.'
+                self.level.set_tile(x, y, '.')
 
         elif self.tool == "Player" :
             if self.right_c :
@@ -467,30 +466,28 @@ class LevelEditor(LevelEditor) :
                     self.display_error("Cannot place here !")
                     return
             elif self.left_c and (self.level.player["X"], self.level.player["Y"]) == (x, y) :
-                self.level.player["X"], self.level.player["Y"] = 0, 0
                 self.level.player["alive"] = False
         
-        elif self.tool == "Bullet" :
+        elif self.tool == "Ghost" :
             if self.right_c :
-                if self.level.can_place(x, y, "bullet") :
-                    self.level.bullet["X"], self.level.bullet["Y"] = x, y
-                    self.level.bullet["alive"] = True
+                if self.level.can_place(x, y, "ghost") :
+                    self.level.ghost["X"], self.level.ghost["Y"] = x, y
+                    self.level.ghost["alive"] = True
                 else :
                     self.display_error("Cannot place here !")
                     return
-            elif self.left_c and (self.level.bullet["X"], self.level.bullet["Y"]) == (x, y) :
-                self.level.bullet["X"], self.level.bullet["Y"] = 0, 0
-                self.level.bullet["alive"] = False
+            elif self.left_c and (self.level.ghost["X"], self.level.ghost["Y"]) == (x, y) :
+                self.level.ghost["alive"] = False
             
-        elif self.tool == "Box" :
+        elif self.tool == "Statue" :
             if self.right_c :
-                if self.level.can_place(x, y, "box") :
-                    self.level.boxes.add((x, y))
+                if self.level.can_place(x, y, "statue") :
+                    self.level.statues[(x, y)] = True
                 else :
                     self.display_error("Cannot place here !")
                     return
-            elif self.left_c and (x, y) in self.level.boxes :
-                self.level.boxes.remove((x, y))
+            elif self.left_c and (x, y) in self.level.statues :
+                self.level.statues.pop((x, y))
         
         elif self.tool == "Button" :
             if self.right_c :
@@ -609,7 +606,7 @@ class LevelEditor(LevelEditor) :
             return
         
         scroll = event.GetWheelRotation()//event.GetWheelDelta()
-        if self.tool in {"Player", "Bullet"} :
+        if self.tool in {"Player", "ghost"} :
             self.level.change_obj_dir(scroll, self.tool)
         elif self.tool.endswith("Gate") :
             self.level.change_obj_dir(scroll, "Gate", pos)
@@ -676,9 +673,9 @@ class LevelEditor(LevelEditor) :
         self.level.size = (new_W, new_H)
         self.surf = pg.Surface((new_W * delta, new_H * delta))
 
-        self.level.grid = [['X' for _ in range(new_W)]] + \
-            [['X'] + ['.' for _ in range(new_W-2)] + ['X'] for _ in range(new_H-2)] + \
-            [['X' for _ in range(new_W)]]
+        self.level.grid = [''.join(['X' for _ in range(new_W)])] + \
+            [''.join(['X'] + ['.' for _ in range(new_W-2)] + ['X']) for _ in range(new_H-2)] + \
+            [''.join(['X' for _ in range(new_W)])]
         
         self.level.goal = (new_W//2, 1)
         self.level.player["X"] = (new_W-1)//2
@@ -735,11 +732,11 @@ class LevelEditor(LevelEditor) :
         new_grid = []
         for y in range(new_H) :
             if y >= H :
-                new_grid.append(['.' for _ in range(new_W)])
+                new_grid.append(''.join(['.' for _ in range(new_W)]))
                 continue
 
             if new_W >= W :
-                new_grid.append(grid[y] + ['.' for _ in range(new_W - W)])
+                new_grid.append(grid[y] + ''.join(['.' for _ in range(new_W - W)]))
             else :
                 new_grid.append(grid[y][:new_W])
         self.level.grid = new_grid

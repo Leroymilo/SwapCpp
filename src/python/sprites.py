@@ -12,17 +12,27 @@ def get_image(path: str, n_w: int = 1, n_h: int = 1) :
     image = pg.image.load(path)
     W, H = image.get_size()
     w, h = W//n_w, H//n_h
-
-    if n_w > 1 :
-        image = image.subsurface(0, 0, w, H)
     
     if (w, h) != size :
-        image = pg.transform.scale(image, (delta, delta*n_h))
+        image = pg.transform.scale(image, (delta*n_w, delta*n_h))
     
-    if n_h == 1 :
+    if n_h == 1 and n_w == 1 :
         return image
     
-    elif n_h == 4 : # Player, bullet and gates
+    elif n_w == 8 : # player
+        dict_im = [{}, {}]
+        for alive in {0, 1} :
+            for i in range(4) :
+                dict_im[alive][dirs[i]] = image.subsurface(alive * 4 * delta, i * delta, delta, delta)
+        return dict_im
+
+    elif n_w == 5 and n_h == 1 : # statue and activators
+        dict_im = [None, None]
+        for alive in {0, 1} :
+            dict_im[alive] = image.subsurface(alive * 4 * delta, 0, delta, delta)
+        return dict_im
+
+    elif n_h == 4 : # gates
         dict_im = {}
         for i in range(4) :
             dict_im[dirs[i]] = image.subsurface(0, i*delta, delta, delta)
@@ -40,12 +50,12 @@ def get_image(path: str, n_w: int = 1, n_h: int = 1) :
 
 floor   = get_image("assets/Tiles/Floor.png")
 wall    = get_image("assets/Tiles/Wall.png")
-grate   = get_image("assets/Tiles/Grate.png")
+thorns   = get_image("assets/Tiles/Thorns.png")
 goal    = get_image("assets/Tiles/Win.png")
 
-box     = get_image("assets/Entities/Box.png")
-player  = get_image("assets/Entities/player.png", 4, 4)
-bullet  = get_image("assets/Entities/bullet.png", 4, 4)
+statue     = get_image("assets/Entities/statue.png", 5, 1)
+player  = get_image("assets/Entities/player_physf.png", 8, 4)
+ghost  = get_image("assets/Entities/player_ghost.png", 8, 4)
 
 interruptor = get_image("assets/Logic/Button.png", 5, 1)
 target      = get_image("assets/Logic/Target.png", 5, 1)
@@ -63,13 +73,13 @@ def for_tool_bar(image: pg.Surface) :
 
 sprites = {
     "Wall"      : wall,
-    "Grate"     : grate,
+    "Thorns"     : thorns,
     "Goal"      : goal,
-    "Player"    : player["U"],
-    "Bullet"    : bullet["U"],
-    "Box"       : box,
-    "Button"    : interruptor,
-    "Target"    : target,
+    "Player"    : player[1]["U"],
+    "Ghost"    : ghost[1]["U"],
+    "Statue"    : statue[1],
+    "Button"    : interruptor[0],
+    "Target"    : target[0],
     "AND Gate"  : AND["U"],
     "OR Gate"   : OR["U"],
     "NO Gate"   : NO["U"],
