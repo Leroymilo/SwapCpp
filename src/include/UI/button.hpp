@@ -24,7 +24,6 @@ class Button
         std::string text;
         Alignment alignment;
         sf::RenderWindow* ref_win_p;
-        bool defined = false;
         
         bool on = false;
         bool prev_on = false;
@@ -32,6 +31,7 @@ class Button
         bool prev_hover = false;
     
     public:
+        bool defined = false;
         sf::Rect<int> hitbox;
 
         Button();

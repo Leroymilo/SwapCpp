@@ -32,7 +32,7 @@ class LevelGrid
         int button_size = 60;
         int delta = 40;
 
-        LevelGrid(sf::RenderWindow*, Save*);
+        LevelGrid(sf::RenderWindow*, Save*, int);
         void reshape();
         bool update();
         void draw(sf::RenderWindow* win_p);
@@ -40,6 +40,6 @@ class LevelGrid
 };
 
 void draw_levels(sf::RenderWindow*, LevelGrid*);
-int level_select(sf::RenderWindow*, Save*);
+int level_select(sf::RenderWindow*, Save*, int);
 
 #endif //MENU_H

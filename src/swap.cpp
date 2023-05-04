@@ -54,7 +54,7 @@ int main()
         else if (scene == "Select")
         {
             // Selecting a level :
-            int res = level_select(&window, &save);
+            int res = level_select(&window, &save, level_id);
             if (res == 0)
                 scene = "Title";
             else
@@ -74,11 +74,10 @@ int main()
             {
                 std::cout << "level " << level_id << " won!" << std::endl;
 
-                bool already_solved = save.is_solved(level_id);
                 save.solve(level_id, nb_steps, (won == 2));
                 save.write();
 
-                if (! already_solved && ! save.is_solved(level_id + 1))
+                if (! save.is_solved(level_id + 1))
                 {
                     std::stringstream ss;
                     ss << std::setfill('0') << std::setw(3) << level_id+1;

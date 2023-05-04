@@ -91,7 +91,7 @@ int title_screen(sf::RenderWindow* win_p)
     return 0;
 }
 
-LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save_p(save_p)
+LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p, int level_id) : win_p(win_p), save_p(save_p)
 {
     std::regex exp("^level[0-9]{3}.json$");
 
@@ -127,6 +127,7 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p) : win_p(win_p), save
 
     exit_ = Button("exit", "Exit", Alignment(), win_p);
 
+    page = level_id / (W * H);
     reshape();
 }
 
@@ -272,11 +273,7 @@ int LevelGrid::clicked()
         }
         if (left.clicked())
         {
-            page--;
-            if (page < 0)
-            {
-                page = nb_pages - 1;
-            }
+            page = (page + nb_pages - 1) % nb_pages;
             return -1;
         }
     }
@@ -298,9 +295,9 @@ void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p)
     win_p->display();
 }
 
-int level_select(sf::RenderWindow* win_p, Save* save_p)
+int level_select(sf::RenderWindow* win_p, Save* save_p, int level_id)
 {
-    LevelGrid level_grid(win_p, save_p);
+    LevelGrid level_grid(win_p, save_p, level_id);
 
     // First draw
     draw_levels(win_p, &level_grid);
