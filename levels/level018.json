@@ -3,15 +3,15 @@
     "H": 9,
     "W": 8,
     "BG": [
-      "XXX.XXXX",
-      "X..T...X",
-      "X......X",
-      "X...XXXX",
+      "TTT.XXXX",
+      "XTTT...X",
+      "X......T",
+      "X.X.XXTT",
       "X.X...EX",
       "X...XXXX",
-      "X......X",
-      "X......X",
-      "XXXXXXXX"
+      "T......X",
+      "TT.....X",
+      "XXTXXXXX"
     ]
   },
   "entities": {
