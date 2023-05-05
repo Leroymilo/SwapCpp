@@ -77,6 +77,7 @@ Save Save::copy()
 
 void Save::refresh_playable()
 {
+    // formula to change some day...
     int nb_unlocked = std::min(4, int(std::round(levels.size()/5)) + 1);
 
     int i = 1;

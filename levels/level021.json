@@ -1,0 +1,49 @@
+{
+  "bg": {
+    "H": 3,
+    "W": 9,
+    "BG": [
+      "XXXXXXXXX",
+      "X.TTE...X",
+      "XXXXXXXXX"
+    ]
+  },
+  "entities": {
+    "player": {
+      "physf": {
+        "X": 1,
+        "Y": 1,
+        "dir": "R",
+        "alive": true
+      },
+      "ghost": {
+        "X": 7,
+        "Y": 1,
+        "dir": "L",
+        "alive": true
+      }
+    },
+    "statues": []
+  },
+  "logic": {
+    "nb_activators": 0,
+    "activators": [],
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 0,
+    "doors": [],
+    "nb_links": 0,
+    "links": []
+  },
+  "hint": [],
+  "dialogue": [
+    "I guess, it's not any ghost, it's my ghost.",
+    "I still have to be careful though, it's a fragile alliance."
+  ],
+  "name": "Unnamed Level",
+  "perf_steps": 5,
+  "flags": {
+    "can_swap": true,
+    "has_ghost": true
+  }
+}

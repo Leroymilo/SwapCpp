@@ -1,0 +1,55 @@
+{
+  "bg": {
+    "H": 9,
+    "W": 9,
+    "BG": [
+      "XXXXXXXXT",
+      "X...X..TX",
+      "X...X.ETX",
+      "X...X..TX",
+      "XTTTTTTXX",
+      "X..TT...X",
+      "X...T...X",
+      "X...TT..X",
+      "XXXXXXXXX"
+    ]
+  },
+  "entities": {
+    "player": {
+      "physf": {
+        "X": 2,
+        "Y": 2,
+        "dir": "D",
+        "alive": true
+      },
+      "ghost": {
+        "X": 6,
+        "Y": 6,
+        "dir": "L",
+        "alive": true
+      }
+    },
+    "statues": []
+  },
+  "logic": {
+    "nb_activators": 0,
+    "activators": [],
+    "nb_gates": 0,
+    "gates": [],
+    "nb_doors": 0,
+    "doors": [],
+    "nb_links": 0,
+    "links": []
+  },
+  "hint": [],
+  "dialogue": [
+    "WHAT THE HELL WAS THAT ?!",
+    "Can I make it happen again by focusing?"
+  ],
+  "name": "Unnamed Level",
+  "perf_steps": 7,
+  "flags": {
+    "can_swap": true,
+    "has_ghost": true
+  }
+}

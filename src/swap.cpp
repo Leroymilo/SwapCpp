@@ -81,7 +81,7 @@ int main()
                 {
                     std::stringstream ss;
                     ss << std::setfill('0') << std::setw(3) << level_id+1;
-                    if (std::filesystem::exists("levels/level" + ss.str() + ".json"))
+                    if (std::filesystem::exists("levels/level" + ss.str() + ".json") && (level_id%12 > 0))
                     {
                         level_id++;
                     }

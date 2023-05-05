@@ -128,7 +128,7 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p, int level_id) : win_
 
     exit_ = Button("exit", "Exit", Alignment(), win_p);
 
-    page = level_id / (W * H);
+    page = (level_id - 1) / (W * H);
     reshape();
 }
 

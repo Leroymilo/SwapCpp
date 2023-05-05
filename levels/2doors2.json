@@ -2,8 +2,6 @@
   "bg": {
     "H": 10,
     "W": 11,
-    "EndX": 9,
-    "EndY": 1,
     "BG": [
       "XXXXXXXXXXX",
       "X........EX",
@@ -38,8 +36,7 @@
         "Y": 6,
         "alive": true
       }
-    ],
-    "monsters?": []
+    ]
   },
   "logic": {
     "nb_activators": 2,
@@ -294,6 +291,5 @@
   "flags": {
     "can_swap": true,
     "has_ghost": true
-  },
-  "V": "2.1.3"
+  }
 }
