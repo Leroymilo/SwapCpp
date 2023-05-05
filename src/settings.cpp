@@ -135,9 +135,9 @@ void Options::draw()
     ref_win_p->display();
 }
 
-int settings(sf::RenderWindow* win_p, Save* save_p)
+int settings(sf::RenderWindow* win_p, Save& save)
 {
-    Save save_copy = save_p->copy();
+    Save save_copy = save.copy();
 
     bool prev_fs = save_copy.get_flag_state("fullscreen");
     Options opts(&save_copy, win_p);
@@ -202,9 +202,9 @@ int settings(sf::RenderWindow* win_p, Save* save_p)
 
             win_p->setVerticalSyncEnabled(save_copy.get_flag_state("vsync"));
 
-            save_p = &save_copy;
-            save_p->write();
-            save_copy = save_p->copy();
+            save = save_copy;
+            save.write();
+            save_copy = save.copy();
         }
 
         if (opts.exit_.clicked()) return 0;

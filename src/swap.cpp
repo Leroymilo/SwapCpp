@@ -21,7 +21,7 @@ int main()
     }
     else
     {
-        window.create(sf::VideoMode(800, 800), "SWAP!");
+        window.create(sf::VideoMode(1000, 900), "SWAP!");
     }
 
     window.setVerticalSyncEnabled(save.get_flag_state("vsync"));
@@ -47,7 +47,7 @@ int main()
         else if (scene == "Settings")
         {
             // Into the settings screen :
-            int res = settings(&window, &save);
+            int res = settings(&window, save);
             scene = "Title";
         }
 

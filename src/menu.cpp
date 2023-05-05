@@ -118,6 +118,7 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p, int level_id) : win_
                 texture_name = "locked";
     
             Button new_button("level/" + texture_name, std::to_string(lvl_nb), Alignment(), win_p);
+            new_button.font_size = 60;
             levels[lvl_nb] = new_button;
         }
     }
@@ -177,7 +178,8 @@ void LevelGrid::reshape()
     right.set_alignment(Alignment(W+2, W+1, delta, 1, 0, 0));
     left.set_alignment(Alignment(W+2, 0, delta, 1, 0, 0));
 
-    exit_.set_alignment(Alignment(1, 0, 0, H+1, H, delta));
+    float mult = levels[1].shape.y / exit_.shape.y;
+    exit_.set_alignment(Alignment(1, 0, 0, mult*H, mult*H-1, delta));
 }
 
 bool LevelGrid::update()
@@ -227,7 +229,7 @@ void LevelGrid::draw(sf::RenderWindow* win_p)
                 int steps = save_p->get_steps(lvl_id);
                 sf::Rect<int> but_hb = button->second.hitbox;
                 std::string text = "steps : " + std::to_string(steps);
-                sf::Text step_disp(text, font.get_font(), 14);
+                sf::Text step_disp(text, font.get_font(), 26);
                 sf::FloatRect bounds = step_disp.getLocalBounds();
                 step_disp.setPosition(but_hb.left + (but_hb.width - bounds.width)/2, but_hb.top + but_hb.height);
                 win_p->draw(step_disp);
@@ -297,6 +299,7 @@ void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p)
 
 int level_select(sf::RenderWindow* win_p, Save* save_p, int level_id)
 {
+    std::cout << "level id : " << level_id << std::endl;
     LevelGrid level_grid(win_p, save_p, level_id);
 
     // First draw

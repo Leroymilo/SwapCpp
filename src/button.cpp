@@ -40,20 +40,14 @@ Button::Button(std::string texture_name, std::string text, Alignment alignment, 
     defined = true;
 
     std::string file_name = "assets/Menu/" + texture_name + ".png";
+    texture.loadFromFile(file_name);
 
-    sf::Texture spritesheet;
-    spritesheet.loadFromFile(file_name);
-    int W = spritesheet.getSize().x, H = spritesheet.getSize().y;
-
-    if (H%3 != 0)
+    shape = sf::Vector2i(texture.getSize());
+    if (shape.y%3 != 0)
     {
         std::cout << "texture not normalized for button " << text << " (filename : " << file_name << ")" << std::endl;
     }
-    H /= 3;
-
-    sprite_off.loadFromFile(file_name, sf::IntRect(0, 0, W, H));
-    sprite_hover.loadFromFile(file_name, sf::IntRect(0, H, W, H));
-    sprite_on.loadFromFile(file_name, sf::IntRect(0, 2*H, W, H));
+    shape.y /= 3;
 
     reshape();
 }
@@ -66,9 +60,8 @@ void Button::reshape()
         return;
     }
     
-    sf::Vector2i box_size = sf::Vector2i(sprite_off.getSize());
-    sf::Vector2i top_left = alignment.compute(box_size, ref_win_p->getSize());
-    hitbox = sf::Rect<int>(top_left, box_size);
+    sf::Vector2i top_left = alignment.compute(shape, ref_win_p->getSize());
+    hitbox = sf::Rect<int>(top_left, shape);
 }
 
 bool Button::update()
@@ -79,22 +72,17 @@ bool Button::update()
         return false;
     }
 
-    prev_on = on;
-    prev_hover = hover;
+    prev_state = state;
+    state = 0;
 
     if (ref_win_p->hasFocus())
     {
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
-        hover = hitbox.contains(mouse_pos);
-        on = (hover && sf::Mouse::isButtonPressed(sf::Mouse::Left));
-    }
-    else
-    {
-        on = false;
-        hover = false;
+        if (hitbox.contains(mouse_pos)) state = 1;
+        if (state==1 && sf::Mouse::isButtonPressed(sf::Mouse::Left)) state = 2;
     }
 
-    return (on != prev_on) || (hover != prev_hover);
+    return state != prev_state;
 }
 
 void Button::draw()
@@ -105,24 +93,13 @@ void Button::draw()
         return;
     }
 
-    sf::RectangleShape button;
-    button.setSize(sf::Vector2f(sprite_on.getSize()));
-    if (on)
-    {
-        button.setTexture(&sprite_on);
-    }
-    else if (hover)
-    {
-        button.setTexture(&sprite_hover);
-    }
-    else
-    {
-        button.setTexture(&sprite_off);
-    }
-    button.setPosition(sf::Vector2f(hitbox.left, hitbox.top));
-    ref_win_p->draw(button);
 
-    sf::Text text_disp(text, font.get_font());
+    sprite.setTexture(texture);
+    sprite.setTextureRect(sf::IntRect(sf::Vector2i(0, shape.y * state), shape));
+    sprite.setPosition(sf::Vector2f(hitbox.left, hitbox.top));
+    ref_win_p->draw(sprite);
+
+    sf::Text text_disp(text, font.get_font(), font_size);
     sf::FloatRect bounds = text_disp.getLocalBounds();
     text_disp.setPosition(sf::Vector2f(
         hitbox.left + (hitbox.width - bounds.width - bounds.left)/2,
@@ -140,7 +117,7 @@ bool Button::clicked()
     }
 
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
-    return (prev_on && !on && hitbox.contains(mouse_pos));
+    return (prev_state == 2 && state < 2);
 }
 
 void Button::set_alignment(Alignment new_align)
@@ -180,8 +157,6 @@ CycleButton::CycleButton(std::string key_word, Alignment alignment, sf::RenderWi
             defined = false;
         }
     }
-    
-    reshape();
 }
 
 int CycleButton::get_state()

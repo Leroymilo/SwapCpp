@@ -18,13 +18,15 @@ struct Alignment
 class Button
 {
     private:
-        sf::Texture sprite_on;
-        sf::Texture sprite_hover;
-        sf::Texture sprite_off;
+        sf::Texture texture;
+        sf::Sprite sprite;
         std::string text;
         Alignment alignment;
         sf::RenderWindow* ref_win_p;
         
+        int state = 0;
+        int prev_state = 0;
+
         bool on = false;
         bool prev_on = false;
         bool hover = false;
@@ -33,6 +35,8 @@ class Button
     public:
         bool defined = false;
         sf::Rect<int> hitbox;
+        sf::Vector2i shape;
+        unsigned int font_size = 30;
 
         Button();
         Button(std::string texture_name, std::string text, Alignment, sf::RenderWindow*);

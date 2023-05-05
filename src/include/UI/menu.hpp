@@ -27,10 +27,9 @@ class LevelGrid
         Button exit_;
     
     public:
-        int W, H;
+        int W = 4, H = 3;
         int page = 0;
-        int button_size = 60;
-        int delta = 40;
+        int delta = 80;
 
         LevelGrid(sf::RenderWindow*, Save*, int);
         void reshape();

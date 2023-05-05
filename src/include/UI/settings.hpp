@@ -42,6 +42,6 @@ class Options
         void draw();
 };
 
-int settings(sf::RenderWindow*, Save*);
+int settings(sf::RenderWindow*, Save&);
 
 #endif //SETTINGS_H

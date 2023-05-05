@@ -71,6 +71,7 @@ Save::Save(int save_nb) : id(save_nb)
 
 Save Save::copy()
 {
+    this->write();
     return Save(id);
 }
 
