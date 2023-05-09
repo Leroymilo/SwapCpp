@@ -3,14 +3,14 @@
     "H": 8,
     "W": 10,
     "BG": [
-      "XTXXXXXXXX",
-      "XTTX.X...X",
-      "XX.....X.X",
-      "X..X.X...X",
-      "X....X.E.X",
-      "XT...TT..T",
-      "XTT..XTTXT",
-      "TTXXXX.TTT"
+      "XXXTTTTXXT",
+      "X.XXTXXXTT",
+      "X........X",
+      "X.XXTTXX.X",
+      "X....T...X",
+      "X....T.E.X",
+      "X....TT..X",
+      "TTXXXXTTTT"
     ]
   },
   "entities": {
@@ -18,11 +18,11 @@
       "physf": {
         "X": 2,
         "Y": 5,
-        "dir": "U",
+        "dir": "D",
         "alive": true
       },
       "ghost": {
-        "X": 3,
+        "X": 5,
         "Y": 2,
         "dir": "R",
         "alive": true
@@ -30,17 +30,7 @@
     },
     "statues": [
       {
-        "X": 4,
-        "Y": 3,
-        "alive": true
-      },
-      {
-        "X": 4,
-        "Y": 4,
-        "alive": false
-      },
-      {
-        "X": 4,
+        "X": 3,
         "Y": 5,
         "alive": true
       }
@@ -63,7 +53,7 @@
     "I wonder if it will block the statues..."
   ],
   "name": "Revenge of the Bullet",
-  "perf_steps": 18,
+  "perf_steps": 23,
   "flags": {
     "can_swap": false,
     "has_ghost": true
