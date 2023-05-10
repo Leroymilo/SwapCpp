@@ -32,16 +32,17 @@ static std::map<Direction, char> const DIR2CHAR = {{U, 'U'}, {R, 'R'}, {D, 'D'},
 
 
 // For the same font to be accessible by every header and cpp file :
-class CFont
+class FontWrapper
 {
     private:
         sf::Font font;
         bool defined = false;
     public:
-        CFont();
+        FontWrapper();
         sf::Font &get_font();
+        sf::Text size_text(std::string text, sf::Vector2f box_shape);
 };
 
-static CFont font;
+static FontWrapper font;
 
 #endif //GLOBALS_H

@@ -9,66 +9,77 @@
 #include "UI/button.hpp"
 
 
-Alignment::Alignment()
-{
-    nb_h = 1, i_h = 0, d_h = 0, nb_v = 1, i_h = 0, d_h = 0;
-}
-
-Alignment::Alignment(int nb_h, int i_h, int d_h, int nb_v, int i_v, int d_v) :
-    nb_h(nb_h), i_h(i_h), d_h(d_h), nb_v(nb_v), i_v(i_v), d_v(d_v) {}
-
-sf::Vector2i Alignment::compute(sf::Vector2i size, sf::Vector2u win_size)
-{
-    int w = size.x, h = size.y;
-    int win_w = win_size.x, win_h = win_size.y;
-    float left = (win_w - nb_h * w - (nb_h-1) * d_h) / 2 + i_h * (w + d_h);
-    float top  = (win_h - nb_v * h - (nb_v-1) * d_v) / 2 + i_v * (h + d_v);
-    return sf::Vector2i(std::round(left), std::round(top));
-}
-
-std::string Alignment::print()
-{
-    return std::to_string(i_h) + "/" + std::to_string(nb_h) + ", " + std::to_string(i_v) + "/" + std::to_string(nb_v);
-}
-
-
 Button::Button() {}
 
-Button::Button(std::string texture_name, std::string text, Alignment alignment, sf::RenderWindow* win_p) :
-    text(text), alignment(alignment), ref_win_p(win_p)
+Button::Button(
+    sf::Texture *texture_p, sf::IntRect texture_rect, sf::Image *image_p, sf::RenderWindow *win_p,
+    sf::Vector2f scale, sf::Vector2f pos,
+    std::string string
+) :
+    ref_texture_p(texture_p), ref_image_p(image_p), ref_win_p(win_p),
+    string(string)
 {
-    defined = true;
-
-    std::string file_name = "assets/Menu/" + texture_name + ".png";
-    texture.loadFromFile(file_name);
-
-    shape = sf::Vector2i(texture.getSize());
+    rect_pos = sf::Vector2i(texture_rect.left, texture_rect.top);
+    shape = sf::Vector2i(texture_rect.width, texture_rect.height);
     if (shape.y%3 != 0)
     {
-        std::cout << "texture not normalized for button " << text << " (filename : " << file_name << ")" << std::endl;
+        std::cout << "texture not normalized for button " << string << std::endl;
     }
     shape.y /= 3;
 
-    reshape();
+    reshape(scale, pos);
+    
+    defined = true;
 }
 
-void Button::reshape()
+sf::Vector2i Button::get_shape()
 {
-    if (!defined)
-    {
-        std::cout << "button \"" << text << "\" not defined, cannot reshape." << std::endl;
-        return;
-    }
+    return shape;
+}
+
+void Button::update_string(std::string new_string)
+{
+    string = new_string;
+
+    text = font.size_text(string, sf::Vector2f(hitbox.width, hitbox.height));
+    sf::FloatRect bounds = text.getGlobalBounds();
+    text_pos = sf::Vector2f(
+        hitbox.left + (hitbox.width - bounds.width - bounds.left)/2,
+        hitbox.top + (hitbox.height - bounds.height - bounds.top)/2
+    );
+}
+
+void Button::reshape(sf::Vector2f scale, sf::Vector2f pos)
+{
+    sprite.setScale(scale);
+    sprite.setPosition(pos);
     
-    sf::Vector2i top_left = alignment.compute(shape, ref_win_p->getSize());
-    hitbox = sf::Rect<int>(top_left, shape);
+    hitbox = sprite.getGlobalBounds();
+
+    if (string == "") return;
+
+    update_string(string);
+}
+
+bool Button::hovered()
+{
+    sf::Vector2f mouse_pos = sf::Vector2f(sf::Mouse::getPosition(*ref_win_p));
+    if (!hitbox.contains(mouse_pos)) return false;
+
+    sf::Vector2f scale = sprite.getScale();
+
+    int pxl_X = (mouse_pos.x - pos.x) / scale.x + rect_pos.x;
+    int pxl_Y = (mouse_pos.y - pos.y) / scale.y + rect_pos.y;
+    
+    return (ref_image_p->getPixel(pxl_X, pxl_Y).a > 63);
+    // Any pixel with alpha <= 1/4 is defined as "not clickable"
 }
 
 bool Button::update()
 {
     if (!defined)
     {
-        std::cout << "button \"" << text << "\" not defined, cannot update." << std::endl;
+        std::cout << "button \"" << string << "\" not defined, cannot update." << std::endl;
         return false;
     }
 
@@ -78,7 +89,7 @@ bool Button::update()
     if (ref_win_p->hasFocus())
     {
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
-        if (hitbox.contains(mouse_pos)) state = 1;
+        if (hovered()) state = 1;
         if (state==1 && sf::Mouse::isButtonPressed(sf::Mouse::Left)) state = 2;
     }
 
@@ -89,126 +100,77 @@ void Button::draw()
 {
     if (!defined)
     {
-        std::cout << "button \"" << text << "\" not defined, cannot draw." << std::endl;
+        std::cout << "button \"" << string << "\" not defined, cannot draw." << std::endl;
         return;
     }
 
-
-    sprite.setTexture(texture);
-    sprite.setTextureRect(sf::IntRect(sf::Vector2i(0, shape.y * state), shape));
-    sprite.setPosition(sf::Vector2f(hitbox.left, hitbox.top));
-    ref_win_p->draw(sprite);
-
-    sf::Text text_disp(text, font.get_font(), font_size);
-    sf::FloatRect bounds = text_disp.getLocalBounds();
-    text_disp.setPosition(sf::Vector2f(
-        hitbox.left + (hitbox.width - bounds.width - bounds.left)/2,
-        hitbox.top + (hitbox.height - bounds.height - bounds.top)/2
+    sprite.setTexture(ref_texture_p);
+    sprite.setTextureRect(sf::IntRect(
+        rect_pos.x,     rect_pos.y + state * shape.y,
+        shape.x,        shape.y
     ));
-    ref_win_p->draw(text_disp);
+    ref_win_p->draw(sprite);
+    ref_win_p->draw(text);
 }
 
 bool Button::clicked()
 {
     if (!defined)
     {
-        std::cout << "button \"" << text << "\" not defined, cannot click." << std::endl;
+        std::cout << "button \"" << string << "\" not defined, cannot click." << std::endl;
         return false;
     }
 
-    sf::Vector2i mouse_pos = sf::Mouse::getPosition(*ref_win_p);
-    return (prev_state == 2 && state < 2);
+    return (prev_state == 2 && state < 2 && hovered());
 }
 
-void Button::set_alignment(Alignment new_align)
-{
-    alignment = new_align;
-    reshape();
-}
 
 CycleButton::CycleButton() {}
 
-CycleButton::CycleButton(std::string key_word, Alignment alignment, sf::RenderWindow* win_p, int state) : state(state)
+CycleButton::CycleButton(
+    std::string source_name, sf::RenderWindow* win_p,
+    sf::Vector2f scale, sf::Vector2f pos, int side
+)
 {
     // Reading Json :
-    std::ifstream file("assets/Menu/cycle_buttons/" + key_word + ".json");
+    std::ifstream file("assets/Menu/cycle_buttons/" + source_name + ".json");
     Json::Reader reader;
     Json::Value json_data;
     reader.parse(file, json_data);
 
-    nb_buttons = json_data["nb_states"].asInt();
-    buttons.resize(nb_buttons);
+    nb_sides = json_data["nb_states"].asInt();
+    this->side = side % nb_sides;
 
-    for (int i=0; i < nb_buttons; i++)
-    {
-        Json::Value state_data = json_data["states"][i];
-        std::string file_name = state_data["file"].asCString();
-        buttons[i] = Button("cycle_buttons/" + file_name, state_data["text"].asCString(), alignment, win_p);
+    strings.resize(nb_sides);
+    for (int i=0; i < nb_sides; i++)
+        strings[i] = json_data["states"][i].asCString();
+
+    texture.loadFromFile(json_data["texture_path"].asCString());
+    image = texture.copyToImage();
+
+    int W = texture.getSize().x;
+    if (W % nb_sides != 0) {
+        std::cout << "texture not normalized for cycle button " << source_name << std::endl;
     }
+    W /= nb_sides;
 
-    hitbox = buttons[0].hitbox;
-    defined = true;
-
-    for (int i=1; i < nb_buttons; i++)
-    {
-        if (buttons[i].hitbox != hitbox)
-        {
-            std::cout << "CycleButton " << key_word << " state " << i << " does not have the same size as state 0!" << std::endl;
-            defined = false;
-        }
-    }
+    Button(&texture, sf::IntRect(0, 0, W, texture.getSize().y), &image, win_p, scale, pos);
 }
 
 int CycleButton::get_state()
 {
-    return state;
+    return side;
 }
 
-void CycleButton::reshape()
+bool CycleButton::clicked()
 {
-    if (!defined)
-    {
-        std::cout << "CycleButton button not defined, cannot reshape." << std::endl;
-        return;
+    bool was_clicked = Button::clicked();
+
+    if (was_clicked) {
+        side = (side + 1) % nb_sides;
+        rect_pos.x = side * get_shape().x;
+        update_string(strings[side]);
     }
 
-    for (int i=0; i < nb_buttons; i++)
-    {
-        buttons[i].reshape();
-    }
-    hitbox = buttons[0].hitbox;
-}
-
-bool CycleButton::update()
-{
-    if (!defined)
-    {
-        std::cout << "CycleButton button not defined, cannot update." << std::endl;
-        return false;
-    }
-
-    if (buttons[state].clicked())
-    {
-        state = (state + 1)%nb_buttons;
-        buttons[state].update();
-        return 1;
-    }
-    return buttons[state].update();
-}
-
-void CycleButton::draw()
-{
-    if (!defined)
-    {
-        std::cout << "CycleButton button not defined, cannot draw." << std::endl;
-        return;
-    }
-    
-    buttons[state].draw();
-}
-
-void CycleButton::set_alignment(Alignment new_align)
-{
-    for (auto &button : buttons)
-        button.set_alignment(new_align);
+    return was_clicked;
 }

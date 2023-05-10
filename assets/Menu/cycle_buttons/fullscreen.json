@@ -1,13 +1,8 @@
 {
+    "texture_path": "assets/Menu/cycle_buttons/toggle.png",
     "nb_states": 2,
     "states": [
-        {
-            "text": "OFF",
-            "file": "off"
-        },
-        {
-            "text": "ON",
-            "file": "on"
-        }
+        "OFF",
+        "ON"
     ]
 }
