@@ -18,6 +18,7 @@ int main()
     {
         window.create(sf::VideoMode::getFullscreenModes()[0], "SWAP!", sf::Style::Fullscreen);
         // The fullscreenMode index must be 2 on fedora linux to avoid weird mouse locking.
+        // This is probably somewhat fucked because of my weird static building setup...
     }
     else
     {
@@ -35,12 +36,12 @@ int main()
         if (scene == "Title")
         {
             // Title screen logic :
-            int res = title_screen(&window);
+            int res = Title(&window).run();
             if (res == 0)
             {
                 window.close();
             }
-            std::vector<std::string> map_res = {"Title", "Select", "Settings"};
+            std::string map_res[] = {"Title", "Select", "Settings"};
             scene = map_res[res];
         }
 
@@ -54,7 +55,7 @@ int main()
         else if (scene == "Select")
         {
             // Selecting a level :
-            int res = level_select(&window, &save, level_id);
+            int res = LevelSelect(&window, &save, level_id).run();
             if (res == 0)
                 scene = "Title";
             else
