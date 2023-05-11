@@ -12,9 +12,9 @@ class Button
         bool defined = false;
 
         sf::Texture *ref_texture_p;
-        sf::Vector2i shape;
         sf::RectangleShape sprite;
 
+        int font_size = 30;
         sf::Text text;
         
         sf::Vector2f pos;
@@ -27,6 +27,7 @@ class Button
         bool hovered();
 
     protected:
+        sf::Vector2i shape;
         sf::Vector2i rect_pos;
         
         int state = 0;
@@ -34,21 +35,23 @@ class Button
         
         std::string string;
 
-        void update_string(std::string);
+        void update_string(std::string, bool = false);
 
     public:
         Button();
         Button(
             sf::Texture *, sf::IntRect, sf::Image *, sf::RenderWindow*,
-            sf::Vector2f scale, sf::Vector2f pos,
             std::string = ""
         );
 
-        sf::Vector2i get_shape();
         void reshape(sf::Vector2f scale, sf::Vector2f pos);
         bool update();
         void draw();
         bool clicked();
+
+        int get_font_size();
+        void set_font_size(int);
+        sf::FloatRect get_hitbox();
 };
 
 class CycleButton: private Button
@@ -64,7 +67,7 @@ class CycleButton: private Button
         CycleButton();
         CycleButton(
             std::string source_name, sf::RenderWindow*,
-            sf::Vector2f scale, sf::Vector2f pos, int = 0
+            int = 0
         );
 
         bool clicked();

@@ -99,16 +99,13 @@ bool Save::is_solved(int lvl_id)
     return (levels.find(lvl_id) != levels.end());
 }
 
-bool Save::is_playable(int lvl_id)
-{
-    return (lvl_id <= last_playable || is_solved(lvl_id));
-}
-
-bool Save::is_perfected(int lvl_id)
+int Save::get_level_state(int lvl_id)
 {
     auto elt = levels.find(lvl_id);
-    if (elt == levels.end()) return false;
-    return elt->second.second;
+    if (elt == levels.end())
+        return (lvl_id <= last_playable);
+
+    return (2 + elt->second.second);
 }
 
 int Save::get_steps(int lvl_id)

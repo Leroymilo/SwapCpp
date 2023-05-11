@@ -12,9 +12,8 @@
 Button::Button() {}
 
 Button::Button(
-    sf::Texture *texture_p, sf::IntRect texture_rect, sf::Image *image_p, sf::RenderWindow *win_p,
-    sf::Vector2f scale, sf::Vector2f pos,
-    std::string string
+    sf::Texture *texture_p, sf::IntRect texture_rect, sf::Image *image_p,
+    sf::RenderWindow *win_p, std::string string
 ) :
     ref_texture_p(texture_p), ref_image_p(image_p), ref_win_p(win_p),
     string(string)
@@ -26,27 +25,40 @@ Button::Button(
         std::cout << "texture not normalized for button " << string << std::endl;
     }
     shape.y /= 3;
-
-    reshape(scale, pos);
     
     defined = true;
 }
 
-sf::Vector2i Button::get_shape()
+sf::FloatRect Button::get_hitbox()
 {
-    return shape;
+    return hitbox;
 }
 
-void Button::update_string(std::string new_string)
+void Button::update_string(std::string new_string, bool auto_size)
 {
     string = new_string;
 
-    text = font.size_text(string, sf::Vector2f(hitbox.width, hitbox.height));
+    if (auto_size)  // finds the biggest font size to fit in the button hitbox
+        font_size = font.size_text(string, sf::Vector2f(hitbox.width, hitbox.height));
+    text = sf::Text(string, font.get_font(), font_size);
+
     sf::FloatRect bounds = text.getGlobalBounds();
     text_pos = sf::Vector2f(
         hitbox.left + (hitbox.width - bounds.width - bounds.left)/2,
         hitbox.top + (hitbox.height - bounds.height - bounds.top)/2
     );
+}
+
+int Button::get_font_size()
+{
+    return font_size;
+}
+
+void Button::set_font_size(int new_size)
+{
+    if (new_size == font_size) return;
+    font_size = new_size;
+    update_string(string);
 }
 
 void Button::reshape(sf::Vector2f scale, sf::Vector2f pos)
@@ -58,7 +70,7 @@ void Button::reshape(sf::Vector2f scale, sf::Vector2f pos)
 
     if (string == "") return;
 
-    update_string(string);
+    update_string(string, true);
 }
 
 bool Button::hovered()
@@ -69,7 +81,7 @@ bool Button::hovered()
     sf::Vector2f scale = sprite.getScale();
 
     int pxl_X = (mouse_pos.x - pos.x) / scale.x + rect_pos.x;
-    int pxl_Y = (mouse_pos.y - pos.y) / scale.y + rect_pos.y;
+    int pxl_Y = (mouse_pos.y - pos.y) / scale.y + rect_pos.y + state * shape.y;
     
     return (ref_image_p->getPixel(pxl_X, pxl_Y).a > 63);
     // Any pixel with alpha <= 1/4 is defined as "not clickable"
@@ -127,10 +139,7 @@ bool Button::clicked()
 
 CycleButton::CycleButton() {}
 
-CycleButton::CycleButton(
-    std::string source_name, sf::RenderWindow* win_p,
-    sf::Vector2f scale, sf::Vector2f pos, int side
-)
+CycleButton::CycleButton(std::string source_name, sf::RenderWindow* win_p, int side)
 {
     // Reading Json :
     std::ifstream file("assets/Menu/cycle_buttons/" + source_name + ".json");
@@ -154,7 +163,7 @@ CycleButton::CycleButton(
     }
     W /= nb_sides;
 
-    Button(&texture, sf::IntRect(0, 0, W, texture.getSize().y), &image, win_p, scale, pos);
+    Button(&texture, sf::IntRect(0, 0, W, texture.getSize().y), &image, win_p);
 }
 
 int CycleButton::get_state()
@@ -168,7 +177,7 @@ bool CycleButton::clicked()
 
     if (was_clicked) {
         side = (side + 1) % nb_sides;
-        rect_pos.x = side * get_shape().x;
+        rect_pos.x = side * shape.x;
         update_string(strings[side]);
     }
 

@@ -27,8 +27,7 @@ class Save
 
         void refresh_playable();
         bool is_solved(int);
-        bool is_perfected(int);
-        bool is_playable(int);
+        int get_level_state(int);
         int get_steps(int);
         void solve(int lvl_id, int nb_steps, bool perf);
 

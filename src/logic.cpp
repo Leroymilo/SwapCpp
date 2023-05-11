@@ -6,8 +6,6 @@
 #include "gameplay/logic.hpp"
 #include "globals.hpp"
 
-#define __min(a,b) (((a) < (b)) ? (a) : (b))
-
 std::map<char, int> gate_dirs = {{'U', 0}, {'R', 1}, {'D', 2}, {'L', 3}};
 std::map<char, int> door_orients = {{'N', 0}, {'H', 1}, {'V', 2}};
 

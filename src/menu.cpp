@@ -7,66 +7,107 @@
 #include "globals.hpp"
 #include "UI/menu.hpp"
 
-sf::Texture title;
-Button start_;
-Button exit_;
-Button settings;
-
-void draw_title(sf::RenderWindow* win_p)
+Title::Title(sf::RenderWindow* win_p) : ref_win_p(win_p)
 {
-    win_p->clear(sf::Color(138, 208, 234));
+    title_texture.loadFromFile("assets/Menu/Title.png");
 
-    sf::RectangleShape title_rect;
-    float W = title.getSize().x, H = title.getSize().y;
-    title_rect.setSize(sf::Vector2f(0.5*W, 0.5*H));
-    title_rect.setTexture(&title);
-    float X = (win_p->getSize().x - title_rect.getSize().x) / 2;
-    float Y = 0.1 * (win_p->getSize().y - title_rect.getSize().y);
-    title_rect.setPosition(X, Y);
-    win_p->draw(title_rect);
+    button_texture.loadFromFile("assets/Menu/title_buttons.png");
+    button_image = button_texture.copyToImage();
+    
+    int W = button_texture.getSize().x, H = button_texture.getSize().y;
+    if (W % 3 != 0)
+        std::cout << "texture not normalized for title screen" << std::endl;
+    
+    W /= 3;
 
+    start_   = Button(&button_texture, sf::IntRect(0*W, 0, W, H), &button_image, win_p, "Play");
+    settings = Button(&button_texture, sf::IntRect(1*W, 0, W, H), &button_image, win_p, "Settings");
+    exit_    = Button(&button_texture, sf::IntRect(2*W, 0, W, H), &button_image, win_p, "Quit");
+
+    full_title_size.x = __max(title_texture.getSize().x + 2 * title_texture.getSize().y, 3 * W);
+    // max( title width + a title height on each side, 3 button width )
+    full_title_size.y = (1 + 3 * 0.5) * title_texture.getSize().y + (3 + 2) * H / 3;
+    // title height + half a title height over and under title and under buttons + 3 buttons heights separated by a button height (twice cuz 3 buttons)
+    // These proportions look alright for original textures sizes and are applied in `reshape`.
+
+    reshape();
+}
+
+void Title::reshape()
+{
+    scale = __min(ref_win_p->getSize().x / full_title_size.x, ref_win_p->getSize().y / full_title_size.y);
+
+    float Y_offset = (ref_win_p->getSize().y - scale * full_title_size.y) / 2;
+
+    title_pos.x = (ref_win_p->getSize().x - scale * title_texture.getSize().x) / 2;
+    title_pos.y = Y_offset + 0.5 * scale * title_texture.getSize().y;
+    title_sprite.setPosition(title_pos);
+    title_sprite.setScale(scale, scale);
+
+    Button *buttons[] = {&start_, &settings, &exit_};
+    sf::Vector2f pos;
+    pos.x = (ref_win_p->getSize().x - scale * button_texture.getSize().x / 3);
+
+    int min_font = INFINITY;
+    for (int i = 0; i < 3; i++) {
+        pos.y = Y_offset + scale * title_texture.getSize().y * 2 + scale * (i * 2 * button_texture.getSize().y / 3);
+        buttons[i]->reshape(sf::Vector2f(scale, scale), pos);
+        min_font = __min(min_font, buttons[i]->get_font_size());
+    }
+
+    for (Button *button_p : buttons) {
+        button_p->set_font_size(min_font);
+    }
+}
+
+void Title::draw()
+{
+    ref_win_p->clear(bg_color);
+
+    title_sprite.setTexture(&title_texture);
+    ref_win_p->draw(title_sprite);
+    
     start_.draw();
     exit_.draw();
     settings.draw();
 
-    win_p->display();
+    ref_win_p->display();
 }
 
-int title_screen(sf::RenderWindow* win_p)
+int Title::run()
 {
-    title.loadFromFile("assets/Menu/Title.png");
-    start_ = Button("continue", "Start", Alignment(1, 0, 0, 8, 4, 0), win_p);
-    exit_ = Button("exit", "Exit", Alignment(1, 0, 0, 8, 6, 0), win_p);
-    settings = Button("settings", "Settings", Alignment(1, 0, 0, 8, 8, 0), win_p);
-
     // First draw
-    draw_title(win_p);
+    reshape();
+    draw();
 
-    while (win_p->isOpen())
+    while (ref_win_p->isOpen())
     {
         sf::Event evnt;
-        if (win_p->pollEvent(evnt))
+        if (ref_win_p->pollEvent(evnt))
         {
             if (evnt.type == sf::Event::Closed)
             {
-                win_p->close();
+                ref_win_p->close();
                 return 0;
             }
 
             else if (evnt.type == sf::Event::GainedFocus)
             {
-                draw_title(win_p);
+                draw();
             }
             
             else if (evnt.type == sf::Event::Resized)
             {
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
-                win_p->setView(sf::View(view));
-                start_.reshape();
-                exit_.reshape();
-                settings.reshape();
-                draw_title(win_p);
+                ref_win_p->setView(sf::View(view));
+                reshape();
+                draw();
             }
+        }
+
+        if (start_.update() || exit_.update() || settings.update())
+        {
+            draw();
         }
 
         if (start_.clicked())
@@ -81,18 +122,24 @@ int title_screen(sf::RenderWindow* win_p)
         {
             return 0;
         }
-
-        if (start_.update() || exit_.update() || settings.update())
-        {
-            draw_title(win_p);
-        }
     }
 
     return 0;
 }
 
-LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p, int level_id) : win_p(win_p), save_p(save_p)
+LevelSelect::LevelSelect(sf::RenderWindow* win_p, Save* save_p, int level_id) : ref_win_p(win_p), save_p(save_p)
 {
+    button_texture.loadFromFile("assets/Menu/level_select_buttons.png");
+    button_image = button_texture.copyToImage();
+    exit_texture.loadFromFile("assets/Menu/exit.png");
+    exit_image = exit_texture.copyToImage();
+
+    int W = button_texture.getSize().x, H = button_texture.getSize().y;
+    if (W % 4 != 0 || H % 2 != 0)
+        std::cout << "texture not normalized for level select screen" << std::endl;
+    W /= 4;
+    H /= 2;
+
     std::regex exp("^level[0-9]{3}.json$");
 
     for(auto& entry : std::filesystem::directory_iterator("levels"))
@@ -107,99 +154,108 @@ LevelGrid::LevelGrid(sf::RenderWindow* win_p, Save* save_p, int level_id) : win_
                 continue;
             }
 
-            std::string texture_name;
-            if (save_p->is_perfected(lvl_nb))
-                texture_name = "perfected";
-            else if (save_p->is_solved(lvl_nb))
-                texture_name = "solved";
-            else if (save_p->is_playable(lvl_nb))
-                texture_name = "unlocked";
-            else
-                texture_name = "locked";
+            int lvl_stt = save_p->get_level_state(lvl_nb);
     
-            Button new_button("level/" + texture_name, std::to_string(lvl_nb), Alignment(), win_p);
-            new_button.font_size = 60;
+            Button new_button(
+                &button_texture,
+                sf::IntRect(W*(1+lvl_stt%2), H*(lvl_stt/2), W, H),
+                &button_image,
+                win_p,
+                std::to_string(lvl_nb)
+            );
             levels[lvl_nb] = new_button;
         }
     }
 
-    right = Button("right", "", Alignment(), win_p);
-    left = Button("left", "", Alignment(), win_p);
+    right = Button(&button_texture, sf::IntRect(3*W, 0, W, 2*H), &button_image, win_p);
+    left  = Button(&button_texture, sf::IntRect(0*W, 0, W, 2*H), &button_image, win_p);
 
-    exit_ = Button("exit", "Exit", Alignment(), win_p);
+    int w = exit_texture.getSize().x, h = exit_texture.getSize().y;
+    exit_ = Button(&exit_texture, sf::IntRect(0, 0, w, h), &exit_image, win_p, "Exit");
 
-    page = (level_id - 1) / (W * H);
+    nb_pages = std::ceil((float)levels.rbegin()->first / 12);
+    change_page((level_id - 1) / 12);
+
+    full_grid_size.x = (2 + 4 + (5 + 2) * .5) * W;
+    // (2 move + 4 levels) widths + 5 half widths between buttons + 2 half widths as margins
+    full_grid_size.y = (3 + (2 + 2) * .5) * (H / 3) + (1 + 2 * .5) * (exit_texture.getSize().y / 3);
+    // 3 level heights + 2 half heights between levels + 2 as margins + exit height + 2 half heights as margins around exit
+    // These proportions look alright for original textures sizes and are applied in `reshape`.
+
     reshape();
 }
 
-void LevelGrid::reshape()
+void LevelSelect::change_page(int new_page)
 {
-    // W = 1;
-    // while (W < 11 && win_p->getSize().x * 0.8 > (W + 2) * button_size + (W + 1) * delta)
-    // {
-    //     W++;
-    // }
-    // W--;
+    page = new_page;
 
-    // H = 1;
-    // while (win_p->getSize().y * 0.8 > (H + 1) * button_size + H * delta)
-    // {
-    //     H++;
-    // }
-    // H--;
-
-    // For now, it's 12 levels per page anyway :
-    if (win_p->getSize().x >= win_p->getSize().y)
-        W = 4, H = 3;
-    else
-        W = 3, H = 4;
-
-    nb_pages = std::ceil((float)levels.rbegin()->first / ((float)W * (float)H));
-    if (page >= nb_pages)
-    {
-        page = nb_pages - 1;
-    }
-    
-    for (int y=0; y<H; y++)
-    {
-        for (int x=0; x<W; x++)
-        {
+    int W = 4, H = 3;
+    current_levels.clear();
+    for (int y=0; y<H; y++) {
+        for (int x=0; x<W; x++) {
             int lvl_id = 1 + page * W * H + y * W + x;
-
-            auto button = levels.find(lvl_id);
-
-            if (button == levels.end())
-                continue;   // The level is not in the list
-            
-            button->second.set_alignment(Alignment(W, x, delta, H+1, y, delta));
+            if (levels.find(lvl_id) == levels.end()) continue;
+            current_levels.push_back(lvl_id);
         }
     }
-
-    right.set_alignment(Alignment(W+2, W+1, delta, 1, 0, 0));
-    left.set_alignment(Alignment(W+2, 0, delta, 1, 0, 0));
-
-    float mult = levels[1].shape.y / exit_.shape.y;
-    exit_.set_alignment(Alignment(1, 0, 0, mult*H, mult*H-1, delta));
 }
 
-bool LevelGrid::update()
+void LevelSelect::reshape()
 {
-    bool updated = false;
+    int W = 4, H = 3;
 
-    for (int y=0; y<H; y++)
-    {
-        for (int x=0; x<W; x++)
-        {
-            int lvl_id = 1 + page * W * H + y * W + x;
+    scale = __min(ref_win_p->getSize().x / full_grid_size.x, ref_win_p->getSize().y / full_grid_size.y);
 
-            auto button = levels.find(lvl_id);
+    float Y_offset = (ref_win_p->getSize().y - scale * full_grid_size.y) / 2;
+    float X_offset = (ref_win_p->getSize().x - scale * full_grid_size.x) / 2;
 
-            if (button == levels.end())
-                continue;   // The level is not in the list
-            
-            updated |= button->second.update();
+    sf::Vector2f pos;
+    font_size = INFINITY;
+    for (int y=0; y<H; y++) {
+        for (int x=0; x<W; x++) {
+            for (int z; z<nb_pages; z++) {
+                int lvl_id = 1 + z * W * H + y * W + x;
+                if (levels.find(lvl_id) == levels.end()) continue;
+
+                pos.x = X_offset + scale * ((.5 + 1.5 * (1 + x)) * (button_texture.getSize().x / 4));
+                pos.y = Y_offset + scale * ((.5 + 1.5 * y) * (button_texture.getSize().y / 6));
+                levels[lvl_id].reshape(sf::Vector2f(scale, scale), pos);
+                font_size = __min(font_size, levels[lvl_id].get_font_size());
+            }
         }
     }
+
+    for (int y=0; y<H; y++) {
+        for (int x=0; x<W; x++) {
+            for (int z; z<nb_pages; z++) {
+                int lvl_id = 1 + z * W * H + y * W + x;
+                if (levels.find(lvl_id) == levels.end()) continue;
+                levels[lvl_id].set_font_size(font_size);
+            }
+        }
+    }
+
+    pos.y = Y_offset + scale * (1.5 * (button_texture.getSize().y / 6));
+    pos.x = X_offset + scale * (.5 * (button_texture.getSize().x / 4));
+    right.reshape(sf::Vector2f(scale, scale), pos);
+    pos.x = X_offset + scale * ((.5 + 1.5 * 5) * (button_texture.getSize().x / 4));
+    left.reshape(sf::Vector2f(scale, scale), pos);
+
+    pos.x = (ref_win_p->getSize().x - scale * exit_texture.getSize().x) / 2;
+    pos.y = Y_offset + scale * ((3 + 4 * .5) * (button_texture.getSize().y / 6) + .5 * (exit_texture.getSize().y / 3));
+    exit_.reshape(sf::Vector2f(scale, scale), pos);
+
+    ref_win_p->display();
+}
+
+bool LevelSelect::update()
+{
+    int W = 4, H = 3;
+    bool updated = false;
+
+    
+    for (int lvl_id : current_levels)
+        updated |= levels[lvl_id].update();
 
     updated |= right.update();
     updated |= left.update();
@@ -209,31 +265,24 @@ bool LevelGrid::update()
     return updated;
 }
 
-void LevelGrid::draw(sf::RenderWindow* win_p)
+void LevelSelect::draw()
 {
-    for (int y=0; y<H; y++)
-    {
-        for (int x=0; x<W; x++)
+    int W = 4, H = 3;
+    int lvl_W = button_texture.getSize().x / 4, lvl_H = button_texture.getSize().y / 6;
+
+    for (int lvl_id : current_levels) {
+        levels[lvl_id].draw();
+        
+        if (save_p->is_solved(lvl_id))
         {
-            int lvl_id = 1 + page * W * H + y * W + x;
+            int steps = save_p->get_steps(lvl_id);
+            std::string string = "steps : " + std::to_string(steps);
+            sf::Text step_disp(string, font.get_font(), font_size/3);
+            sf::FloatRect bounds = step_disp.getLocalBounds();
 
-            auto button = levels.find(lvl_id);
-
-            if (button == levels.end())
-                continue;   // The level is not in the list
-            
-            button->second.draw();
-            
-            if (save_p->is_solved(lvl_id))
-            {
-                int steps = save_p->get_steps(lvl_id);
-                sf::Rect<int> but_hb = button->second.hitbox;
-                std::string text = "steps : " + std::to_string(steps);
-                sf::Text step_disp(text, font.get_font(), 26);
-                sf::FloatRect bounds = step_disp.getLocalBounds();
-                step_disp.setPosition(but_hb.left + (but_hb.width - bounds.width)/2, but_hb.top + but_hb.height);
-                win_p->draw(step_disp);
-            }
+            sf::FloatRect but_hb = levels[lvl_id].get_hitbox();
+            step_disp.setPosition(but_hb.left + (but_hb.width - bounds.width)/2, but_hb.top + but_hb.height);
+            ref_win_p->draw(step_disp);
         }
     }
 
@@ -246,23 +295,13 @@ void LevelGrid::draw(sf::RenderWindow* win_p)
     exit_.draw();
 }
 
-int LevelGrid::clicked()
+int LevelSelect::clicked()
 {
-    for (int y=0; y<H; y++)
-    {
-        for (int x=0; x<W; x++)
+    for (int lvl_id : current_levels) {
+        
+        if (levels[lvl_id].clicked() && save_p->get_level_state(lvl_id))
         {
-            int lvl_id = 1 + page * W * H + y * W + x;
-
-            auto button = levels.find(lvl_id);
-
-            if (button == levels.end())
-                continue;   // The level is not in the list
-            
-            if (button->second.clicked() && save_p->is_playable(lvl_id))
-            {
-                return lvl_id;
-            }
+            return lvl_id;
         }
     }
 
@@ -270,12 +309,12 @@ int LevelGrid::clicked()
     {
         if (right.clicked())
         {
-            page = (page + 1) % nb_pages;
+            change_page((page + 1) % nb_pages);
             return -1;
         }
         if (left.clicked())
         {
-            page = (page + nb_pages - 1) % nb_pages;
+            change_page((page + nb_pages - 1) % nb_pages);
             return -1;
         }
     }
@@ -288,45 +327,33 @@ int LevelGrid::clicked()
     return 0;
 }
 
-void draw_levels(sf::RenderWindow* win_p, LevelGrid* lvl_g_p)
+int LevelSelect::run()
 {
-    win_p->clear(sf::Color(20, 30, 120));
-
-    lvl_g_p->draw(win_p);
-
-    win_p->display();
-}
-
-int level_select(sf::RenderWindow* win_p, Save* save_p, int level_id)
-{
-    std::cout << "level id : " << level_id << std::endl;
-    LevelGrid level_grid(win_p, save_p, level_id);
-
     // First draw
-    draw_levels(win_p, &level_grid);
+    draw();
 
-    while (win_p->isOpen())
+    while (ref_win_p->isOpen())
     {
         sf::Event evnt;
-        if (win_p->pollEvent(evnt))
+        if (ref_win_p->pollEvent(evnt))
         {
             if (evnt.type == sf::Event::Closed)
             {
-                win_p->close();
+                ref_win_p->close();
                 return 0;
             }
 
             else if (evnt.type == sf::Event::GainedFocus)
             {
-                draw_levels(win_p, &level_grid);
+                draw();
             }
             
             else if (evnt.type == sf::Event::Resized)
             {
                 sf::FloatRect view(0, 0, evnt.size.width, evnt.size.height);
-                win_p->setView(sf::View(view));
-                level_grid.reshape();
-                draw_levels(win_p, &level_grid);
+                ref_win_p->setView(sf::View(view));
+                reshape();
+                draw();
             }
 
             else if (evnt.type == sf::Event::KeyPressed)
@@ -338,27 +365,25 @@ int level_select(sf::RenderWindow* win_p, Save* save_p, int level_id)
             }
         }
 
-        int clicked = level_grid.clicked();
-
-        if (clicked > 0)
+        if (update())
         {
-            return clicked;
+            draw();
         }
-        else if (clicked == -2)
+
+        int clicked_val = clicked();
+
+        if (clicked_val > 0)
+        {
+            return clicked_val;
+        }
+        else if (clicked_val == -2)
         {
             return 0;
         }
-        else if (clicked == -1)
+        else if (clicked_val == -1)
         {
-            level_grid.reshape();
-            draw_levels(win_p, &level_grid);
+            draw();
         }
-
-        if (level_grid.update())
-        {
-            draw_levels(win_p, &level_grid);
-        }
-    
     }
 
     return 0;

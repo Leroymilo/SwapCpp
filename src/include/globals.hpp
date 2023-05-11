@@ -5,6 +5,9 @@
 
 #include <SFML/Graphics.hpp>
 
+#define __min(a,b) (((a) < (b)) ? (a) : (b))
+#define __max(a,b) (((a) > (b)) ? (a) : (b))
+
 // sf::Vector2i Comparator to use sf::Vector2i as a std::map key
 // Found here : https://stackoverflow.com/questions/56506121/sfvector2i-as-key-in-stdmap-shows-as-1-1-if-the-y-value-is-1-even-if-the
 struct VectorComparator
@@ -40,7 +43,7 @@ class FontWrapper
     public:
         FontWrapper();
         sf::Font &get_font();
-        sf::Text size_text(std::string text, sf::Vector2f box_shape);
+        int size_text(std::string, sf::Vector2f);
 };
 
 static FontWrapper font;
